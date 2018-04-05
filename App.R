@@ -65,7 +65,7 @@ server <- function(input, output) {
     )
   })
   observeEvent(input$submit1, {
-    showNotification("Application Successful!", duration=NULL, type="message")
+    showNotification("Application Successful!", duration=5, type="message")
   })
   
   output$courses <- renderTable(read.csv("courses.csv"))
