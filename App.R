@@ -2,6 +2,19 @@ library(shiny)
 
 ui <- fluidPage(
   
+  tags$head(
+    tags$style(
+      HTML(".shiny-notification {
+           position:fixed;
+           top: calc(90%);;
+           left: calc(3%);;
+           width: calc(20%);;
+           }
+           "
+      )
+    )
+  ),
+  
   titlePanel("Student View"), 
   
   fluidRow(
@@ -50,8 +63,11 @@ server <- function(input, output) {
     paste0(input$netid, "_", input$new_pin, ".csv")
     )
   })
-  output$courses <- renderTable(read.csv("courses.csv")
-  )
+  observeEvent(input$submit1, {
+    showNotification("Application Successful!", duration=NULL, type="message")
+  })
+  
+  output$courses <- renderTable(read.csv("courses.csv"))
   
 }
 
