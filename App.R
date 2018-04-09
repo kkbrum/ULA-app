@@ -50,7 +50,7 @@ ui <- fluidPage(
   )
 )
 
-server <- function(input, output) {
+server <- function(session, input, output) {
   
   observeEvent(input$submit1, {
     write.csv(as.data.frame(cbind("netid"=input$netid, 
