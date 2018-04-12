@@ -6,10 +6,17 @@ ui <- fluidPage(
     tags$style(
       HTML(".shiny-notification {
            position:fixed;
-           top: calc(30%);;
-           left: calc(50%);;
-           width: calc(20%);;
-           }
+           top: calc(30%);
+           left: calc(50%);
+           width: calc(20%);
+           }",
+           
+           "#loginbox {
+            background-color: #99ccff;
+            padding-left: 20px;
+            padding-bottom: 20px;
+            padding-top: 10px;
+            }
            "
       )
     )
@@ -17,36 +24,30 @@ ui <- fluidPage(
   
   titlePanel("Student View"), 
   
-  fluidRow(
-    column(width=7, 
-           mainPanel(width=12,
-                     tabsetPanel(type = "tabs",
-                                 tabPanel("My Info", 
-                                          textInput("netid", "NetID (New Users Only)", "", width="60%"),
-                                          textInput("new_pin", "Create a 4-digit pin for future login", "", width="60%"),
-                                          textInput("first_name", "First Name", "", width="60%"),
-                                          textInput("last_name", "Last Name", "", width="60%"),
-                                          selectInput("year", "Class Year", 
-                                                      c(2018, 2019, 2020, 2021), width="60%"),
-                                          textInput("major", "Major", "", width="60%"),
-                                          textAreaInput("why", 
-                                                        "Why do you want to serve as a ULA?", 
-                                                        "", width="60%", height="60%"),
-                                          actionButton("submit1", "Submit")
-                                 ),
-                                 tabPanel("Course Preferences",  tableOutput("courses")),
-                                 tabPanel("Summary", actionButton("submit", "Submit"))
-                     )
-           )
-    ),
-    
-    column(width=5, 
-           sidebarPanel(width=12,
-                        textInput("username", "Username", ""),
-                        textInput("pin", "4-digit Pin", ""),
-                        actionButton("login", "Log in")
-           )
-    )
+  mainPanel(width=12,
+            tabsetPanel(type = "tabs",
+                        tabPanel("My Info", 
+                                 textInput("netid", "NetID (New Users Only)", "", width="60%"),
+                                 textInput("new_pin", "Create a 4-digit pin for future login", "", width="60%"),
+                                 textInput("first_name", "First Name", "", width="60%"),
+                                 textInput("last_name", "Last Name", "", width="60%"),
+                                 selectInput("year", "Class Year", 
+                                             c(2018, 2019, 2020, 2021), width="60%"),
+                                 textInput("major", "Major", "", width="60%"),
+                                 textAreaInput("why", 
+                                               "Why do you want to serve as a ULA?", 
+                                               "", width="60%", height="60%"),
+                                 actionButton("submit1", "Submit")
+                        ),
+                        tabPanel("Course Preferences",  tableOutput("courses")),
+                        tabPanel("Summary", actionButton("submit", "Submit"))
+            )
+  ),
+  
+  absolutePanel(id="loginbox", top="15%", right="8%", width="20%", draggable=TRUE,
+                textInput("username", "Username", "", width="90%"),
+                textInput("pin", "4-digit Pin", "", width="90%"),
+                actionButton("login", "Log in")
   )
 )
 
