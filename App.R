@@ -12,11 +12,11 @@ ui <- fluidPage(
            }",
            
            "#loginbox {
-            background-color: #99ccff;
-            padding-left: 20px;
-            padding-bottom: 20px;
-            padding-top: 10px;
-            }
+           background-color: #99ccff;
+           padding-left: 20px;
+           padding-bottom: 20px;
+           padding-top: 10px;
+           }
            "
       )
     )
@@ -40,7 +40,7 @@ ui <- fluidPage(
                                  actionButton("submit1", "Submit")
                         ),
                         tabPanel("Course Preferences",  tableOutput("courses")),
-                        tabPanel("Summary", actionButton("submit", "Submit"))
+                        tabPanel("Summary", br(), htmlOutput("summarytext"), br(), actionButton("submit", "Submit"))
             )
   ),
   
@@ -52,27 +52,27 @@ ui <- fluidPage(
 )
 
 server <- function(session, input, output) {
-    
-    r <- reactive({
-      req(input$netid, !is.na(as.numeric(input$new_pin)), nchar(input$new_pin) == 4, 
-          input$first_name, input$last_name, input$year, input$major, input$why)
-    })
   
-    observeEvent(input$submit1, {
-      
-      r()
-      write.csv(as.data.frame(cbind("netid"=input$netid, 
-                                    "new_pin"=input$new_pin, 
-                                    "first_name"=input$first_name, 
-                                    "last_name"=input$last_name,
-                                    "year"=input$year, 
-                                    "major"=input$major, 
-                                    "why"=input$why)), 
-                paste0(input$netid, "_", input$new_pin, ".csv"))
-      showNotification("Application Successful!", duration=5, type="message")
-      
-    })
-
+  r <- reactive({
+    req(input$netid, !is.na(as.numeric(input$new_pin)), nchar(input$new_pin) == 4, 
+        input$first_name, input$last_name, input$year, input$major, input$why)
+  })
+  
+  observeEvent(input$submit1, {
+    
+    r()
+    write.csv(as.data.frame(cbind("netid"=input$netid, 
+                                  "new_pin"=input$new_pin, 
+                                  "first_name"=input$first_name, 
+                                  "last_name"=input$last_name,
+                                  "year"=input$year, 
+                                  "major"=input$major, 
+                                  "why"=input$why)), 
+              paste0(input$netid, "_", input$new_pin, ".csv"))
+    showNotification("Application Successful!", duration=5, type="message")
+    
+  })
+  
   output$courses <- renderTable(read.csv("courses.csv"))
   
   observeEvent(input$login, {
@@ -86,6 +86,33 @@ server <- function(session, input, output) {
       updateTextInput(session, 'major', value = mydata$major)
       updateTextAreaInput(session, 'why', value = mydata$why)
     }, error= function(e) {showNotification('User and pin not found', duration=5, type="error")})
+  })
+  
+  output$summarytext <- renderUI({
+    
+    
+    condition1 <- c(input$netid == "", input$new_pin == "", input$first_name == "",
+                    input$last_name == "", input$year == "", input$major == "",
+                    input$why == "")
+    
+    if(all(condition1)) { #All entries are blank
+      expr = HTML("You haven't selected anything yet, silly!") 
+      
+    } else if(!any(condition1)) { #No entries are blank
+      expr = HTML("Super duper! You've filled in all of the fields. You are ready to submit!") 
+      
+    } else {
+      text <- character(7)
+      text[1] <- paste("You have input your netid as", input$netid)
+      text[2] <- "You have input a pin"
+      text[3] <- paste("You have entered your first name as", input$first_name)
+      text[4] <- paste("You have entered your last name as", input$last_name)
+      text[5] <- paste("You have input your class year as", input$year)
+      text[6] <- paste("You have input your major as", input$major)
+      text[7] <- paste("You have input why you want to be a ULA")
+      expr = HTML(paste(text[which(c(input$netid, input$new_pin, input$first_name, input$last_name, 
+                                     input$year, input$major, input$why) != "")], collapse = "<br/>"))
+    }
   })
 }
 
