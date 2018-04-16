@@ -52,23 +52,27 @@ ui <- fluidPage(
 )
 
 server <- function(session, input, output) {
+    
+    r <- reactive({
+      req(input$netid, !is.na(as.numeric(input$new_pin)), nchar(input$new_pin) == 4, 
+          input$first_name, input$last_name, input$year, input$major, input$why)
+    })
   
-  observeEvent(input$submit1, {
-    write.csv(as.data.frame(cbind("netid"=input$netid, 
-                                  "new_pin"=input$new_pin, 
-                                  "first_name"=input$first_name, 
-                                  "last_name"=input$last_name,
-                                  "year"=input$year, 
-                                  "major"=input$major, 
-                                  "why"=input$why)
-    ), 
-    paste0(input$netid, "_", input$new_pin, ".csv")
-    )
-  })
-  observeEvent(input$submit1, {
-    showNotification("Application Successful!", duration=5, type="message")
-  })
-  
+    observeEvent(input$submit1, {
+      
+      r()
+      write.csv(as.data.frame(cbind("netid"=input$netid, 
+                                    "new_pin"=input$new_pin, 
+                                    "first_name"=input$first_name, 
+                                    "last_name"=input$last_name,
+                                    "year"=input$year, 
+                                    "major"=input$major, 
+                                    "why"=input$why)), 
+                paste0(input$netid, "_", input$new_pin, ".csv"))
+      showNotification("Application Successful!", duration=5, type="message")
+      
+    })
+
   output$courses <- renderTable(read.csv("courses.csv"))
   
   observeEvent(input$login, {
@@ -85,6 +89,4 @@ server <- function(session, input, output) {
   })
 }
 
-
 shinyApp(ui, server)
-
