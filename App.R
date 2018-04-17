@@ -1,7 +1,7 @@
 library(shiny)
 #install.packages(DT)
 library(DT)
-library(rhandsontable)
+
 
 courses <- read.csv("courses.csv", as.is = TRUE)
 courses <- courses[,-1]
@@ -94,45 +94,72 @@ server <- function(session, input, output) {
       this[i] <- grep(input$choices[i], courses[,1], fixed=TRUE)
     }
     temp_df <- courses[this,1]
-    temp_df <- cbind(temp_df, rep(0, length(this)), rep(0, length(this)))
-    colnames(temp_df) <- c("courses_selected", "taken", "rank")
+#    temp_df <- cbind(temp_df, rep(0, length(this)), rep(0, length(this)))
+#    colnames(temp_df) <- c("courses_selected", "taken", "rank")
     write.csv(temp_df, paste0("temp_", input$netid, ".csv"), row.names = FALSE)
     
     DF <- read.csv(paste0("temp_", input$netid, ".csv"), as.is=TRUE)
     
     output$testDT <- DT::renderDataTable({
       DF
-      DF[,"numericinput"] <- ""
-      
+      DF[,"Taken"] <- ""
       sapply(1:nrow(DF), FUN = function(i) {
-        DF$numericinput[i] <<- as.character(numericInput(paste0("num", i), "", 
-                                                         value = 5, min = 0, max = 10, step = 0.01))
+        DF$Taken[i] <<- as.character(selectizeInput(paste0("taken",i), "",
+                                                    choices = c("Y", "N"), 
+                                                    selected = NULL,
+                                                    multiple = FALSE))
       })
       
-      datatable(DF, escape = 4)
+      # If input$takeni == "Y", then have student fill in WhenTaken, Professor, Grade columns
+      # If input$takeni == "N", have student fill in why they are suitable for this course
+      
+      DF[,"WhenTaken"] <- ""
+      sapply(1:nrow(DF), FUN = function(i) {
+        DF$WhenTaken[i] <<- as.character(numericInput(paste0("whentaken",i), "",
+                                                      value=NA, min = 2010,
+                                                      max=as.integer(format(Sys.Date(), "%Y")),
+                                                      step = 1))
+      })
+      
+      DF[,"Professor"] <- ""
+      sapply(1:nrow(DF), FUN=function(i) {
+        DF$Professor[i] <<- as.character(textInput(paste0("prof",i), ""))
+      })
+      
+      DF[,"Grade"] <- ""
+      sapply(1:nrow(DF), FUN = function(i) {
+        DF$Grade[i] <<- as.character(selectizeInput(paste0("grade",i), "",
+                                                  choices = c("A", "B", "C", "D", "F"), 
+                                                  multiple = FALSE))
+      })
+      
+      DF[,"Suitable"] <- ""
+      sapply(1:nrow(DF), FUN=function(i) {
+        DF$Suitable[i] <<- as.character(textInput(paste0("suitable",i), ""))
+      })
+      
+      
+      # Always have Rank as a Column
+      DF[,"Rank"] <- ""
+      sapply(1:nrow(DF), FUN = function(i) {
+        DF$Rank[i] <<- as.character(numericInput(paste0("num",i), "",
+                                                 value = NA, min = 1, 
+                                                 max = nrow(DF), step = 1))
+      })
+      
+      datatable(DF, colnames = c("Course Tilte", "Have you taken this course? (Y/N)",
+                                 "What year did you take this course?",
+                                 "Who was your professor?",
+                                 "What was your grade in this course?",
+                                 "Why are you suitable for this course?",
+                                 "Rank your preference of ULAing this course"),
+                filter = "none", selection = "none", escape = 2)
+      
+      
     
     })
     
-#    values <- reactiveValues()
-    
-    ## Handsontable
-#    observe({
-#      if (!is.null(input$hot)) {
-#        DF = hot_to_r(input$hot)
-#      } else {
-#        if (is.null(values[["DF"]]))
-#          DF <- DF
-#        else
-#          DF <- values[["DF"]]
-#      }
-#      values[["DF"]] <- DF
-#    })
-    
-    output$hot <- renderRHandsontable({
-      DF <- values[["DF"]]
-      if (!is.null(DF))
-        rhandsontable(DF, useTypes = as.logical(input$useType), stretchH = "all")
-    })
+
     
 #    output$omg <- renderTable(DF)
   
