@@ -88,6 +88,7 @@ ui <- fluidPage(
 server <- function(session, input, output) {
   
   # My Info tab
+  
   observeEvent(input$login, {
     tryCatch({
       mydata <- read.csv(paste0(input$username, "_", input$pin, ".csv"), header=TRUE)
@@ -190,10 +191,6 @@ server <- function(session, input, output) {
     showNotification("Application Successful!", duration=5, type="message")
     
   })
-  
-
-  
-
 
 }
 
