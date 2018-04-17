@@ -1,4 +1,5 @@
 library(shiny)
+#install.packages(DT)
 library(DT)
 
 courses <- read.csv("courses.csv", as.is = TRUE)
@@ -47,32 +48,32 @@ ui <- fluidPage(
                         ),
                         tabPanel("Course Preferences", 
                                  
-                        br(),
-                        tableOutput("t_course"),
-                          
-                        hr(),
-    
-                        fluidRow(
-                          selectizeInput(
+                                 br(),
+                                 tableOutput("t_course"),
+                                 
+                                 hr(),
+                                 
+                                 fluidRow(
+                                   selectizeInput(
                                      inputId = "choices",
                                      label = "Choose your courses",
                                      choices = courses[,1],
                                      multiple = TRUE
                                    ),
-                          
-                          br(),
-                          actionButton("select", "Select"),
-                          hr(),
-                          textOutput("length"),
-                          br(),
-                          conditionalPanel(condition = "output.nw > 1",
-                                           numericInput(
-                                             inputId = "camern",
-                                             label = "camsadaf",
-                                             value = 1
-                                           ))
-                        )
-    
+                                   
+                                   br(),
+                                   actionButton("select", "Select"),
+                                   hr(),
+                                   textOutput("length"),
+                                   br(),
+                                   conditionalPanel(condition = "output.numSelected > 1",
+                                                    numericInput(
+                                                      inputId = "courseSelect",
+                                                      label = "courseSelect",
+                                                      value = 1
+                                                    ))
+                                 )
+                                 
                         ),
                         tabPanel("Summary", br(), htmlOutput("summarytext"), br(), actionButton("submit", "Submit"))
             )
@@ -87,14 +88,14 @@ ui <- fluidPage(
 
 server <- function(session, input, output) {
   
-  lgt <- eventReactive(input$select, 
+  maxRank <- eventReactive(input$select, 
                        {
                          length(input$choices)
                        })
   
-  output.nw <- reactive({length(input$choices)})
-
-  cam <- eventReactive(input$select, {
+  output.numSelected <- reactive({length(input$choices)})
+  
+  selectedNames <- eventReactive(input$select, {
     this <- rep(NA, length(input$choices))
     for (i in 1:length(input$choices)){
       this[i] <- grep(input$choices[i], courses[,1], fixed=TRUE)
@@ -103,12 +104,12 @@ server <- function(session, input, output) {
   })
   
   output$css <- renderText({
-    courses[cam(), ]
+    courses[selectedNames(), ]
   })
   
   output$length <- renderText({
     paste0("Please rank your courses from 1 (first preference) to ",
-           lgt(), " (lowest preference).")
+           maxRank(), " (lowest preference).")
   })
   
   r <- reactive({
@@ -161,9 +162,6 @@ server <- function(session, input, output) {
     if(all(condition1)) { #All entries are blank
       expr = HTML("You haven't selected anything yet, silly!") 
       
-    } else if(!any(condition1)) { #No entries are blank
-      expr = HTML("Super duper! You've filled in all of the fields. You are ready to submit!") 
-      
     } else {
       text <- character(7)
       text[1] <- paste("You have input your netid as", input$netid)
@@ -173,11 +171,15 @@ server <- function(session, input, output) {
       text[5] <- paste("You have input your class year as", input$year)
       text[6] <- paste("You have input your major as", input$major)
       text[7] <- paste("You have input why you want to be a ULA")
+      text[8] <- ""
+      if(!any(condition1)) { #No entries are blank
+        text[8] = "Super duper! You've filled in all of the fields. You are ready to submit!" 
+      }
       expr = HTML(paste(text[which(c(input$netid, input$new_pin, input$first_name, input$last_name, 
-                                     input$year, input$major, input$why) != "")], collapse = "<br/>"))
+                                     input$year, input$major, input$why, text[8]) != "")], collapse = "<br/>"))
     }
     
-    outputOptions(output, "nw", suspendWhenHidden = TRUE)
+    #outputOptions(output, "numSelected", suspendWhenHidden = TRUE)
     
   })
 }
