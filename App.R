@@ -1,6 +1,7 @@
 library(shiny)
 #install.packages(DT)
 library(DT)
+library(rhandsontable)
 
 courses <- read.csv("courses.csv", as.is = TRUE)
 courses <- courses[,-1]
@@ -64,7 +65,11 @@ ui <- fluidPage(
                                    actionButton("select", "Select"),
                                    hr(),
                                    textOutput("length"),
-                                   br()
+                                   br(),
+                                   DT::dataTableOutput("testDT")
+                                   
+                                   # tableOutput("omg")
+                                   # rHandsontableOutput("hot")
                                  )
                                  
                         ),
@@ -92,12 +97,50 @@ server <- function(session, input, output) {
     temp_df <- cbind(temp_df, rep(0, length(this)), rep(0, length(this)))
     colnames(temp_df) <- c("courses_selected", "taken", "rank")
     write.csv(temp_df, paste0("temp_", input$netid, ".csv"), row.names = FALSE)
+    
+    DF <- read.csv(paste0("temp_", input$netid, ".csv"), as.is=TRUE)
+    
+    output$testDT <- DT::renderDataTable({
+      DF
+      DF[,"numericinput"] <- ""
+      
+      sapply(1:nrow(DF), FUN = function(i) {
+        DF$numericinput[i] <<- as.character(numericInput(paste0("num", i), "", 
+                                                         value = 5, min = 0, max = 10, step = 0.01))
+      })
+      
+      datatable(DF, escape = 4)
+    
+    })
+    
+#    values <- reactiveValues()
+    
+    ## Handsontable
+#    observe({
+#      if (!is.null(input$hot)) {
+#        DF = hot_to_r(input$hot)
+#      } else {
+#        if (is.null(values[["DF"]]))
+#          DF <- DF
+#        else
+#          DF <- values[["DF"]]
+#      }
+#      values[["DF"]] <- DF
+#    })
+    
+    output$hot <- renderRHandsontable({
+      DF <- values[["DF"]]
+      if (!is.null(DF))
+        rhandsontable(DF, useTypes = as.logical(input$useType), stretchH = "all")
+    })
+    
+#    output$omg <- renderTable(DF)
+  
   })
   
-  output$css <- renderTable({
-    
-    read.csv(paste0("temp_", input$netid, ".csv"), as.is = TRUE)
-  })
+
+  
+
   
   # output$length <- renderText({
   #   paste0("Please rank your courses from 1 (first preference) to ",
