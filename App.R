@@ -39,7 +39,7 @@ ui <- fluidPage(
                                  textInput("first_name", "First Name", "", width="60%"),
                                  textInput("last_name", "Last Name", "", width="60%"),
                                  selectInput("year", "Class Year", 
-                                             c(2018, 2019, 2020, 2021), width="60%"),
+                                             c("Select a year", 2018, 2019, 2020, 2021), width="60%"),
                                  textInput("major", "Major", "", width="60%"),
                                  textAreaInput("why", 
                                                "Why do you want to serve as a ULA?", 
@@ -87,6 +87,31 @@ ui <- fluidPage(
 
 server <- function(session, input, output) {
   
+  # My Info tab
+  observeEvent(input$login, {
+    tryCatch({
+      mydata <- read.csv(paste0(input$username, "_", input$pin, ".csv"), header=TRUE)
+      updateTextInput(session, 'netid', value = mydata$netid)
+      updateTextInput(session, 'new_pin', value = mydata$new_pin)
+      updateTextInput(session, 'first_name', value = mydata$first_name)
+      updateTextInput(session, 'last_name', value = mydata$last_name)
+      updateSelectInput(session, 'year', selected = mydata$year)
+      updateTextInput(session, 'major', value = mydata$major)
+      updateTextAreaInput(session, 'why', value = mydata$why)
+    }, error= function(e) {showNotification('User and pin not found', duration=5, type="error")})
+  })
+  
+  # Courses tab
+  
+  # Display course information
+  output$t_course <- renderTable({
+    courses <- read.csv("courses.csv", as.is = TRUE)
+    courses <- courses[,-1]
+    colnames(courses) <- c("Course Code", "Day", "Meeting Time", "Professor")
+    return(courses)
+  })
+  
+  # Student ranking
   maxRank <- eventReactive(input$select, 
                        {
                          length(input$choices)
@@ -111,51 +136,19 @@ server <- function(session, input, output) {
            maxRank(), " (lowest preference).")
   })
   
+  # Summary tab
+  
+  # Error checking
   r <- reactive({
     req(input$netid, !is.na(as.numeric(input$new_pin)), nchar(input$new_pin) == 4, 
-        input$first_name, input$last_name, input$year, input$major, input$why)
+        input$first_name, input$last_name, input$year != "Select a year", input$major, input$why)
   })
   
-  observeEvent(input$submit, {
-    
-    r()
-    write.csv(as.data.frame(cbind("netid"=input$netid, 
-                                  "new_pin"=input$new_pin, 
-                                  "first_name"=input$first_name, 
-                                  "last_name"=input$last_name,
-                                  "year"=input$year, 
-                                  "major"=input$major, 
-                                  "why"=input$why)), 
-              paste0(input$netid, "_", input$new_pin, ".csv"))
-    showNotification("Application Successful!", duration=5, type="message")
-    
-  })
-  
-  output$t_course <- renderTable({
-    courses <- read.csv("courses.csv", as.is = TRUE)
-    courses <- courses[,-1]
-    colnames(courses) <- c("Course Code", "Day", "Meeting Time", "Professor")
-    return(courses)
-  })
-  
-  observeEvent(input$login, {
-    tryCatch({
-      mydata <- read.csv(paste0(input$username, "_", input$pin, ".csv"), header=TRUE)
-      updateTextInput(session, 'netid', value = mydata$netid)
-      updateTextInput(session, 'new_pin', value = mydata$new_pin)
-      updateTextInput(session, 'first_name', value = mydata$first_name)
-      updateTextInput(session, 'last_name', value = mydata$last_name)
-      updateSelectInput(session, 'year', selected = mydata$year)
-      updateTextInput(session, 'major', value = mydata$major)
-      updateTextAreaInput(session, 'why', value = mydata$why)
-    }, error= function(e) {showNotification('User and pin not found', duration=5, type="error")})
-  })
-  
+  # Display information inputs
   output$summarytext <- renderUI({
     
-    
     condition1 <- c(input$netid == "", input$new_pin == "", input$first_name == "",
-                    input$last_name == "", input$year == "", input$major == "",
+                    input$last_name == "", input$year == "Select a year", input$major == "",
                     input$why == "")
     
     if(all(condition1)) { #All entries are blank
@@ -181,6 +174,27 @@ server <- function(session, input, output) {
     #outputOptions(output, "numSelected", suspendWhenHidden = TRUE)
     
   })
+  
+  # Write file upon application completion
+  observeEvent(input$submit, {
+    
+    r()
+    write.csv(as.data.frame(cbind("netid"=input$netid, 
+                                  "new_pin"=input$new_pin, 
+                                  "first_name"=input$first_name, 
+                                  "last_name"=input$last_name,
+                                  "year"=input$year, 
+                                  "major"=input$major, 
+                                  "why"=input$why)), 
+              paste0(input$netid, "_", input$new_pin, ".csv"))
+    showNotification("Application Successful!", duration=5, type="message")
+    
+  })
+  
+
+  
+
+
 }
 
 shinyApp(ui, server)
