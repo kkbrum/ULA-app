@@ -1,4 +1,9 @@
 library(shiny)
+library(DT)
+
+courses <- read.csv("courses.csv", as.is = TRUE)
+courses <- courses[,-1]
+colnames(courses) <- c("Course Code", "Day", "Meeting Time", "Professor")
 
 ui <- fluidPage(
   
@@ -27,6 +32,7 @@ ui <- fluidPage(
   mainPanel(width=12,
             tabsetPanel(type = "tabs",
                         tabPanel("My Info", 
+                                 br(),
                                  textInput("netid", "NetID (New Users Only)", "", width="60%"),
                                  textInput("new_pin", "Create a 4-digit pin for future login", "", width="60%"),
                                  textInput("first_name", "First Name", "", width="60%"),
@@ -39,7 +45,35 @@ ui <- fluidPage(
                                                "", width="60%", height="60%"),
                                  actionButton("submit1", "Submit")
                         ),
-                        tabPanel("Course Preferences",  tableOutput("courses")),
+                        tabPanel("Course Preferences", 
+                                 
+                        br(),
+                        tableOutput("t_course"),
+                          
+                        hr(),
+    
+                        fluidRow(
+                          selectizeInput(
+                                     inputId = "choices",
+                                     label = "Choose your courses",
+                                     choices = courses[,1],
+                                     multiple = TRUE
+                                   ),
+                          
+                          br(),
+                          actionButton("select", "Select"),
+                          hr(),
+                          textOutput("length"),
+                          br(),
+                          conditionalPanel(condition = "output.nw > 1",
+                                           numericInput(
+                                             inputId = "camern",
+                                             label = "camsadaf",
+                                             value = 1
+                                           ))
+                        )
+    
+                        ),
                         tabPanel("Summary", br(), htmlOutput("summarytext"), br(), actionButton("submit", "Submit"))
             )
   ),
@@ -52,6 +86,30 @@ ui <- fluidPage(
 )
 
 server <- function(session, input, output) {
+  
+  lgt <- eventReactive(input$select, 
+                       {
+                         length(input$choices)
+                       })
+  
+  output.nw <- reactive({length(input$choices)})
+
+  cam <- eventReactive(input$select, {
+    this <- rep(NA, length(input$choices))
+    for (i in 1:length(input$choices)){
+      this[i] <- grep(input$choices[i], courses[,1], fixed=TRUE)
+    }
+    return(this)
+  })
+  
+  output$css <- renderText({
+    courses[cam(), ]
+  })
+  
+  output$length <- renderText({
+    paste0("Please rank your courses from 1 (first preference) to ",
+           lgt(), " (lowest preference).")
+  })
   
   r <- reactive({
     req(input$netid, !is.na(as.numeric(input$new_pin)), nchar(input$new_pin) == 4, 
@@ -73,7 +131,12 @@ server <- function(session, input, output) {
     
   })
   
-  output$courses <- renderTable(read.csv("courses.csv"))
+  output$t_course <- renderTable({
+    courses <- read.csv("courses.csv", as.is = TRUE)
+    courses <- courses[,-1]
+    colnames(courses) <- c("Course Code", "Day", "Meeting Time", "Professor")
+    return(courses)
+  })
   
   observeEvent(input$login, {
     tryCatch({
@@ -113,6 +176,9 @@ server <- function(session, input, output) {
       expr = HTML(paste(text[which(c(input$netid, input$new_pin, input$first_name, input$last_name, 
                                      input$year, input$major, input$why) != "")], collapse = "<br/>"))
     }
+    
+    outputOptions(output, "nw", suspendWhenHidden = TRUE)
+    
   })
 }
 
