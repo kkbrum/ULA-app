@@ -43,8 +43,7 @@ ui <- fluidPage(
                                  textInput("major", "Major", "", width="60%"),
                                  textAreaInput("why", 
                                                "Why do you want to serve as a ULA?", 
-                                               "", width="60%", height="60%"),
-                                 actionButton("submit1", "Submit")
+                                               "", width="60%", height="60%")
                         ),
                         tabPanel("Course Preferences", 
                                  
@@ -117,7 +116,7 @@ server <- function(session, input, output) {
         input$first_name, input$last_name, input$year, input$major, input$why)
   })
   
-  observeEvent(input$submit1, {
+  observeEvent(input$submit, {
     
     r()
     write.csv(as.data.frame(cbind("netid"=input$netid, 
