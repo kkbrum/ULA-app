@@ -1,5 +1,7 @@
 library(shiny)
 
+
+
 ui <- fluidPage(
   
   tags$head(
@@ -44,11 +46,30 @@ server <- function(session, input, output) {
     professor <- mydata$Prof[mydata$User==input$username & mydata$Pin==input$pin]
     courses <- read.csv("courses.csv", as.is=TRUE)
     prof_courses <- courses$course[courses$prof==professor]
+    
+    students <- read.csv("students.csv", header=FALSE, as.is=TRUE)
+    studentmat <- matrix(0, ncol=length(students$V1), nrow=length(prof_courses), dimnames=list(prof_courses, students$V1))
+    for (i in 1:length(students$V1)){
+      temp <- read.csv(paste0(students$V1[i], ".csv"), as.is=TRUE)
+      for (j in 1:length(temp$Course)) {
+        studentmat[row.names(studentmat)==temp$Course[j], i] <- 1
+      }
+    }
+    
     if (length(prof_courses)>0) {
       output$tabs1 <- renderUI({
         tabs <- list(NULL)
+        currentStudents <- vector("list", length(prof_courses))
         for (i in 1:length(prof_courses)) {
-          tabs[[i]] <- tabPanel(prof_courses[i])
+          for (j in 1:length(students$V1)){
+            temp <- read.csv(paste0(students$V1[j], ".csv"), as.is=TRUE)
+            if (prof_courses[i] %in% temp$Course) {
+              currentStudents[[i]] <- c(currentStudents[[i]], students$V1[j])
+            }
+          }
+          tabs[[i]] <- tabPanel(prof_courses[i], renderPrint(currentStudents[[i]])
+                                
+          )
         }
         tabs[[length(prof_courses)+1]] <- tabPanel("Summary") 
         
@@ -65,6 +86,9 @@ server <- function(session, input, output) {
       showNotification("No courses found for this professor", duration=5, type="error")
     }
   })
+  
+  
+  
   
 }
 
