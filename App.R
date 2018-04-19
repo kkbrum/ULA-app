@@ -190,11 +190,6 @@ server <- function(session, input, output) {
     showNotification("Application Successful!", duration=5, type="message")
     
   })
-  
-
-  
-
-
 }
 
 shinyApp(ui, server)
