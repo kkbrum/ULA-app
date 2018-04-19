@@ -44,16 +44,26 @@ server <- function(session, input, output) {
     professor <- mydata$Prof[mydata$User==input$username & mydata$Pin==input$pin]
     courses <- read.csv("courses.csv", as.is=TRUE)
     prof_courses <- courses$course[courses$prof==professor]
-    output$tabs1 <- renderUI({
-      tabs <- list(NULL)
-      if (!is.null(prof_courses)) {
+    if (length(prof_courses)>0) {
+      output$tabs1 <- renderUI({
+        tabs <- list(NULL)
         for (i in 1:length(prof_courses)) {
           tabs[[i]] <- tabPanel(prof_courses[i])
         }
         tabs[[length(prof_courses)+1]] <- tabPanel("Summary") 
-      }
-      do.call(tabsetPanel, tabs)
-    })
+        
+        do.call(tabsetPanel, tabs)
+      })
+    }
+    if (!input$username %in% mydata$User) {
+      showNotification("User not found", duration=5, type="error")
+    }
+    else if (!input$pin %in% mydata$Pin) {
+      showNotification("Incorrect pin", duration=5, type="error")
+    }
+    else if (length(prof_courses)==0) {
+      showNotification("No courses found for this professor", duration=5, type="error")
+    }
   })
   
 }
