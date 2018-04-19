@@ -191,10 +191,6 @@ server <- function(session, input, output) {
     showNotification("Application Successful!", duration=5, type="message")
     
   })
-<<<<<<< HEAD
-=======
-
->>>>>>> 70a9b80c69b069375d2f09939db8fc5ec7c3f7d2
 }
 
 shinyApp(ui, server)
