@@ -151,24 +151,24 @@ server <- function(session, input, output) {
     text <- character(6)
     
     ifelse(input$netid == "", 
-           text[1] <- "Please input your NetID",
-           text[1] <- paste0("You have entered your NetID as: ", input$netid))
+           text[1] <- "<font color='red'>Please input your NetID</font>",
+           text[1] <- paste0("<strong>You have entered your NetID as: </strong>", input$netid))
     ifelse(input$new_pin == "" | nchar(input$new_pin) != 4 | is.na(as.numeric(input$new_pin)),
-           text[2] <- "Please create a 4-digit pin",
-           text[2] <- "You have entered a pin")
+           text[2] <- "<font color='red'>Please create a 4-digit pin</font>",
+           text[2] <- "<strong>You have entered a pin</strong>")
     ifelse(input$first_name == "" | input$last_name == "",
-           text[3] <- "Please enter your full name",
-           text[3] <- paste0("You have entered your name as: ", 
+           text[3] <- "<font color='red'>Please enter your full name</font>",
+           text[3] <- paste0("<strong>You have entered your name as: </strong>", 
                              input$first_name, " ", input$last_name))
     ifelse(input$year == "Select a year",
-           text[4] <- "Please select a class year",
-           text[4] <- paste0("You have entered your class year as: ", input$year))
+           text[4] <- "<font color='red'>Please select a class year</font>",
+           text[4] <- paste0("<strong>You have entered your class year as: </strong>", input$year))
     ifelse(input$major == "", 
-           text[5] <- "Please enter your major(s)",
-           text[5] <- paste0("You have entered your major(s) as: ", input$major))
+           text[5] <- "<font color='red'>Please enter your major(s)</font>",
+           text[5] <- paste0("<strong>You have entered your major(s) as: </strong>", input$major))
     ifelse(input$why == "", 
-           text[6] <- "Please explain why you would like to serve as a ULA", 
-           text[6] <- paste0("You have entered your reason for applying as: ", input$why))       
+           text[6] <- "<font color='red'>Please explain why you would like to serve as a ULA</font>", 
+           text[6] <- paste0("<strong>You have entered your reason for applying as: </strong>", input$why))       
     
     expr = HTML(paste(text, collapse="<br/>"))
     
