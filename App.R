@@ -114,9 +114,9 @@ server <- function(session, input, output) {
   
   # Student ranking
   maxRank <- eventReactive(input$select, 
-                       {
-                         length(input$choices)
-                       })
+                           {
+                             length(input$choices)
+                           })
   
   output.numSelected <- reactive({length(input$choices)})
   
@@ -141,38 +141,36 @@ server <- function(session, input, output) {
   
   # Error checking
   r <- reactive({
-    req(input$netid, !is.na(as.numeric(input$new_pin)), nchar(input$new_pin) == 4, 
+    req(input$netid, input$new_pin, !is.na(as.numeric(input$new_pin)), nchar(input$new_pin) == 4, 
         input$first_name, input$last_name, input$year != "Select a year", input$major, input$why)
   })
   
   # Display information inputs
   output$summarytext <- renderUI({
     
-    condition1 <- c(input$netid == "", input$new_pin == "", input$first_name == "",
-                    input$last_name == "", input$year == "Select a year", input$major == "",
-                    input$why == "")
+    text <- character(6)
     
-    if(all(condition1)) { #All entries are blank
-      expr = HTML("You haven't selected anything yet, silly!") 
-      
-    } else {
-      text <- character(7)
-      text[1] <- paste("You have input your netid as", input$netid)
-      text[2] <- "You have input a pin"
-      text[3] <- paste("You have entered your first name as", input$first_name)
-      text[4] <- paste("You have entered your last name as", input$last_name)
-      text[5] <- paste("You have input your class year as", input$year)
-      text[6] <- paste("You have input your major as", input$major)
-      text[7] <- paste("You have input why you want to be a ULA")
-      text[8] <- ""
-      if(!any(condition1)) { #No entries are blank
-        text[8] = "Super duper! You've filled in all of the fields. You are ready to submit!" 
-      }
-      expr = HTML(paste(text[which(c(input$netid, input$new_pin, input$first_name, input$last_name, 
-                                     input$year, input$major, input$why, text[8]) != "")], collapse = "<br/>"))
-    }
+    ifelse(input$netid == "", 
+           text[1] <- "Please input your NetID",
+           text[1] <- paste0("You have entered your NetID as: ", input$netid))
+    ifelse(input$new_pin == "" | nchar(input$new_pin) != 4 | is.na(as.numeric(input$new_pin)),
+           text[2] <- "Please create a 4-digit pin",
+           text[2] <- "You have entered a pin")
+    ifelse(input$first_name == "" | input$last_name == "",
+           text[3] <- "Please enter your full name",
+           text[3] <- paste0("You have entered your name as: ", 
+                             input$first_name, " ", input$last_name))
+    ifelse(input$year == "Select a year",
+           text[4] <- "Please select a class year",
+           text[4] <- paste0("You have entered your class year as: ", input$year))
+    ifelse(input$major == "", 
+           text[5] <- "Please enter your major(s)",
+           text[5] <- paste0("You have entered your major(s) as: ", input$major))
+    ifelse(input$why == "", 
+           text[6] <- "Please explain why you would like to serve as a ULA", 
+           text[6] <- paste0("You have entered your reason for applying as: ", input$why))       
     
-    #outputOptions(output, "numSelected", suspendWhenHidden = TRUE)
+    expr = HTML(paste(text, collapse="<br/>"))
     
   })
   
