@@ -7,6 +7,24 @@ courses <- read.csv("courses.csv", as.is = TRUE)
 courses <- courses[,-1]
 colnames(courses) <- c("Course Code", "Day", "Meeting Time", "Professor")
 
+
+saveData <- function(data) {
+  data <- as.data.frame(t(data))
+  if (exists("responses")) {
+    responses <<- rbind(responses, data)
+  } else {
+    responses <<- data
+  }
+}
+
+loadData <- function() {
+  if (exists("responses")) {
+    responses
+  }
+}
+
+fields <- c("course", "taken", "whentaken", "prof", "grade", "suit", "rank")
+
 ui <- fluidPage(
   
   tags$head(
@@ -66,7 +84,15 @@ ui <- fluidPage(
                                    hr(),
                                    textOutput("length"),
                                    br(),
-                                   DT::dataTableOutput("testDT")
+                                   DT::dataTableOutput("testDT"),
+                                   br(),
+                                   actionButton("submit.table", "Submit"),
+                                   
+                                   
+                                   # DT::dataTableOutput("responses")
+                                   
+                                   
+                                   tableOutput("DFtest1")
                                    
                                    # tableOutput("omg")
                                    # rHandsontableOutput("hot")
@@ -101,11 +127,11 @@ server <- function(session, input, output) {
     DF <- read.csv(paste0("temp_", input$netid, ".csv"), as.is=TRUE)
     
     output$testDT <- DT::renderDataTable({
-      DF
-      DF[,"Taken"] <- ""
+      #DF
+      DF[,"Taken"] <<- ""
       sapply(1:nrow(DF), FUN = function(i) {
         DF$Taken[i] <<- as.character(selectizeInput(paste0("taken",i), "",
-                                                    choices = c("Y", "N"), 
+                                                    choices = c("", "Y", "N"), 
                                                     selected = NULL,
                                                     multiple = FALSE))
       })
@@ -129,7 +155,7 @@ server <- function(session, input, output) {
       DF[,"Grade"] <- ""
       sapply(1:nrow(DF), FUN = function(i) {
         DF$Grade[i] <<- as.character(selectizeInput(paste0("grade",i), "",
-                                                  choices = c("A", "B", "C", "D", "F"), 
+                                                  choices = c("", "A", "B", "C", "D", "F"), 
                                                   multiple = FALSE))
       })
       
@@ -155,19 +181,35 @@ server <- function(session, input, output) {
                                  "Rank your preference of ULAing this course"),
                 filter = "none", selection = "none", escape = 2)
       
-      
     
     })
     
-
+    observeEvent(input$submit.table, {
+      output$DFtest1 <- renderTable(DF)
+    })
     
-#    output$omg <- renderTable(DF)
+#    output$DFtest1 <- renderTable(DFupdate)
   
   })
   
 
   
-
+#  # Whenever a field is filled, aggregate all form data
+#  formData <- reactive({
+#    data <- apply(fields, function(x) input[[x]])
+#    data
+#  })
+#  
+#  observeEvent(input$submit.table, {
+#    saveData(formData())
+#  })
+#  # Show the previous responses
+#  # (update with current response when Submit is clicked)
+#  output$responses <- DT::renderDataTable({
+#    input$submit.table
+#    loadData()
+#  })  
+#
   
   # output$length <- renderText({
   #   paste0("Please rank your courses from 1 (first preference) to ",
