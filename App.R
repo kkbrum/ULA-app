@@ -4,11 +4,9 @@ library(DT)
 #install.packages('shinyjs')
 library(shinyjs)
 
-
 courses <- read.csv("courses.csv", as.is = TRUE)
 courses <- courses[,-1]
 colnames(courses) <- c("Course Code", "Day", "Meeting Time", "Professor")
-
 
 saveData <- function(data) {
   data <- as.data.frame(t(data))
@@ -62,7 +60,7 @@ ui <- fluidPage(
                                  textInput("first_name", "First Name", "", width="60%"),
                                  textInput("last_name", "Last Name", "", width="60%"),
                                  selectInput("year", "Class Year", 
-                                             c(2018, 2019, 2020, 2021), width="60%"),
+                                             c("Select a year", 2018, 2019, 2020, 2021), width="60%"),
                                  textInput("major", "Major", "", width="60%"),
                                  textAreaInput("why", 
                                                "Why do you want to serve as a ULA?", 
@@ -93,9 +91,7 @@ ui <- fluidPage(
                                    verbatimTextOutput('printForm'),
                                    actionButton("submit.table", "Submit")
                                    
-                                   
                                    # DT::dataTableOutput("responses")
-                                   
                                    
                                    # tableOutput("DFtest1")
                                    
@@ -117,7 +113,36 @@ ui <- fluidPage(
 
 server <- function(session, input, output) {
   
+  # My Info tab
+  
+  observeEvent(input$login, {
+    tryCatch({
+      mydata <- read.csv(paste0(input$username, "_", input$pin, ".csv"), header=TRUE)
+      updateTextInput(session, 'netid', value = mydata$netid)
+      updateTextInput(session, 'new_pin', value = mydata$new_pin)
+      updateTextInput(session, 'first_name', value = mydata$first_name)
+      updateTextInput(session, 'last_name', value = mydata$last_name)
+      updateSelectInput(session, 'year', selected = mydata$year)
+      updateTextInput(session, 'major', value = mydata$major)
+      updateTextAreaInput(session, 'why', value = mydata$why)
+    }, error= function(e) {showNotification('User and pin not found', duration=5, type="error")})
+  })
+  
+  # Courses tab
+  
+  # Display course information
+  output$t_course <- renderTable({
+    courses <- read.csv("courses.csv", as.is = TRUE)
+    courses <- courses[,-1]
+    colnames(courses) <- c("Course Code", "Day", "Meeting Time", "Professor")
+    return(courses)
+  })
+  
+  # Select some classes
+  
   output.numSelected <- reactive({length(input$choices)})
+  
+  # Enter more information for those selected classes
   
   observeEvent(input$select, {
     this <- rep(NA, length(input$choices))
@@ -182,17 +207,6 @@ server <- function(session, input, output) {
       ) 
     ) 
     
-    # print the values of inputs 
-    output$printForm = renderPrint({ 
-      data.frame(Title= DF[,'Course Title'],
-                 Taken = shinyValue('taken', nrow(DF)), 
-                 WhenTaken = shinyValue('whentaken', nrow(DF)),
-                 Prof = shinyValue('prof', nrow(DF)),
-                 Grade = shinyValue('grade', nrow(DF)),
-                 Suitable = shinyValue('suitable', nrow(DF)),
-                 Rank = shinyValue('num', nrow(DF))) 
-    }) 
-    
     observeEvent(shinyValue("taken",nrow(DF)), {
       for (j in which(shinyValue("taken", nrow(DF))=="N")) {
         shinyjs::disable( paste0("whentaken",j))
@@ -206,14 +220,24 @@ server <- function(session, input, output) {
         shinyjs::enable( paste0("grade",j))
         shinyjs::disable( paste0("suitable",j))
       }
-      
+    })
+    
+    # print the values of inputs 
+    output$printForm = renderPrint({ 
+      data.frame(Title= DF[,'Course Title'],
+                 Taken = shinyValue('taken', nrow(DF)), 
+                 WhenTaken = shinyValue('whentaken', nrow(DF)),
+                 Prof = shinyValue('prof', nrow(DF)),
+                 Grade = shinyValue('grade', nrow(DF)),
+                 Suitable = shinyValue('suitable', nrow(DF)),
+                 Rank = shinyValue('num', nrow(DF))) 
     })
     
   })
-
-  observeEvent(input$submit.table, {
-    output$DFtest1 <- renderTable(DF)
-  })
+  
+  # observeEvent(input$submit.table, {
+  #   output$DFtest1 <- renderTable(DF)
+  # })
   
   #   output$DFtest1 <- renderTable(DFupdate)
   
@@ -240,11 +264,47 @@ server <- function(session, input, output) {
   #          maxRank(), " (lowest preference).")
   # })
   
+  
+  
+  
+  # Summary tab
+  
+  # Error checking
   r <- reactive({
-    req(input$netid, !is.na(as.numeric(input$new_pin)), nchar(input$new_pin) == 4, 
-        input$first_name, input$last_name, input$year, input$major, input$why)
+    req(input$netid, input$new_pin, !is.na(as.numeric(input$new_pin)), nchar(input$new_pin) == 4, 
+        input$first_name, input$last_name, input$year != "Select a year", input$major, input$why)
   })
   
+  # Display information inputs
+  output$summarytext <- renderUI({
+    
+    text <- character(6)
+    
+    ifelse(input$netid == "", 
+           text[1] <- "<font color='red'>Please input your NetID</font>",
+           text[1] <- paste0("<strong>You have entered your NetID as: </strong>", input$netid))
+    ifelse(input$new_pin == "" | nchar(input$new_pin) != 4 | is.na(as.numeric(input$new_pin)),
+           text[2] <- "<font color='red'>Please create a 4-digit pin</font>",
+           text[2] <- "<strong>You have entered a pin</strong>")
+    ifelse(input$first_name == "" | input$last_name == "",
+           text[3] <- "<font color='red'>Please enter your full name</font>",
+           text[3] <- paste0("<strong>You have entered your name as: </strong>", 
+                             input$first_name, " ", input$last_name))
+    ifelse(input$year == "Select a year",
+           text[4] <- "<font color='red'>Please select a class year</font>",
+           text[4] <- paste0("<strong>You have entered your class year as: </strong>", input$year))
+    ifelse(input$major == "", 
+           text[5] <- "<font color='red'>Please enter your major(s)</font>",
+           text[5] <- paste0("<strong>You have entered your major(s) as: </strong>", input$major))
+    ifelse(input$why == "", 
+           text[6] <- "<font color='red'>Please explain why you would like to serve as a ULA</font>", 
+           text[6] <- paste0("<strong>You have entered your reason for applying as: </strong>", input$why))       
+    
+    expr = HTML(paste(text, collapse="<br/>"))
+    
+  })
+  
+  # Write file upon application completion
   observeEvent(input$submit, {
     
     r()
@@ -257,57 +317,6 @@ server <- function(session, input, output) {
                                   "why"=input$why)), 
               paste0(input$netid, "_", input$new_pin, ".csv"))
     showNotification("Application Successful!", duration=5, type="message")
-    
-  })
-  
-  output$t_course <- renderTable({
-    courses <- read.csv("courses.csv", as.is = TRUE)
-    courses <- courses[,-1]
-    colnames(courses) <- c("Course Code", "Day", "Meeting Time", "Professor")
-    return(courses)
-  })
-  
-  observeEvent(input$login, {
-    tryCatch({
-      mydata <- read.csv(paste0(input$username, "_", input$pin, ".csv"), header=TRUE)
-      updateTextInput(session, 'netid', value = mydata$netid)
-      updateTextInput(session, 'new_pin', value = mydata$new_pin)
-      updateTextInput(session, 'first_name', value = mydata$first_name)
-      updateTextInput(session, 'last_name', value = mydata$last_name)
-      updateSelectInput(session, 'year', selected = mydata$year)
-      updateTextInput(session, 'major', value = mydata$major)
-      updateTextAreaInput(session, 'why', value = mydata$why)
-    }, error= function(e) {showNotification('User and pin not found', duration=5, type="error")})
-  })
-  
-  output$summarytext <- renderUI({
-    
-    
-    condition1 <- c(input$netid == "", input$new_pin == "", input$first_name == "",
-                    input$last_name == "", input$year == "", input$major == "",
-                    input$why == "")
-    
-    if(all(condition1)) { #All entries are blank
-      expr = HTML("You haven't selected anything yet, silly!") 
-      
-    } else {
-      text <- character(7)
-      text[1] <- paste("You have input your netid as", input$netid)
-      text[2] <- "You have input a pin"
-      text[3] <- paste("You have entered your first name as", input$first_name)
-      text[4] <- paste("You have entered your last name as", input$last_name)
-      text[5] <- paste("You have input your class year as", input$year)
-      text[6] <- paste("You have input your major as", input$major)
-      text[7] <- paste("You have input why you want to be a ULA")
-      text[8] <- ""
-      if(!any(condition1)) { #No entries are blank
-        text[8] = "Super duper! You've filled in all of the fields. You are ready to submit!" 
-      }
-      expr = HTML(paste(text[which(c(input$netid, input$new_pin, input$first_name, input$last_name, 
-                                     input$year, input$major, input$why, text[8]) != "")], collapse = "<br/>"))
-    }
-    
-    #outputOptions(output, "numSelected", suspendWhenHidden = TRUE)
     
   })
 }
