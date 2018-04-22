@@ -1,6 +1,8 @@
 library(shiny)
-#install.packages(DT)
+#install.packages('DT')
 library(DT)
+#install.packages('shinyjs')
+library(shinyjs)
 
 
 courses <- read.csv("courses.csv", as.is = TRUE)
@@ -26,6 +28,8 @@ loadData <- function() {
 fields <- c("course", "taken", "whentaken", "prof", "grade", "suit", "rank")
 
 ui <- fluidPage(
+  
+  shinyjs::useShinyjs(),
   
   tags$head(
     tags$style(
@@ -86,13 +90,14 @@ ui <- fluidPage(
                                    br(),
                                    DT::dataTableOutput("testDT"),
                                    br(),
-                                   actionButton("submit.table", "Submit"),
+                                   verbatimTextOutput('printForm'),
+                                   actionButton("submit.table", "Submit")
                                    
                                    
                                    # DT::dataTableOutput("responses")
                                    
                                    
-                                   tableOutput("DFtest1")
+                                   # tableOutput("DFtest1")
                                    
                                    # tableOutput("omg")
                                    # rHandsontableOutput("hot")
@@ -120,96 +125,115 @@ server <- function(session, input, output) {
       this[i] <- grep(input$choices[i], courses[,1], fixed=TRUE)
     }
     temp_df <- courses[this,1]
-#    temp_df <- cbind(temp_df, rep(0, length(this)), rep(0, length(this)))
-#    colnames(temp_df) <- c("courses_selected", "taken", "rank")
+    #    temp_df <- cbind(temp_df, rep(0, length(this)), rep(0, length(this)))
+    #    colnames(temp_df) <- c("courses_selected", "taken", "rank")
     write.csv(temp_df, paste0("temp_", input$netid, ".csv"), row.names = FALSE)
+    
+    # create a character vector of shiny inputs 
+    shinyInput = function(FUN, len, id, ...) { 
+      inputs = character(len) 
+      for (i in seq_len(len)) { 
+        inputs[i] = as.character(FUN(paste0(id, i), label = NULL, ...)) 
+      } 
+      inputs 
+    } 
+    
+    # obtain the values of inputs 
+    shinyValue = function(id, len) { 
+      unlist(lapply(seq_len(len), function(i) { 
+        value = input[[paste0(id, i)]] 
+        if (is.null(value)) NA else value 
+      })) 
+    } 
+    
     
     DF <- read.csv(paste0("temp_", input$netid, ".csv"), as.is=TRUE)
     
-    output$testDT <- DT::renderDataTable({
-      #DF
-      DF[,"Taken"] <<- ""
-      sapply(1:nrow(DF), FUN = function(i) {
-        DF$Taken[i] <<- as.character(selectizeInput(paste0("taken",i), "",
-                                                    choices = c("", "Y", "N"), 
-                                                    selected = NULL,
-                                                    multiple = FALSE))
-      })
-      
-      # If input$takeni == "Y", then have student fill in WhenTaken, Professor, Grade columns
-      # If input$takeni == "N", have student fill in why they are suitable for this course
-      
-      DF[,"WhenTaken"] <- ""
-      sapply(1:nrow(DF), FUN = function(i) {
-        DF$WhenTaken[i] <<- as.character(numericInput(paste0("whentaken",i), "",
-                                                      value=NA, min = 2010,
-                                                      max=as.integer(format(Sys.Date(), "%Y")),
-                                                      step = 1))
-      })
-      
-      DF[,"Professor"] <- ""
-      sapply(1:nrow(DF), FUN=function(i) {
-        DF$Professor[i] <<- as.character(textInput(paste0("prof",i), ""))
-      })
-      
-      DF[,"Grade"] <- ""
-      sapply(1:nrow(DF), FUN = function(i) {
-        DF$Grade[i] <<- as.character(selectizeInput(paste0("grade",i), "",
-                                                  choices = c("", "A", "B", "C", "D", "F"), 
-                                                  multiple = FALSE))
-      })
-      
-      DF[,"Suitable"] <- ""
-      sapply(1:nrow(DF), FUN=function(i) {
-        DF$Suitable[i] <<- as.character(textInput(paste0("suitable",i), ""))
-      })
-      
-      
-      # Always have Rank as a Column
-      DF[,"Rank"] <- ""
-      sapply(1:nrow(DF), FUN = function(i) {
-        DF$Rank[i] <<- as.character(numericInput(paste0("num",i), "",
-                                                 value = NA, min = 1, 
-                                                 max = nrow(DF), step = 1))
-      })
-      
-      datatable(DF, colnames = c("Course Tilte", "Have you taken this course? (Y/N)",
-                                 "What year did you take this course?",
-                                 "Who was your professor?",
-                                 "What was your grade in this course?",
-                                 "Why are you suitable for this course?",
-                                 "Rank your preference of ULAing this course"),
-                filter = "none", selection = "none", escape = 2)
-      
+    DF$Taken <- shinyInput(selectizeInput, nrow(DF), 'taken', choices = c("", "Y", "N"), 
+                           selected = "",
+                           multiple = FALSE, width="50%")
+    DF$WhenTaken <- shinyInput(numericInput, nrow(DF), "whentaken",
+                               value=NA, min = 2010,
+                               max=as.integer(format(Sys.Date(), "%Y")),
+                               step = 1, width="60%")
+    DF$Professor  <- shinyInput(textInput, nrow(DF), 'prof')
+    DF$Grade  <- shinyInput(selectInput, nrow(DF), "grade",
+                            choices = c("", "A", "B", "C", "D", "F"),
+                            multiple = FALSE, selectize=FALSE, width="50%")
+    DF$Suitable <- shinyInput(textInput, nrow(DF), "suitable")
+    DF$Rank <- shinyInput(numericInput, nrow(DF), 'num',
+                          value = NA, min = 1, 
+                          max = nrow(DF), step = 1, width="60%")
     
+    names(DF) <-  c("Course Title", "Have you taken this course? (Y/N)",
+                    "What year did you take this course?",
+                    "Who was your professor?",
+                    "What was your grade in this course?",
+                    "Why are you suitable for this course?",
+                    "Rank your preference of ULAing this course")
+    
+    # render the table containing shiny inputs 
+    output$testDT = DT::renderDataTable( 
+      DF, server = FALSE, escape = 2, selection='none', options = list( 
+        preDrawCallback = JS('function() { 
+                             Shiny.unbindAll(this.api().table().node()); }'), 
+        drawCallback = JS('function() { 
+                          Shiny.bindAll(this.api().table().node()); } ') 
+      ) 
+    ) 
+    
+    # print the values of inputs 
+    output$printForm = renderPrint({ 
+      data.frame(Title= DF[,'Course Title'],
+                 Taken = shinyValue('taken', nrow(DF)), 
+                 WhenTaken = shinyValue('whentaken', nrow(DF)),
+                 Prof = shinyValue('prof', nrow(DF)),
+                 Grade = shinyValue('grade', nrow(DF)),
+                 Suitable = shinyValue('suitable', nrow(DF)),
+                 Rank = shinyValue('num', nrow(DF))) 
+    }) 
+    
+    observeEvent(shinyValue("taken",nrow(DF)), {
+      for (j in which(shinyValue("taken", nrow(DF))=="N")) {
+        shinyjs::disable( paste0("whentaken",j))
+        shinyjs::disable( paste0("prof",j))
+        shinyjs::disable( paste0("grade",j))
+        shinyjs::enable( paste0("suitable",j))
+      }
+      for (j in which(shinyValue("taken", nrow(DF))=="Y")) {
+        shinyjs::enable( paste0("whentaken",j))
+        shinyjs::enable( paste0("prof",j))
+        shinyjs::enable( paste0("grade",j))
+        shinyjs::disable( paste0("suitable",j))
+      }
+      
     })
     
-    observeEvent(input$submit.table, {
-      output$DFtest1 <- renderTable(DF)
-    })
-    
-#    output$DFtest1 <- renderTable(DFupdate)
-  
+  })
+
+  observeEvent(input$submit.table, {
+    output$DFtest1 <- renderTable(DF)
   })
   
-
+  #   output$DFtest1 <- renderTable(DFupdate)
   
-#  # Whenever a field is filled, aggregate all form data
-#  formData <- reactive({
-#    data <- apply(fields, function(x) input[[x]])
-#    data
-#  })
-#  
-#  observeEvent(input$submit.table, {
-#    saveData(formData())
-#  })
-#  # Show the previous responses
-#  # (update with current response when Submit is clicked)
-#  output$responses <- DT::renderDataTable({
-#    input$submit.table
-#    loadData()
-#  })  
-#
+  
+  #  # Whenever a field is filled, aggregate all form data
+  #  formData <- reactive({
+  #    data <- apply(fields, function(x) input[[x]])
+  #    data
+  #  })
+  #  
+  #  observeEvent(input$submit.table, {
+  #    saveData(formData())
+  #  })
+  #  # Show the previous responses
+  #  # (update with current response when Submit is clicked)
+  #  output$responses <- DT::renderDataTable({
+  #    input$submit.table
+  #    loadData()
+  #  })  
+  #
   
   # output$length <- renderText({
   #   paste0("Please rank your courses from 1 (first preference) to ",
