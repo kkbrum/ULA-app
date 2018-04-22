@@ -206,18 +206,33 @@ server <- function(session, input, output) {
           drawCallback = JS('function() { 
                           Shiny.bindAll(this.api().table().node()); } ') 
         ) 
-      ) 
+      )
+      
+
+      # Disabling/Enabling buttons      
       
       observeEvent(shinyValue("taken",nrow(DF)), {
+        for (j in which(shinyValue("taken", nrow(DF)) =="")) {
+          shinyjs::disable( paste0("whentaken",j))
+          shinyjs::disable( paste0("prof",j))
+          shinyjs::disable( paste0("grade",j))
+          shinyjs::disable( paste0("suitable",j))
+          shinyjs::disable( paste0("num", j))
+        }
+        
         for (j in which(shinyValue("taken", nrow(DF))=="N")) {
           shinyjs::disable( paste0("whentaken",j))
           shinyjs::disable( paste0("prof",j))
           shinyjs::disable( paste0("grade",j))
+          shinyjs::enable( paste0("suitable",j))
+          shinyjs::enable( paste0("num", j))
         }
         for (j in which(shinyValue("taken", nrow(DF))=="Y")) {
           shinyjs::enable( paste0("whentaken",j))
           shinyjs::enable( paste0("prof",j))
           shinyjs::enable( paste0("grade",j))
+          shinyjs::enable( paste0("suitable",j))
+          shinyjs::enable( paste0("num", j))
         }
       })
       
@@ -232,39 +247,18 @@ server <- function(session, input, output) {
                    Rank = shinyValue('num', nrow(DF))) 
       })
     }
+    
+    observeEvent(input$submit.table, {
+      write.csv({        data.frame(Title= DF[,'Course Title'],
+                                    Taken = shinyValue('taken', nrow(DF)), 
+                                    WhenTaken = shinyValue('whentaken', nrow(DF)),
+                                    Prof = shinyValue('prof', nrow(DF)),
+                                    Grade = shinyValue('grade', nrow(DF)),
+                                    Suitable = shinyValue('suitable', nrow(DF)),
+                                    Rank = shinyValue('num', nrow(DF)))} ,
+        "omg.csv")
+    })
   })
-  
-  # observeEvent(input$submit.table, {
-  #   output$DFtest1 <- renderTable(DF)
-  # })
-  
-  #   output$DFtest1 <- renderTable(DFupdate)
-  
-  
-  #  # Whenever a field is filled, aggregate all form data
-  #  formData <- reactive({
-  #    data <- apply(fields, function(x) input[[x]])
-  #    data
-  #  })
-  #  
-  #  observeEvent(input$submit.table, {
-  #    saveData(formData())
-  #  })
-  #  # Show the previous responses
-  #  # (update with current response when Submit is clicked)
-  #  output$responses <- DT::renderDataTable({
-  #    input$submit.table
-  #    loadData()
-  #  })  
-  #
-  
-  # output$length <- renderText({
-  #   paste0("Please rank your courses from 1 (first preference) to ",
-  #          maxRank(), " (lowest preference).")
-  # })
-  
-  
-  
   
   # Summary tab
   
