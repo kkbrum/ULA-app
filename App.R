@@ -246,14 +246,21 @@ server <- function(session, input, output) {
     # Write csv upon submit
     observeEvent(input$submit.table, {
       r()
-      write.csv({data.frame(Title= DF[,'Course Title'],
-                             Taken = shinyValue('taken', nrow(DF)), 
-                             WhenTaken = shinyValue('whentaken', nrow(DF)),
-                             Prof = shinyValue('prof', nrow(DF)),
-                             Grade = shinyValue('grade', nrow(DF)),
-                             Suitable = shinyValue('suitable', nrow(DF)),
-                             Rank = shinyValue('num', nrow(DF)))} ,
-                paste0(input$netid, "_preferences.csv"))
+      
+      preferences <- data.frame(Title= DF[,'Course Title'],
+                                Taken = shinyValue('taken', nrow(DF)), 
+                                WhenTaken = shinyValue('whentaken', nrow(DF)),
+                                Prof = shinyValue('prof', nrow(DF)),
+                                Grade = shinyValue('grade', nrow(DF)),
+                                Suitable = shinyValue('suitable', nrow(DF)),
+                                Rank = shinyValue('num', nrow(DF)))
+      
+      # Check preferences df for -- blank/NA inputs only in certain cols for N response.
+      # if all good, write csv, success message
+      # if not all good, failure message
+    
+      write.csv(preferences, paste0(input$netid, "_preferences.csv"))
+      
     })
   })
   
