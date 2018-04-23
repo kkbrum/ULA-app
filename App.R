@@ -113,6 +113,12 @@ ui <- fluidPage(
 
 server <- function(session, input, output) {
   
+  # Error checking
+  r <- reactive({
+    req(input$netid, input$new_pin, !is.na(as.numeric(input$new_pin)), nchar(input$new_pin) == 4, 
+        input$first_name, input$last_name, input$year != "Select a year", input$major, input$why)
+  })
+  
   # My Info tab
   
   observeEvent(input$login, {
@@ -235,38 +241,23 @@ server <- function(session, input, output) {
           shinyjs::enable( paste0("num", j))
         }
       })
-      
-      # print the values of inputs 
-      output$printForm = renderPrint({ 
-        data.frame(Title= DF[,'Course Title'],
-                   Taken = shinyValue('taken', nrow(DF)), 
-                   WhenTaken = shinyValue('whentaken', nrow(DF)),
-                   Prof = shinyValue('prof', nrow(DF)),
-                   Grade = shinyValue('grade', nrow(DF)),
-                   Suitable = shinyValue('suitable', nrow(DF)),
-                   Rank = shinyValue('num', nrow(DF))) 
-      })
     }
     
+    # Write csv upon submit
     observeEvent(input$submit.table, {
-      write.csv({        data.frame(Title= DF[,'Course Title'],
-                                    Taken = shinyValue('taken', nrow(DF)), 
-                                    WhenTaken = shinyValue('whentaken', nrow(DF)),
-                                    Prof = shinyValue('prof', nrow(DF)),
-                                    Grade = shinyValue('grade', nrow(DF)),
-                                    Suitable = shinyValue('suitable', nrow(DF)),
-                                    Rank = shinyValue('num', nrow(DF)))} ,
-        "omg.csv")
+      r()
+      write.csv({data.frame(Title= DF[,'Course Title'],
+                             Taken = shinyValue('taken', nrow(DF)), 
+                             WhenTaken = shinyValue('whentaken', nrow(DF)),
+                             Prof = shinyValue('prof', nrow(DF)),
+                             Grade = shinyValue('grade', nrow(DF)),
+                             Suitable = shinyValue('suitable', nrow(DF)),
+                             Rank = shinyValue('num', nrow(DF)))} ,
+                paste0(input$netid, "_preferences.csv"))
     })
   })
   
   # Summary tab
-  
-  # Error checking
-  r <- reactive({
-    req(input$netid, input$new_pin, !is.na(as.numeric(input$new_pin)), nchar(input$new_pin) == 4, 
-        input$first_name, input$last_name, input$year != "Select a year", input$major, input$why)
-  })
   
   # Display information inputs
   output$summarytext <- renderUI({
