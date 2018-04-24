@@ -290,7 +290,6 @@ server <- function(session, input, output) {
   
   observeEvent(input$submit.table, if(table.condition) submitcourse$bool <- TRUE)
   
-  
   output$summarytext <- renderUI({
     
     text <- character(7)
