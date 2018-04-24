@@ -274,10 +274,26 @@ server <- function(session, input, output) {
         input$first_name, input$last_name, input$year != "Select a year", input$major, input$why)
   })
   
+  
+  
   # Display information inputs
+  
+  #When the "submit" button in the "Course Preferences" tab is clicked, it checks to see whether
+  #the table.condition is met. If so, the submitcourse$bool is changed to TRUE and the summary tab is updated.
+  
+  #table.condition can be any desired criteria that needs to be met before the user sees approval
+  #in the "summary" tab. It could be that all of the tables values are populated with something, 
+  #for example. I left it blank for now, set to TRUE by default.
+  
+  table.condition <- TRUE
+  submitcourse <- reactiveValues(bool = FALSE)
+  
+  observeEvent(input$submit.table, if(table.condition) submitcourse$bool <- TRUE)
+  
+  
   output$summarytext <- renderUI({
     
-    text <- character(6)
+    text <- character(7)
     
     ifelse(input$netid == "", 
            text[1] <- "<font color='red'>Please input your NetID</font>",
@@ -298,6 +314,9 @@ server <- function(session, input, output) {
     ifelse(input$why == "", 
            text[6] <- "<font color='red'>Please explain why you would like to serve as a ULA</font>", 
            text[6] <- paste0("<strong>You have entered your reason for applying as: </strong>", input$why))       
+    ifelse(submitcourse$bool,
+           text[7] <- "<strong>You have submitted a course selection. </strong>",
+           text[7] <- "<font color='red'>Please submit your desired course information.</font>")
     
     expr = HTML(paste(text, collapse="<br/>"))
     
