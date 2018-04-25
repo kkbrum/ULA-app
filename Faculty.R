@@ -1,5 +1,5 @@
 library(shiny)
-
+library(DT)
 
 
 ui <- fluidPage(
@@ -39,6 +39,25 @@ ui <- fluidPage(
 
 server <- function(session, input, output) {
   
+  
+  # create a character vector of shiny inputs 
+  shinyInput = function(FUN, len, id, ...) { 
+    inputs = character(len) 
+    for (i in seq_len(len)) { 
+      inputs[i] = as.character(FUN(paste0(id, i), label = NULL, ...)) 
+    } 
+    inputs 
+  } 
+  
+  # obtain the values of inputs 
+  shinyValue = function(id, len) { 
+    unlist(lapply(seq_len(len), function(i) { 
+      value = input[[paste0(id, i)]] 
+      if (is.null(value)) NA else value 
+    })) 
+  } 
+  
+  
   prof_courses <- NULL
   
   observeEvent(input$login, {
@@ -48,34 +67,69 @@ server <- function(session, input, output) {
     prof_courses <- courses$course[courses$prof==professor]
     
     students <- read.csv("students.csv", header=FALSE, as.is=TRUE)
-    studentmat <- matrix(0, ncol=length(students$V1), nrow=length(prof_courses), dimnames=list(prof_courses, students$V1))
-    for (i in 1:length(students$V1)){
-      temp <- read.csv(paste0(students$V1[i], ".csv"), as.is=TRUE)
-      for (j in 1:length(temp$Course)) {
-        studentmat[row.names(studentmat)==temp$Course[j], i] <- 1
-      }
-    }
     
     if (length(prof_courses)>0) {
       output$tabs1 <- renderUI({
         tabs <- list(NULL)
+        studentInfo <- list(NULL)
         currentStudents <- vector("list", length(prof_courses))
         for (i in 1:length(prof_courses)) {
           for (j in 1:length(students$V1)){
             temp <- read.csv(paste0(students$V1[j], ".csv"), as.is=TRUE)
-            if (prof_courses[i] %in% temp$Course) {
+            if (prof_courses[i] %in% temp$Title) {
               currentStudents[[i]] <- c(currentStudents[[i]], students$V1[j])
             }
           }
-          tabs[[i]] <- tabPanel(prof_courses[i], renderPrint(currentStudents[[i]])
-                                
-          )
+          
+          DF <- data.frame(matrix(0,nrow = length(currentStudents[[i]]), ncol=7))
+          names(DF) <- c("Rank", "Student", "Taken", "WhenTaken", "Professor", "Grade", "Suitable")
+          
+          DF$Rank <- shinyInput(numericInput, nrow(DF), 'num',
+                                value = NA, min = 1, 
+                                max = nrow(DF), step = 1, width="60%")
+          DF$Student <- currentStudents[[i]]
+          
+          for (j in 1:length(currentStudents[[i]])){
+            temp <- read.csv(paste0(currentStudents[[i]][j], ".csv"), as.is=TRUE)
+            
+            DF[j,3:7] <- temp[temp$Title==prof_courses[i], 2:6]
+
+          }
+          
+          
+          names(DF) <-  c("Your ranking", "Student Name",
+                          "Has the student taken the course?",
+                          "When did they take it?",
+                          "Who was their professor?",
+                          "What was their grade?",
+                          "Why they think they are suitable")
+          
+          
+          studentInfo[[i]] <- DF
+          
         }
+        
+        
+        tabs <- lapply(1:length(prof_courses), 
+                       function(x) tabPanel(prof_courses[x],  br(), 
+                                            DT::renderDataTable( 
+                                              studentInfo[[x]], server = FALSE, escape = FALSE, selection='none', options = list( 
+                                                preDrawCallback = JS('function() { 
+                                                                     Shiny.unbindAll(this.api().table().node()); }'), 
+                                                drawCallback = JS('function() { 
+                                                                  Shiny.bindAll(this.api().table().node()); } '),
+                                                dom = 't')
+                                            )
+                       )
+        )
         tabs[[length(prof_courses)+1]] <- tabPanel("Summary") 
         
         do.call(tabsetPanel, tabs)
       })
     }
+    
+    # Log in errors
+    
     if (!input$username %in% mydata$User) {
       showNotification("User not found", duration=5, type="error")
     }
