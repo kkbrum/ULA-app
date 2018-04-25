@@ -119,6 +119,7 @@ server <- function(session, input, output) {
         input$first_name, input$last_name, input$year != "Select a year", input$major, input$why)
   })
   
+
   # My Info tab
   
   observeEvent(input$login, {
@@ -147,12 +148,13 @@ server <- function(session, input, output) {
   # Select some classes
   
   output.numSelected <- reactive({length(input$choices)})
-  
+
   # Instructions for the students 
   observeEvent(input$select, { output$length <- renderText({
     paste0("Please rank your prefereneces in the final column, from 1 (first choice) to ",
            length(input$choices), " (lowest preference)")
   })})
+
   # Enter more information for those selected classes
   
   observeEvent(input$select, {
@@ -323,7 +325,6 @@ server <- function(session, input, output) {
   submitcourse <- reactiveValues(bool = FALSE)
   
   observeEvent(input$submit.table, if(table.condition) submitcourse$bool <- TRUE)
-  
   
   output$summarytext <- renderUI({
     
