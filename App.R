@@ -89,14 +89,11 @@ ui <- fluidPage(
                                    DT::dataTableOutput("testDT"),
                                    br(),
                                    verbatimTextOutput('printForm'),
-                                   actionButton("submit.table", "Submit")
+                                   actionButton("submit.table", "Submit"),
+                                   br(),
+                                   textOutput("rankerror"),
+                                   textOutput("missing")
                                    
-                                   # DT::dataTableOutput("responses")
-                                   
-                                   # tableOutput("DFtest1")
-                                   
-                                   # tableOutput("omg")
-                                   # rHandsontableOutput("hot")
                                  )
                                  
                         ),
@@ -112,12 +109,6 @@ ui <- fluidPage(
 )
 
 server <- function(session, input, output) {
-  
-  # Error checking
-  r <- reactive({
-    req(input$netid, input$new_pin, !is.na(as.numeric(input$new_pin)), nchar(input$new_pin) == 4, 
-        input$first_name, input$last_name, input$year != "Select a year", input$major, input$why)
-  })
   
   # My Info tab
   
@@ -188,11 +179,11 @@ server <- function(session, input, output) {
                                  value=NA, min = 2010,
                                  max=as.integer(format(Sys.Date(), "%Y")),
                                  step = 1, width="60%")
-      DF$Professor  <- shinyInput(textInput, nrow(DF), 'prof')
+      DF$Professor  <- shinyInput(textInput, nrow(DF), 'prof', value="")
       DF$Grade  <- shinyInput(selectInput, nrow(DF), "grade",
                               choices = c("", "A", "B", "C", "D", "F"),
                               multiple = FALSE, selectize=FALSE, width="50%")
-      DF$Suitable <- shinyInput(textInput, nrow(DF), "suitable")
+      DF$Suitable <- shinyInput(textInput, nrow(DF), "suitable", value="")
       DF$Rank <- shinyInput(numericInput, nrow(DF), 'num',
                             value = NA, min = 1, 
                             max = nrow(DF), step = 1, width="60%")
@@ -225,7 +216,6 @@ server <- function(session, input, output) {
           shinyjs::disable( paste0("suitable",j))
           shinyjs::disable( paste0("num", j))
         }
-        
         for (j in which(shinyValue("taken", nrow(DF))=="N")) {
           shinyjs::disable( paste0("whentaken",j))
           shinyjs::disable( paste0("prof",j))
@@ -241,30 +231,61 @@ server <- function(session, input, output) {
           shinyjs::enable( paste0("num", j))
         }
       })
+      
+
+      
+      # print the values of inputs 
+      output$printForm = renderPrint({ 
+        data.frame(Title= DF[,'Course Title'],
+                   Taken = shinyValue('taken', nrow(DF)), 
+                   WhenTaken = shinyValue('whentaken', nrow(DF)),
+                   Prof = shinyValue('prof', nrow(DF)),
+                   Grade = shinyValue('grade', nrow(DF)),
+                   Suitable = shinyValue('suitable', nrow(DF)),
+                   Rank = shinyValue('num', nrow(DF))) 
+      })
     }
     
-    # Write csv upon submit
     observeEvent(input$submit.table, {
-      r()
       
-      preferences <- data.frame(Title= DF[,'Course Title'],
-                                Taken = shinyValue('taken', nrow(DF)), 
-                                WhenTaken = shinyValue('whentaken', nrow(DF)),
-                                Prof = shinyValue('prof', nrow(DF)),
-                                Grade = shinyValue('grade', nrow(DF)),
-                                Suitable = shinyValue('suitable', nrow(DF)),
-                                Rank = shinyValue('num', nrow(DF)))
       
-      # Check preferences df for -- blank/NA inputs only in certain cols for N response.
-      # if all good, write csv, success message
-      # if not all good, failure message
-    
-      write.csv(preferences, paste0(input$netid, "_preferences.csv"))
+      if (any(tabulate(as.numeric(shinyValue("num", nrow(DF)))))) {
+        output$rankerror <- renderText("Please pick unique ranks")
+      } 
+      if ( any(shinyValue("taken", nrow(DF)) == "") |
+           any(is.na(shinyValue("whentaken", nrow(DF)))) | 
+           any(shinyValue("prof", nrow(DF)) == "") | 
+           any(shinyValue("grade", nrow(DF)) == "") |
+           any(shinyValue("suitable", nrow(DF)) == "") |
+           any(is.na(shinyValue("grade", nrow(DF))))
+           ) {
+        output$missing <- renderText("Please make sure you have filled in all questions")
+      }
+      
+      
+      
+      else{
+        write.csv({data.frame(Title= DF[,'Course Title'],
+                              Taken = shinyValue('taken', nrow(DF)), 
+                              WhenTaken = shinyValue('whentaken', nrow(DF)),
+                              Prof = shinyValue('prof', nrow(DF)),
+                              Grade = shinyValue('grade', nrow(DF)),
+                              Suitable = shinyValue('suitable', nrow(DF)),
+                              Rank = shinyValue('num', nrow(DF)))} ,
+                  "omg.csv")
+      }
+      
       
     })
   })
   
   # Summary tab
+  
+  # Error checking
+  r <- reactive({
+    req(input$netid, input$new_pin, !is.na(as.numeric(input$new_pin)), nchar(input$new_pin) == 4, 
+        input$first_name, input$last_name, input$year != "Select a year", input$major, input$why)
+  })
   
   # Display information inputs
   output$summarytext <- renderUI({
