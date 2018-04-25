@@ -225,34 +225,37 @@ server <- function(session, input, output) {
       
       observeEvent(shinyValue("taken",nrow(DF)), {
         for (j in which(shinyValue("taken", nrow(DF)) =="")) {
-          shinyjs::disable( paste0("whentaken",j))
-          shinyjs::disable( paste0("prof",j))
-          shinyjs::disable( paste0("grade",j))
-          shinyjs::disable( paste0("suitable",j))
-          shinyjs::disable( paste0("num", j))
+          shinyjs::disable(paste0("whentaken",j))
+          shinyjs::disable(paste0("prof",j))
+          shinyjs::disable(paste0("grade",j))
+          shinyjs::disable(paste0("suitable",j))
+          shinyjs::disable(paste0("num", j))
         }
         
         for (j in which(shinyValue("taken", nrow(DF))=="N")) {
-          shinyjs::disable( paste0("whentaken",j))
-          shinyjs::disable( paste0("prof",j))
-          shinyjs::disable( paste0("grade",j))
-          shinyjs::enable( paste0("suitable",j))
-          shinyjs::enable( paste0("num", j))
+          shinyjs::disable(paste0("whentaken",j))
+          shinyjs::disable(paste0("prof",j))
+          shinyjs::disable(paste0("grade",j))
+          shinyjs::enable(paste0("suitable",j))
+          shinyjs::enable(paste0("num", j))
         }
         for (j in which(shinyValue("taken", nrow(DF))=="Y")) {
-          shinyjs::enable( paste0("whentaken",j))
-          shinyjs::enable( paste0("prof",j))
-          shinyjs::enable( paste0("grade",j))
-          shinyjs::enable( paste0("suitable",j))
-          shinyjs::enable( paste0("num", j))
+          shinyjs::enable(paste0("whentaken",j))
+          shinyjs::enable(paste0("prof",j))
+          shinyjs::enable(paste0("grade",j))
+          shinyjs::enable(paste0("suitable",j))
+          shinyjs::enable(paste0("num", j))
         }
       })
     }
     
+    
     # Write csv upon submit
     observeEvent(input$submit.table, {
-      #r()
       
+      r()
+      
+      # Collect student inputs
       preferences <- data.frame(Title= DF[,'Course Title'],
                                 Taken = shinyValue('taken', nrow(DF)), 
                                 WhenTaken = shinyValue('whentaken', nrow(DF)),
@@ -261,68 +264,8 @@ server <- function(session, input, output) {
                                 Suitable = shinyValue('suitable', nrow(DF)),
                                 Rank = shinyValue('num', nrow(DF)))
       
-     for (i in 1:length(input$choices)){
-       
-       # Checks for when they answer Y to taken
-       if (as.character(preferences$Taken[i]) == "Y"){
-          
-         #output$this <- renderPrint({as.character(preferences$Grade)})
-         if (preferences$WhenTaken[i] == "" | is.na(preferences$WhenTaken[i])){
-           showNotification(paste0("Please fill out the When Taken column for ", courses[i,1]), duration = 20,
-                            closeButton = TRUE, type="error")
-         } else {
-           
-           if (as.numeric(preferences$WhenTaken[i]) > as.numeric(input$year) |
-               as.numeric(preferences$WhenTaken[i]) < (as.numeric(input$year) - 4)){
-             showNotification(paste0("There is an issue with your When Taken entry for ", courses[i, 1]), duration = 20,
-                              closeButton = TRUE, type="error")
-           }
-         }
-         if (trimws(preferences$Grade[i]) == "" |is.na(preferences$Grade[i])){
-           showNotification(paste0("Please enter the grade you got for ", courses[i, 1]), duration = 20,
-                            closeButton = TRUE, type="error")
-         }
-
-         if (trimws(preferences$Prof[i]) == ""| is.na(preferences$Prof[i])){
-           showNotification(paste0("Please enter your previous Professor's name for ", courses[i, 1]), duration = 20,
-                            closeButton = TRUE, type="error")
-         }
-
-         if (preferences$Rank[i] == ""| is.na(preferences$Rank[i])){
-           showNotification(paste0("Please rank ", courses[i, 1]), duration = 20,
-                            closeButton = TRUE, type="error")
-         }
-
-         if (trimws(preferences$Suitable[i]) == ""|is.na(preferences$Suitable[i])){
-           showNotification(paste0("There is an issue with your Why are you suitable entry for ", courses[i, 1]), duration = 20,
-                            closeButton = TRUE, type="error")
-         }
-
-         # Checks for when they answer N to Taken
-       } else if (as.character(preferences$Taken[i]) == "N"){
-
-         if (trimws(preferences$Suitable[i]) == ""){
-           showNotification(paste0("There is an issue with your why are you suitable entry for ", courses[i, 1]),
-                            closeButton = TRUE, type="error", duration=20)
-         }
-
-         if (preferences$Rank[i] == "" | is.na(preferences$Rank[i])){
-           showNotification(paste0("Please rank ", courses[i, 1]), duration=20,
-                            closeButton = TRUE, type="error")
-         }
-
-         #Checks for when they forget to fill out Taken
-       } else {
-         showNotification(paste0("Please fill in if you have taken ", courses[i, 1]), duration=20,
-                          closeButton = TRUE, type="error")
-       }
-     }
-
-      if (length(unique(preferences$Rank)) != length(input$choices)) {
-        showNotification('You must rank your choices uniquely', closeButton = TRUE, duration=20, type="error")
-      }
-
-
+      
+      
       # Check preferences df for -- blank/NA inputs only in certain cols for N response.
       # if all good, write csv, success message
       # if not all good, failure message
