@@ -113,6 +113,13 @@ ui <- fluidPage(
 
 server <- function(session, input, output) {
   
+  # Error checking
+  r <- reactive({
+    req(input$netid, input$new_pin, !is.na(as.numeric(input$new_pin)), nchar(input$new_pin) == 4, 
+        input$first_name, input$last_name, input$year != "Select a year", input$major, input$why)
+  })
+  
+
   # My Info tab
   
   observeEvent(input$login, {
@@ -141,7 +148,13 @@ server <- function(session, input, output) {
   # Select some classes
   
   output.numSelected <- reactive({length(input$choices)})
-  
+
+  # Instructions for the students 
+  observeEvent(input$select, { output$length <- renderText({
+    paste0("Please rank your prefereneces in the final column, from 1 (first choice) to ",
+           length(input$choices), " (lowest preference)")
+  })})
+
   # Enter more information for those selected classes
   
   observeEvent(input$select, {
@@ -204,79 +217,102 @@ server <- function(session, input, output) {
           preDrawCallback = JS('function() { 
                              Shiny.unbindAll(this.api().table().node()); }'), 
           drawCallback = JS('function() { 
-                          Shiny.bindAll(this.api().table().node()); } ') 
+                          Shiny.bindAll(this.api().table().node()); } '),
+          dom = 't'
         ) 
-      ) 
+      )
+      
+
+      # Disabling/Enabling buttons      
       
       observeEvent(shinyValue("taken",nrow(DF)), {
+        for (j in which(shinyValue("taken", nrow(DF)) =="")) {
+          shinyjs::disable(paste0("whentaken",j))
+          shinyjs::disable(paste0("prof",j))
+          shinyjs::disable(paste0("grade",j))
+          shinyjs::disable(paste0("suitable",j))
+          shinyjs::disable(paste0("num", j))
+        }
+        
         for (j in which(shinyValue("taken", nrow(DF))=="N")) {
-          shinyjs::disable( paste0("whentaken",j))
-          shinyjs::disable( paste0("prof",j))
-          shinyjs::disable( paste0("grade",j))
+          shinyjs::disable(paste0("whentaken",j))
+          shinyjs::disable(paste0("prof",j))
+          shinyjs::disable(paste0("grade",j))
+          shinyjs::enable(paste0("suitable",j))
+          shinyjs::enable(paste0("num", j))
         }
         for (j in which(shinyValue("taken", nrow(DF))=="Y")) {
-          shinyjs::enable( paste0("whentaken",j))
-          shinyjs::enable( paste0("prof",j))
-          shinyjs::enable( paste0("grade",j))
+          shinyjs::enable(paste0("whentaken",j))
+          shinyjs::enable(paste0("prof",j))
+          shinyjs::enable(paste0("grade",j))
+          shinyjs::enable(paste0("suitable",j))
+          shinyjs::enable(paste0("num", j))
         }
       })
-      
-      # print the values of inputs 
-      output$printForm = renderPrint({ 
-        data.frame(Title= DF[,'Course Title'],
-                   Taken = shinyValue('taken', nrow(DF)), 
-                   WhenTaken = shinyValue('whentaken', nrow(DF)),
-                   Prof = shinyValue('prof', nrow(DF)),
-                   Grade = shinyValue('grade', nrow(DF)),
-                   Suitable = shinyValue('suitable', nrow(DF)),
-                   Rank = shinyValue('num', nrow(DF))) 
-      })
     }
+    
+    
+    # Write csv upon submit
+    observeEvent(input$submit.table, {
+      
+      r()
+      
+      # Collect student inputs
+      preferences <- data.frame(Title= DF[,'Course Title'],
+                                Taken = shinyValue('taken', nrow(DF)), 
+                                WhenTaken = shinyValue('whentaken', nrow(DF)),
+                                Prof = shinyValue('prof', nrow(DF)),
+                                Grade = shinyValue('grade', nrow(DF)),
+                                Suitable = shinyValue('suitable', nrow(DF)),
+                                Rank = shinyValue('num', nrow(DF)))
+      
+      # Basic error checking
+      input.correct <- rep(NA, nrow(preferences))
+      
+      if (length(unique(preferences$Rank)) != nrow(preferences)) {
+        input.correct <- rep(FALSE, nrow(preferences))
+        showNotification("Please pick unique ranks", duration=5, type="error")
+        
+      }
+      
+      for (i in 1:nrow(preferences)) {
+        
+        if (preferences$Taken[i] == "") {
+          input.correct[i] <- FALSE
+        } else if (preferences$Taken[i] == "Y" & 
+                   (is.na(preferences$WhenTaken[i]) | preferences$Prof[i] == "" |
+                    preferences$Grade[i] == "" | preferences$Suitable[i] == "" |
+                    is.na(preferences$Rank[i]))) {
+          input.correct[i] <- FALSE
+        } else if (preferences$Taken[i] == "Y" & 
+                   (!is.na(preferences$WhenTaken[i]) & preferences$Prof[i] != "" &
+                    preferences$Grade[i] != "" & preferences$Suitable[i] != "" &
+                    !is.na(preferences$Rank[i]))) {
+          input.correct[i] <- TRUE
+        } else if (preferences$Taken[i] == "N" & 
+                   (preferences$Suitable[i] == "" | is.na(preferences$Rank[i]))) {
+          input.correct[i] <- FALSE
+        } else if (preferences$Taken[i] == "N" & 
+                   (preferences$Suitable[i] != "" & !is.na(preferences$Rank[i]))) {
+          input.correct[i] <- TRUE
+        }
+          
+      }
+    
+      if (all(input.correct)) {
+        showNotification("Courses correctly selected", duration=5, type="message")
+        write.csv(preferences, paste0(input$netid, "_preferences.csv"), row.names = FALSE)
+      } else {
+          showNotification("Incorrect inputs", duration=5, type="error")
+        }
+      
+    })
   })
-  
-  # observeEvent(input$submit.table, {
-  #   output$DFtest1 <- renderTable(DF)
-  # })
-  
-  #   output$DFtest1 <- renderTable(DFupdate)
-  
-  
-  #  # Whenever a field is filled, aggregate all form data
-  #  formData <- reactive({
-  #    data <- apply(fields, function(x) input[[x]])
-  #    data
-  #  })
-  #  
-  #  observeEvent(input$submit.table, {
-  #    saveData(formData())
-  #  })
-  #  # Show the previous responses
-  #  # (update with current response when Submit is clicked)
-  #  output$responses <- DT::renderDataTable({
-  #    input$submit.table
-  #    loadData()
-  #  })  
-  #
-  
-  # output$length <- renderText({
-  #   paste0("Please rank your courses from 1 (first preference) to ",
-  #          maxRank(), " (lowest preference).")
-  # })
-  
-  
-  
   
   # Summary tab
   
-  # Error checking
-  r <- reactive({
-    req(input$netid, input$new_pin, !is.na(as.numeric(input$new_pin)), nchar(input$new_pin) == 4, 
-        input$first_name, input$last_name, input$year != "Select a year", input$major, input$why)
-  })
-  
-  
-  
   # Display information inputs
+  
   
   #When the "submit" button in the "Course Preferences" tab is clicked, it checks to see whether
   #the table.condition is met. If so, the submitcourse$bool is changed to TRUE and the summary tab is updated.
@@ -292,7 +328,7 @@ server <- function(session, input, output) {
   
   output$summarytext <- renderUI({
     
-    text <- character(7)
+    text <- character(6)
     
     ifelse(input$netid == "", 
            text[1] <- "<font color='red'>Please input your NetID</font>",
@@ -315,7 +351,7 @@ server <- function(session, input, output) {
            text[6] <- paste0("<strong>You have entered your reason for applying as: </strong>", input$why))       
     ifelse(submitcourse$bool,
            text[7] <- "<strong>You have submitted a course selection. </strong>",
-           text[7] <- "<font color='red'>Please submit your desired course information.</font>")
+           text[7] <- "<font color='red'>Please submit your desired course information in the correct form.</font>")
     
     expr = HTML(paste(text, collapse="<br/>"))
     
