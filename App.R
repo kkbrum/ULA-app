@@ -264,13 +264,45 @@ server <- function(session, input, output) {
                                 Suitable = shinyValue('suitable', nrow(DF)),
                                 Rank = shinyValue('num', nrow(DF)))
       
+      # Basic error checking
+      input.correct <- rep(NA, nrow(preferences))
       
+      if (length(unique(preferences$Rank)) != nrow(preferences)) {
+        input.correct <- rep(FALSE, nrow(preferences))
+        showNotification("Please pick unique ranks", duration=5, type="error")
+        
+      }
       
-      # Check preferences df for -- blank/NA inputs only in certain cols for N response.
-      # if all good, write csv, success message
-      # if not all good, failure message
-
-      write.csv(preferences, paste0(input$netid, "_preferences.csv"), row.names = FALSE)
+      for (i in 1:nrow(preferences)) {
+        
+        if (preferences$Taken[i] == "") {
+          input.correct[i] <- FALSE
+        } else if (preferences$Taken[i] == "Y" & 
+                   (is.na(preferences$WhenTaken[i]) | preferences$Prof[i] == "" |
+                    preferences$Grade[i] == "" | preferences$Suitable[i] == "" |
+                    is.na(preferences$Rank[i]))) {
+          input.correct[i] <- FALSE
+        } else if (preferences$Taken[i] == "Y" & 
+                   (!is.na(preferences$WhenTaken[i]) & preferences$Prof[i] != "" &
+                    preferences$Grade[i] != "" & preferences$Suitable[i] != "" &
+                    !is.na(preferences$Rank[i]))) {
+          input.correct[i] <- TRUE
+        } else if (preferences$Taken[i] == "N" & 
+                   (preferences$Suitable[i] == "" | is.na(preferences$Rank[i]))) {
+          input.correct[i] <- FALSE
+        } else if (preferences$Taken[i] == "N" & 
+                   (preferences$Suitable[i] != "" & !is.na(preferences$Rank[i]))) {
+          input.correct[i] <- TRUE
+        }
+          
+      }
+    
+      if (all(input.correct)) {
+        showNotification("Courses correctly selected", duration=5, type="message")
+        write.csv(preferences, paste0(input$netid, "_preferences.csv"), row.names = FALSE)
+      } else {
+          showNotification("Incorrect inputs", duration=5, type="error")
+        }
       
     })
   })
