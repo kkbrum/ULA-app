@@ -13,6 +13,7 @@ output: pdf_document
 - Created log in functionality for both students and faculty. For students, this loads in their previous responses. For faculty, this creates a tab for each class they are teaching and loads in the information from the students who ranked that class and enables the faculty to rank those students. I also added error messages for the various log in failures.
 - Helped Margaret and Cameron set up the inputs in the student ranking table so that they are interpreted by RShiny correctly and also made it possible to enable and disable inputs based on previous inputs.
 - Helped debug and merge other peoples' code together.
+- Helped plan the course of the project, adding issues to the git as necessary to guide peoples' work.
 
 ## Maria
 
