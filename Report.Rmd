@@ -18,7 +18,10 @@ output: pdf_document
 ## Maria
 
 ## Margaret
-
+- Worked on the student's preferences page with Cameron. This involved displaying the courses available as a table (information pulled from a csv) and creating a selection button below to allow students to choose the classes they would like to ULA. Once the student submits their course selections, a csv (called temp.csv) is created to hold this information. This csv is immediately read to create a ranking table with the correct number of rows for the number of courses selected. 
+- With Katherine's help, built a student information input table that collected data in the correct form (numeric for what year they've taken the class/preference ranking, character for typed in inputs, etc.) and correct ranges of values for numeric inputs. I also worked on adjusting the enabling of inputs - students must first select whether or not they have taken a course before being able to fill out any further information on the table.
+- A feature that still needs to be worked on is allowing students to submit their information once it has all been correctly filled in and writing the information to the temporary csv that originally only contained the courses selected (error messages pop up if this has not been correctly satisfied and no csv is written).
+- Another feature to be added is an autofill feature (the same as the Student meta-data page) where if a student signs in, all of the information a previous session that was saved to a csv is pulled into the App and automatically fills in the Student Preference page. 
 ## Cameron
 
 ## Jon
