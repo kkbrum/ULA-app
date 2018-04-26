@@ -149,11 +149,14 @@ server <- function(session, input, output) {
   
   output.numSelected <- reactive({length(input$choices)})
   
+  
   # Instructions for the students 
-  observeEvent(input$select, { output$length <- renderText({
+  observeEvent(input$select, { 
+    if(!is.null(input$choices)) {
+    output$length <- renderText({
     paste0("Please rank your preferences in the final column, from 1 (first choice) to ",
            length(input$choices), " (lowest preference)")
-  })})
+    })}})
   
   # Enter more information for those selected classes
   
@@ -321,9 +324,22 @@ server <- function(session, input, output) {
   #in the "summary" tab. It could be that all of the tables values are populated with something, 
   #for example. I left it blank for now, set to TRUE by default.
   
+  #It does a similar thing for the course selections. When "Select" in the course selections
+  #tab is pressed, it checks to see if the choices field is null. If so, display a warning,
+  #if not, update the summary tab.
+  
   table.condition <- TRUE
-  submitcourse <- reactiveValues(bool = FALSE)
-  observeEvent(input$submit.table, if(table.condition) submitcourse$bool <- TRUE)
+  
+  submitcourse <- reactiveValues(bool1 = FALSE, bool2 = FALSE)
+  observeEvent(input$submit.table, if(table.condition) submitcourse$bool1 <- TRUE)
+
+  observeEvent(input$select, if(is.null(input$choices)){
+    showNotification("Please choose at least one class and press 'Select' again",
+                     type = "warning")
+  }else{
+    submitcourse$bool2 <- TRUE
+  })
+  
   
   output$summarytext <- renderUI({
     
@@ -348,10 +364,10 @@ server <- function(session, input, output) {
     ifelse(input$why == "", 
            text[6] <- "<font color='red'>Please explain why you would like to serve as a ULA</font>", 
            text[6] <- paste0("<strong>You have entered your reason for applying as: </strong>", input$why))   
-    ifelse(input$select > 0 & !is.null(input$choices),
+    ifelse(submitcourse$bool2,
            text[7] <- paste0("<strong>You have selected: </strong>", paste(input$choices, collapse=", ")),
            text[7] <- "<font color='red'>Please make a course selection.</font>")
-    ifelse(submitcourse$bool,
+    ifelse(submitcourse$bool1,
            text[8] <- "<strong>You have submitted a course selection. </strong>",
            text[8] <- "<font color='red'>Please submit your desired course information in the correct form.</font>")
     
