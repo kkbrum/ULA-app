@@ -1,5 +1,6 @@
-"","course","days","time","prof"
-"1","S&DS 100","T Th","9:25-10:15","Jay Emerson"
-"2","S&DS 230","M W","11:35-12:50","Susan Wang"
-"3","S&DS 241","M W F","1:00-2:15","Winston Lin"
-"4","S&DS 365","T Th","1:00-2:15","John Lafferty"
+,course,days,time,prof
+1,S&DS 100,T Th,9:25-10:15,Jay Emerson
+2,S&DS 230,M W,11:35-12:50,Susan Wang
+3,S&DS 241,M W F,1:00-2:15,Winston Lin
+4,S&DS 365,T Th,1:00-2:15,John Lafferty
+5,S&DS 361,M W F,2:30-3:45,John Lafferty

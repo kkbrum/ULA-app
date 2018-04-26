@@ -119,7 +119,7 @@ server <- function(session, input, output) {
         input$first_name, input$last_name, input$year != "Select a year", input$major, input$why)
   })
   
-
+  
   # My Info tab
   
   observeEvent(input$login, {
@@ -148,13 +148,13 @@ server <- function(session, input, output) {
   # Select some classes
   
   output.numSelected <- reactive({length(input$choices)})
-
+  
   # Instructions for the students 
   observeEvent(input$select, { output$length <- renderText({
-    paste0("Please rank your prefereneces in the final column, from 1 (first choice) to ",
+    paste0("Please rank your preferences in the final column, from 1 (first choice) to ",
            length(input$choices), " (lowest preference)")
   })})
-
+  
   # Enter more information for those selected classes
   
   observeEvent(input$select, {
@@ -222,7 +222,7 @@ server <- function(session, input, output) {
         ) 
       )
       
-
+      
       # Disabling/Enabling buttons      
       
       observeEvent(shinyValue("taken",nrow(DF)), {
@@ -296,15 +296,15 @@ server <- function(session, input, output) {
                    (preferences$Suitable[i] != "" & !is.na(preferences$Rank[i]))) {
           input.correct[i] <- TRUE
         }
-          
+        
       }
-    
+      
       if (all(input.correct)) {
         showNotification("Courses correctly selected", duration=5, type="message")
         write.csv(preferences, paste0(input$netid, "_preferences.csv"), row.names = FALSE)
       } else {
-          showNotification("Incorrect inputs", duration=5, type="error")
-        }
+        showNotification("Incorrect inputs", duration=5, type="error")
+      }
       
     })
   })
