@@ -81,8 +81,9 @@ server <- function(session, input, output) {
             }
           }
           
-          DF <- data.frame(matrix(0,nrow = length(currentStudents[[i]]), ncol=7))
-          names(DF) <- c("Rank", "Student", "Taken", "WhenTaken", "Professor", "Grade", "Suitable")
+          if (length(currentStudents[[i]])>0) {
+          DF <- data.frame(matrix(0,nrow = length(currentStudents[[i]]), ncol=9))
+          names(DF) <- c("Rank", "Student", "Year", "Major", "Taken", "WhenTaken", "Professor", "Grade", "Suitable")
           
           DF$Rank <- shinyInput(numericInput, nrow(DF), 'num',
                                 value = NA, min = 1, 
@@ -90,14 +91,21 @@ server <- function(session, input, output) {
           DF$Student <- currentStudents[[i]]
           
           for (j in 1:length(currentStudents[[i]])){
-            temp <- read.csv(paste0(currentStudents[[i]][j], ".csv"), as.is=TRUE)
+            temp <- read.csv(paste0(currentStudents[[i]][j], "_preferences", ".csv"), as.is=TRUE)
             
-            DF[j,3:7] <- temp[temp$Title==prof_courses[i], 2:6]
+            DF[j,5:9] <- temp[temp$Title==prof_courses[i], 2:6]
+            
+            temp2 <- read.csv(list.files(pattern= paste0(currentStudents[[i]][j], '_', '[^p]')), as.is=TRUE)
 
+            DF$Student[j] <- paste0(temp2$first_name, " ", temp2$last_name)
+            
+            DF$Year[j] <- temp2$year
+            
+            DF$Major[j] <- temp2$major
           }
           
           
-          names(DF) <-  c("Your ranking", "Student Name",
+          names(DF) <-  c("Your ranking", "Student Name", "Student's Year", "Student's Major",
                           "Has the student taken the course?",
                           "When did they take it?",
                           "Who was their professor?",
@@ -106,20 +114,22 @@ server <- function(session, input, output) {
           
           
           studentInfo[[i]] <- DF
-          
+          }
         }
         
         
         tabs <- lapply(1:length(prof_courses), 
                        function(x) tabPanel(prof_courses[x],  br(), 
+                                            if (length(currentStudents[[i]])>0) {
                                             DT::renderDataTable( 
                                               studentInfo[[x]], server = FALSE, escape = FALSE, selection='none', options = list( 
                                                 preDrawCallback = JS('function() { 
                                                                      Shiny.unbindAll(this.api().table().node()); }'), 
                                                 drawCallback = JS('function() { 
                                                                   Shiny.bindAll(this.api().table().node()); } '),
-                                                dom = 't')
-                                            )
+                                                dom = 't') )}
+                                            else {renderText("No students ranked this course")}
+                                            
                        )
         )
         tabs[[length(prof_courses)+1]] <- tabPanel("Summary") 
