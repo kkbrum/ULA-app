@@ -323,12 +323,11 @@ server <- function(session, input, output) {
   
   table.condition <- TRUE
   submitcourse <- reactiveValues(bool = FALSE)
-  
   observeEvent(input$submit.table, if(table.condition) submitcourse$bool <- TRUE)
   
   output$summarytext <- renderUI({
     
-    text <- character(6)
+    text <- character(8)
     
     ifelse(input$netid == "", 
            text[1] <- "<font color='red'>Please input your NetID</font>",
@@ -348,10 +347,13 @@ server <- function(session, input, output) {
            text[5] <- paste0("<strong>You have entered your major(s) as: </strong>", input$major))
     ifelse(input$why == "", 
            text[6] <- "<font color='red'>Please explain why you would like to serve as a ULA</font>", 
-           text[6] <- paste0("<strong>You have entered your reason for applying as: </strong>", input$why))       
+           text[6] <- paste0("<strong>You have entered your reason for applying as: </strong>", input$why))   
+    ifelse(input$select > 0 & !is.null(input$choices),
+           text[7] <- paste0("<strong>You have selected: </strong>", paste(input$choices, collapse=", ")),
+           text[7] <- "<font color='red'>Please make a course selection.</font>")
     ifelse(submitcourse$bool,
-           text[7] <- "<strong>You have submitted a course selection. </strong>",
-           text[7] <- "<font color='red'>Please submit your desired course information in the correct form.</font>")
+           text[8] <- "<strong>You have submitted a course selection. </strong>",
+           text[8] <- "<font color='red'>Please submit your desired course information in the correct form.</font>")
     
     expr = HTML(paste(text, collapse="<br/>"))
     
