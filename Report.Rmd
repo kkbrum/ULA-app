@@ -6,6 +6,7 @@ output: pdf_document
 ---
 
 # Overview
+This year, the Yale S&DS Department the Undergraduate Learning Assistant (ULA) program in many of its classrooms. Students serving as ULAs have both grading and teach responsibilities and serve in very similar capacities to the department's graduate student TAs and TFs. One problem currently facing the ULA program is the fact that no system currently exists to organize the recruitment and class assignment processes, which is frustrating for students applying to be ULAs, faculty hoping to have ULAs in their classrooms, and administrators who oversee the process and hire students. As more and more departments adopt the ULA program there will be a greater need for an organized (and potentially centralized) system to manage recruitment and assignment. This Shiny application is a first attempt at doing just that. 
 
 # Current Progress
 
@@ -22,6 +23,7 @@ output: pdf_document
 - With Katherine's help, built a student information input table that collected data in the correct form (numeric for what year they've taken the class/preference ranking, character for typed in inputs, etc.) and correct ranges of values for numeric inputs. I also worked on adjusting the enabling of inputs - students must first select whether or not they have taken a course before being able to fill out any further information on the table.
 - A feature that still needs to be worked on is allowing students to submit their information once it has all been correctly filled in and writing the information to the temporary csv that originally only contained the courses selected (error messages pop up if this has not been correctly satisfied and no csv is written).
 - Another feature to be added is an autofill feature (the same as the Student meta-data page) where if a student signs in, all of the information a previous session that was saved to a csv is pulled into the App and automatically fills in the Student Preference page. 
+
 ## Cameron
 
 ## Jon
