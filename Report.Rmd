@@ -6,7 +6,7 @@ output: pdf_document
 ---
 
 # Overview
-This year, the Yale S&DS Department the Undergraduate Learning Assistant (ULA) program in many of its classrooms. Students serving as ULAs have both grading and teach responsibilities and serve in very similar capacities to the department's graduate student TAs and TFs. One problem currently facing the ULA program is the fact that no system currently exists to organize the recruitment and class assignment processes, which is frustrating for students applying to be ULAs, faculty hoping to have ULAs in their classrooms, and administrators who oversee the process and hire students. As more and more departments adopt the ULA program there will be a greater need for an organized (and potentially centralized) system to manage recruitment and assignment. This Shiny application is a first attempt at doing just that. 
+This year, the Yale S&DS Department the Undergraduate Learning Assistant (ULA) program in many of its classrooms. Students serving as ULAs have both grading and teach responsibilities and serve in very similar capacities to the department's graduate student TAs and TFs. One problem currently facing the ULA program is the fact that no system currently exists to organize the recruitment and class assignment processes, which is frustrating for students applying to be ULAs, faculty hoping to have ULAs in their classrooms, and administrators who oversee the process and hire students. As more and more departments adopt the ULA program there will be a greater need for an organized (and potentially centralized) system to manage recruitment and assignment. This Shiny application is a first attempt at doing just that.[^1] 
 
 # Current Progress
 
@@ -29,3 +29,5 @@ This year, the Yale S&DS Department the Undergraduate Learning Assistant (ULA) p
 ## Jon
 
 # Future Work
+
+[^1]: You can see our current progress and test the app for yourself at: https://github.com/kkbrum/ULA-app
