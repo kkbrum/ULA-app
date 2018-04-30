@@ -17,6 +17,10 @@ This year, the Yale S&DS Department the Undergraduate Learning Assistant (ULA) p
 - Helped plan the course of the project, adding issues to the git as necessary to guide peoples' work.
 
 ## Maria
+- Set up basic initial structure for the student side of the application by creating the tabs that are used to collect student meta-data, record their course preferences, and summarize their inputs and set up all numeric and text fields on the meta-data tab. 
+- Created basic error checks for all tabs of the student side of the application to ensure that responses are non-blank and follow the correct input format (ex. 4-digit pin is actually 4 digits.) When input is not correct students see an error message or warning and they may only submit their application, which writes to their personal preferences csv, when all input issues have been resolved.
+- Helped debug and merge other peoples' code together.
+- Helped plan the course of the project by contacting administrators, creating a paper outline of the general structure of the app, organizing team meetings, and adding issues to the git as necessary to guide peoples' work.
 
 ## Margaret
 - Worked on the student's preferences page with Cameron. This involved displaying the courses available as a table (information pulled from a csv) and creating a selection button below to allow students to choose the classes they would like to ULA. Once the student submits their course selections, a csv (called temp.csv) is created to hold this information. This csv is immediately read to create a ranking table with the correct number of rows for the number of courses selected. 
