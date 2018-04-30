@@ -9,11 +9,11 @@ No system currently exists to organize the ULA recruitment and class assignment 
 ## General Overview (Project Structure)
 * Student Interface
     * Students provide basic information about themselves and the courses that they've taken
-    * Students rank their preferences in therms of classes that they would like to ULA
+    * Students rank their preferences in terms of classes that they would like to ULA
 * Faculty Interface
     * Faculty see the names and meta-data of students interested in ULAing their class (minus student preferences)
     * Faculty ranks students to be their ULAs according to their preferences
 * Stable Matching Algorithm
 * Administrator Interface
-    * Administrator observes matching algorithm results and decide on final arguments.
+    * Administrator observes matching algorithm results and decide on final assignments.
     
