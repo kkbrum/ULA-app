@@ -69,7 +69,7 @@ server <- function(session, input, output) {
     courses <- read.csv("courses.csv", as.is=TRUE)
     prof_courses <- courses$course[courses$prof==professor]
     
-    students <- read.csv("students.csv", header=FALSE, as.is=TRUE)
+    students <- substr(list.files(pattern= '.*_[0-9]+'), start=0, stop=nchar(list.files(pattern= '.*_[0-9]+'))-9)
     select_extra <- c("first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth")
     chosen <- vector("list", length(prof_courses))
     
@@ -79,10 +79,10 @@ server <- function(session, input, output) {
         studentInfo <<- list(NULL)
         currentStudents <- vector("list", length(prof_courses))
         for (i in 1:length(prof_courses)) {
-          for (j in 1:length(students$V1)){
-            temp <- read.csv(paste0(students$V1[j], ".csv"), as.is=TRUE)
+          for (j in 1:length(students)){
+            temp <- read.csv(paste0(students[j], "_preferences.csv"), as.is=TRUE)
             if (prof_courses[i] %in% temp$Title) {
-              currentStudents[[i]] <- c(currentStudents[[i]], students$V1[j])
+              currentStudents[[i]] <- c(currentStudents[[i]], students[j])
             }
           }
           
@@ -171,7 +171,6 @@ server <- function(session, input, output) {
         if(input[[extra_new[y]]] != " ") {
           show(extra_new[y+1])
           chosen[[x]][y] <<- input[[extra_new[y]]]
-          print(chosen[[x]])
           output[[paste0('current_choices',x)]] <- renderPrint(data.frame('Rankings'=chosen[[x]]))
           updateSelectizeInput(session, extra_new[y+1], choices=c(" ", studentInfo[[x]][,'Student Name'][!(studentInfo[[x]][,'Student Name']) %in% chosen[[x]]]))
         }
