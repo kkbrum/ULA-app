@@ -17,6 +17,8 @@ The structure of this project is divided into 4 main parts: a student interface,
 - Created log in functionality for both students and faculty. For students, this loads in their previous responses. For faculty, this creates a tab for each class they are teaching and loads in the information from the students who ranked that class and enables the faculty to rank those students. I also added error messages for the various log in failures.
 - Helped Margaret and Cameron set up the inputs in the student ranking table so that they are interpreted by RShiny correctly and also made it possible to enable and disable inputs based on previous inputs.
 - Set up a ranking system for faculty where there are drop down lists of students for each ranking that update so they only include the students who have not yet been ranked.
+- Created a summary page for faculty which displays their rankings and number of desired ULAs.
+- Created submit functionality on faculty page that writes to a CSV.
 - Helped debug and merge other peoples' code together.
 - Helped plan the course of the project, adding issues to the git as necessary to guide peoples' work.
 
