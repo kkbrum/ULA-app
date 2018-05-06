@@ -39,5 +39,6 @@ The structure of this project is divided into 4 main parts: a student interface,
 ## Jon
 
 # Future Work
+The student and faculty interfaces have all major functionalities in working order, so further work done on either of these parts will be to improve efficiency or make the application more aesthetically pleasing. The next steps in this project are figuring out the details of the stable-matching algorithm that will be used to assign student ULAs to classes, creating a visual display to communicate matchings on the administrative interface, and to create an interface where students can log in to view and accept or reject their final assignment. These pieces will then need to be deployed to the S&DS Department server where they will be accessed and maintained. 
 
 [^1]: You can see our current progress and test the app for yourself at: https://github.com/kkbrum/ULA-app
