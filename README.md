@@ -17,5 +17,5 @@ No system currently exists to organize the ULA recruitment and class assignment 
 * Administrator Interface
     * Administrator observes matching algorithm results and decide on final assignments.
 * Decision Interface
-	* After the administrator makes final assignments, students will be able to log into this application to view their ULA assignment and accept or reject.
+	* After the administrator makes final assignments, students will be able to log in to view their ULA assignment and accept or reject.
 	* The information obtained from these student responses will be used to make the hiring process easier and more straightforward from an administrative perspective.
