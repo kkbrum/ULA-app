@@ -19,3 +19,6 @@ No system currently exists to organize the ULA recruitment and class assignment 
 * Decision Interface
 	* After the administrator makes final assignments, students will be able to log in to view their ULA assignment and accept or reject.
 	* The information obtained from these student responses will be used to make the hiring process easier and more straightforward from an administrative perspective.
+    
+    ## How it works
+Right now there are two components of the ULA app ready in functional form — the student interface and the faculty interface. The student interface can be accessed by running the `Student.R` file. There you can either fill in all of the required fields, including rankings, as a new student or login as an existing student using mg2396 as a username and 1234 as a pin or kb797 as a username and 1234 as a pin. After exploring the student interface, run the `Faculty.R` file to view the faculty interface. There you can login using either JL or WL as a username and 1234 as a pin. Here you will be able to tab through the classes being taught for the faculty member, and rank interested students for each one.
