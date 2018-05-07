@@ -1,34 +1,13 @@
 library(shiny)
-#install.packages('DT')
 library(DT)
-#install.packages('shinyjs')
 library(shinyjs)
 
-courses <- read.csv("courses.csv", as.is = TRUE)
-courses <- courses[,-1]
-colnames(courses) <- c("Course Code", "Day", "Meeting Time", "Professor")
-
-saveData <- function(data) {
-  data <- as.data.frame(t(data))
-  if (exists("responses")) {
-    responses <<- rbind(responses, data)
-  } else {
-    responses <<- data
-  }
-}
-
-loadData <- function() {
-  if (exists("responses")) {
-    responses
-  }
-}
-
-fields <- c("course", "taken", "whentaken", "prof", "grade", "suit", "rank")
 
 ui <- fluidPage(
   
   shinyjs::useShinyjs(),
   
+  # HTML formatting for notifications and log in box
   tags$head(
     tags$style(
       HTML(".shiny-notification {
@@ -53,6 +32,7 @@ ui <- fluidPage(
   
   mainPanel(width=12,
             tabsetPanel(type = "tabs",
+                        # Collect all student meta data
                         tabPanel("My Info", 
                                  br(),
                                  textInput("netid", "NetID (New Users Only)*", "", width="60%"),
@@ -68,21 +48,18 @@ ui <- fluidPage(
                                  br(),
                                  "(*) Denotes a required field."
                         ),
+                        # Collect student prefererences
                         tabPanel("Course Preferences", 
-                                 
                                  br(),
                                  tableOutput("t_course"),
-                                 
                                  hr(),
-                                 
                                  fluidRow(
                                    selectizeInput(
                                      inputId = "choices",
                                      label = "Choose your courses",
-                                     choices = courses[,1],
+                                     choices = " ",
                                      multiple = TRUE
                                    ),
-                                   
                                    br(),
                                    actionButton("select", "Select"),
                                    hr(),
@@ -92,20 +69,13 @@ ui <- fluidPage(
                                    br(),
                                    verbatimTextOutput('printForm'),
                                    actionButton("submit.table", "Submit")
-                                   
-                                   # DT::dataTableOutput("responses")
-                                   
-                                   # tableOutput("DFtest1")
-                                   
-                                   # tableOutput("omg")
-                                   # rHandsontableOutput("hot")
                                  )
-                                 
                         ),
                         tabPanel("Summary", br(), htmlOutput("summarytext"), br(), actionButton("submit", "Submit"))
             )
   ),
   
+  # Log in box
   absolutePanel(id="loginbox", top="15%", right="8%", width="20%", draggable=TRUE,
                 textInput("username", "Username", "", width="90%"),
                 textInput("pin", "4-digit Pin", "", width="90%"),
@@ -113,7 +83,16 @@ ui <- fluidPage(
   )
 )
 
+
+
 server <- function(session, input, output) {
+  # Load in course information
+  courses <- read.csv("courses.csv", as.is = TRUE)
+  courses <- courses[,-1]
+  colnames(courses) <- c("Course Code", "Day", "Meeting Time", "Professor")
+  
+  # Update the course options based on course information
+  updateSelectizeInput(session, "choices", choices=courses[,1])
   
   # Error checking
   r <- reactive({
@@ -121,9 +100,7 @@ server <- function(session, input, output) {
         input$first_name, input$last_name, input$year != "Select a year", input$major, input$why)
   })
   
-  
-  # My Info tab
-  
+  # Load informatin from login on the myinfo tab
   observeEvent(input$login, {
     tryCatch({
       mydata <- read.csv(paste0(input$username, "_", input$pin, ".csv"), header=TRUE)
@@ -137,41 +114,31 @@ server <- function(session, input, output) {
     }, error= function(e) {showNotification('User and pin not found', duration=5, type="error")})
   })
   
-  # Courses tab
-  
   # Display course information
-  output$t_course <- renderTable({
-    courses <- read.csv("courses.csv", as.is = TRUE)
-    courses <- courses[,-1]
-    colnames(courses) <- c("Course Code", "Day", "Meeting Time", "Professor")
-    return(courses)
-  })
+  output$t_course <- renderTable(courses)
   
-  # Select some classes
-  
-  output.numSelected <- reactive({length(input$choices)})
-  
+  # How many classes are selected
+  output.numSelected <- reactive(length(input$choices))
   
   # Instructions for the students 
   observeEvent(input$select, { 
     if(!is.null(input$choices)) {
-    output$length <- renderText({
-    paste0("Please rank your preferences in the final column, from 1 (first choice) to ",
-           length(input$choices), " (lowest preference)")
-    })}})
+      output$length <- renderText({
+        paste0("Please rank your preferences in the final column, from 1 (first choice) to ",
+               length(input$choices), " (lowest preference)")
+      })
+    }
+  })
   
   # Enter more information for those selected classes
-  
   observeEvent(input$select, {
+    # Load up the chosen courses
     if (length(input$choices) > 0) {
       this <- rep(NA, length(input$choices))
       for (i in 1:length(input$choices)){
         this[i] <- grep(input$choices[i], courses[,1], fixed=TRUE)
       }
-      temp_df <- courses[this,1]
-      #    temp_df <- cbind(temp_df, rep(0, length(this)), rep(0, length(this)))
-      #    colnames(temp_df) <- c("courses_selected", "taken", "rank")
-      write.csv(temp_df, paste0("temp_", input$netid, ".csv"), row.names = FALSE)
+      DF <- data.frame(x = courses[this,1])
       
       # create a character vector of shiny inputs 
       shinyInput = function(FUN, len, id, ...) { 
@@ -190,9 +157,7 @@ server <- function(session, input, output) {
         })) 
       } 
       
-      
-      DF <- read.csv(paste0("temp_", input$netid, ".csv"), as.is=TRUE)
-      
+      # Create fields to be inputted for each class in the table
       DF$Taken <- shinyInput(selectizeInput, nrow(DF), 'taken', choices = c("", "Y", "N"), 
                              selected = "",
                              multiple = FALSE, width="50%")
@@ -208,7 +173,6 @@ server <- function(session, input, output) {
       DF$Rank <- shinyInput(numericInput, nrow(DF), 'num',
                             value = NA, min = 1, 
                             max = nrow(DF), step = 1, width="60%")
-      
       names(DF) <-  c("Course Title", "Have you taken this course? (Y/N)",
                       "What year did you take this course?",
                       "Who was your professor?",
@@ -227,9 +191,7 @@ server <- function(session, input, output) {
         ) 
       )
       
-      
       # Disabling/Enabling buttons      
-      
       observeEvent(shinyValue("taken",nrow(DF)), {
         for (j in which(shinyValue("taken", nrow(DF)) =="")) {
           shinyjs::disable(paste0("whentaken",j))
@@ -238,7 +200,6 @@ server <- function(session, input, output) {
           shinyjs::disable(paste0("suitable",j))
           shinyjs::disable(paste0("num", j))
         }
-        
         for (j in which(shinyValue("taken", nrow(DF))=="N")) {
           shinyjs::disable(paste0("whentaken",j))
           shinyjs::disable(paste0("prof",j))
@@ -253,15 +214,12 @@ server <- function(session, input, output) {
           shinyjs::enable(paste0("suitable",j))
           shinyjs::enable(paste0("num", j))
         }
+        
       })
     }
     
-    
-    # Write csv upon submit
+    # Write preferences csv upon submit on preferences page
     observeEvent(input$submit.table, {
-      
-      r()
-      
       # Collect student inputs
       preferences <- data.frame(Title= DF[,'Course Title'],
                                 Taken = shinyValue('taken', nrow(DF)), 
@@ -270,18 +228,13 @@ server <- function(session, input, output) {
                                 Grade = shinyValue('grade', nrow(DF)),
                                 Suitable = shinyValue('suitable', nrow(DF)),
                                 Rank = shinyValue('num', nrow(DF)))
-      
-      # Basic error checking
+      # Basic error checking of preferences
       input.correct <- rep(NA, nrow(preferences))
-      
       if (length(unique(preferences$Rank)) != nrow(preferences)) {
         input.correct <- rep(FALSE, nrow(preferences))
         showNotification("Please pick unique ranks", duration=5, type="error")
-        
       }
-      
       for (i in 1:nrow(preferences)) {
-        
         if (preferences$Taken[i] == "") {
           input.correct[i] <- FALSE
         } else if (preferences$Taken[i] == "Y" & 
@@ -301,9 +254,7 @@ server <- function(session, input, output) {
                    (preferences$Suitable[i] != "" & !is.na(preferences$Rank[i]))) {
           input.correct[i] <- TRUE
         }
-        
       }
-      
       if (all(input.correct)) {
         showNotification("Courses correctly selected", duration=5, type="message")
         write.csv(preferences, paste0(input$netid, "_preferences.csv"), row.names = FALSE)
@@ -313,10 +264,6 @@ server <- function(session, input, output) {
       
     })
   })
-  
-  # Summary tab
-  
-  # Display information inputs
   
   
   #When the "submit" button in the "Course Preferences" tab is clicked, it checks to see whether
@@ -334,7 +281,7 @@ server <- function(session, input, output) {
   
   submitcourse <- reactiveValues(bool1 = FALSE, bool2 = FALSE)
   observeEvent(input$submit.table, if(table.condition) submitcourse$bool1 <- TRUE)
-
+  
   observeEvent(input$select, if(is.null(input$choices)){
     showNotification("Please choose at least one class and press 'Select' again",
                      type = "error")
@@ -342,11 +289,9 @@ server <- function(session, input, output) {
     submitcourse$bool2 <- TRUE
   })
   
-  
+  # Summary tab
   output$summarytext <- renderUI({
-    
     text <- character(8)
-    
     ifelse(input$netid == "", 
            text[1] <- "<font color='red'>Please input your NetID</font>",
            text[1] <- paste0("<strong>You have entered your NetID as: </strong>", input$netid))
@@ -372,14 +317,12 @@ server <- function(session, input, output) {
     ifelse(submitcourse$bool1,
            text[8] <- "<strong>You have submitted a course selection. </strong>",
            text[8] <- "<font color='red'>Please submit your desired course information in the correct form.</font>")
-    
     expr = HTML(paste(text, collapse="<br/>"))
-    
   })
   
-  # Write file upon application completion
+  # Write file upon meta data completion
   observeEvent(input$submit, {
-    
+    # Error checking
     r()
     write.csv(as.data.frame(cbind("netid"=input$netid, 
                                   "new_pin"=input$new_pin, 
@@ -390,7 +333,6 @@ server <- function(session, input, output) {
                                   "why"=input$why)), 
               paste0(input$netid, "_", input$new_pin, ".csv"))
     showNotification("Application Successful!", duration=5, type="message")
-    
   })
 }
 
