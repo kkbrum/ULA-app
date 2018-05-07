@@ -38,7 +38,7 @@ The structure of this project is divided into 4 main parts: a student interface,
 
 ## Jon
 - Built the 'summary' tab with Maria.
-- Contributed to the 'summary' tab by going through the 'my info' and 'course preferences' tabs and incorporating for each field various checkpoints which need to be completed before the student is informed in the "summary" tab that the their response in the particular field is sufficient.
+- Contributed to the 'summary' tab by going through the 'my info' and 'course preferences' tabs and incorporating for each field various checkpoints which need to be completed before the student is informed in the 'summary' tab that the their response in the particular field is sufficient.
 - General error checking and adding functionality for asthetics and to improve smoothness of operation for the user.
   - Examples include: Displaying an error message if 'select' is pressed without and courses selected, requiring course input to be populated before the user can proceed through the 'course selection' tab, informing users that all fields in the 'my info' tab are required, and others.
 - Contributed to the 'issues' page with functionality that needs to be added in the future.
