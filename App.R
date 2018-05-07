@@ -337,8 +337,8 @@ server <- function(session, input, output) {
 
   observeEvent(input$select, if(is.null(input$choices)){
     showNotification("Please choose at least one class and press 'Select' again",
-                     type = "warning")
-  }else{
+                     type = "error")
+  } else {
     submitcourse$bool2 <- TRUE
   })
   
