@@ -60,7 +60,7 @@ ui <- fluidPage(
                                  textInput("first_name", "First Name*", "", width="60%"),
                                  textInput("last_name", "Last Name*", "", width="60%"),
                                  selectInput("year", "Class Year*", 
-                                             c("Select a year*", 2018, 2019, 2020, 2021), width="60%"),
+                                             c("Select a year", 2018, 2019, 2020, 2021), width="60%"),
                                  textInput("major", "Major*", "", width="60%"),
                                  textAreaInput("why", 
                                                "Why do you want to serve as a ULA?*", 
