@@ -104,7 +104,9 @@ server <- function(session, input, output) {
               DF$Year[j] <- temp2$year
               DF$Major[j] <- temp2$major
             }
-            names(DF) <-  c("Student Name", "Student's Year", "Student's Major",
+            names(DF) <-  c("Student Name", 
+                            "Student's Year", 
+                            "Student's Major",
                             "Has the student taken the course?",
                             "When did they take it?",
                             "Who was their professor?",
@@ -119,15 +121,15 @@ server <- function(session, input, output) {
                        function(x) tabPanel(prof_courses[x],  
                                             br(), 
                                             # Input how many ULAs desired
-                                            numericInput(paste0("optNum","_",x), "How many ULAs would you like?", min=0, max=10, value=NA, width='10%'),
+                                            numericInput(paste0("optNum", "_", x), "How many ULAs would you like?", min=0, max=10, value=NA, width='10%'),
                                             fluidRow(
                                               # Select rankings
                                               column(4, lapply(1:(min(length(select_extra), length(currentStudents[[x]]))), function(y) {
-                                                if (y==1) {selectizeInput(paste0(select_extra[y],"_",x), label=paste0("Select your ", select_extra[y], " choice"), selected=" ", choices=c(" ", studentInfo[[x]][,'Student Name']))}
-                                                else {hidden(selectizeInput(paste0(select_extra[y],"_",x), label=paste0("Select your ", select_extra[y], " choice"), selected=" ", choices=c(" ", studentInfo[[x]][,'Student Name'])))}
+                                                if (y==1) {selectizeInput(paste0(select_extra[y], "_", x), label=paste0("Select your ", select_extra[y], " choice"), selected=" ", choices=c(" ", studentInfo[[x]][,'Student Name']))}
+                                                else {hidden(selectizeInput(paste0(select_extra[y], "_", x), label=paste0("Select your ", select_extra[y], " choice"), selected=" ", choices=c(" ", studentInfo[[x]][,'Student Name'])))}
                                               })),
                                               # Display rankings
-                                              column(3, "Rankings:",verbatimTextOutput(paste0("current_choices",x)))
+                                              column(3, "Rankings:", verbatimTextOutput(paste0("current_choices", x)))
                                             ),
                                             br(),
                                             # Display student information
@@ -142,11 +144,11 @@ server <- function(session, input, output) {
         )
         # Summary tab
         tabs[[length(prof_courses)+1]] <- tabPanel("Summary", 
-                                                   fluidRow(column(4,lapply(1:length(prof_courses), function(x) {
+                                                   fluidRow(column(4, lapply(1:length(prof_courses), function(x) {
                                                      list(br(), 
-                                                          textOutput(paste0("course",x)), 
-                                                          verbatimTextOutput(paste0("choices_summary",x)), 
-                                                          textOutput(paste0("num_summary",x)), 
+                                                          textOutput(paste0("course", x)), 
+                                                          verbatimTextOutput(paste0("choices_summary", x)), 
+                                                          textOutput(paste0("num_summary", x)), 
                                                           br()
                                                      )
                                                    }))), 
@@ -171,23 +173,23 @@ server <- function(session, input, output) {
     # Show more ranking fields and update list of rankings
     lapply(1:length(prof_courses), function(x) {
       # Set up courses in summary tab
-      output[[paste0('course',x)]] <- renderText(paste0(prof_courses[x], ' Rankings:'))
+      output[[paste0('course', x)]] <- renderText(paste0(prof_courses[x], ' Rankings:'))
       extra_new <- paste0(select_extra, "_", x)
       lapply(1:(length(select_extra)-1), function(y) {
         observeEvent(input[[extra_new[y]]], {
           if(input[[extra_new[y]]] != " ") {
             show(extra_new[y+1])
             chosen[[x]][y] <<- input[[extra_new[y]]]
-            output[[paste0('current_choices',x)]] <- renderText(paste0(1:length(chosen[[x]]), ") ", chosen[[x]],"\n"))
+            output[[paste0('current_choices', x)]] <- renderText(paste0(1:length(chosen[[x]]), ") ", chosen[[x]], "\n"))
             # Update choices in next selection
             updateSelectizeInput(session, extra_new[y+1], choices=c(" ", studentInfo[[x]][,'Student Name'][!(studentInfo[[x]][,'Student Name']) %in% chosen[[x]]]))
             # Display rankings for each course
-            output[[paste0('choices_summary',x)]] <- renderText(paste0(1:length(chosen[[x]]), ") ", chosen[[x]],"\n"))
+            output[[paste0('choices_summary', x)]] <- renderText(paste0(1:length(chosen[[x]]), ") ", chosen[[x]], "\n"))
           }
         })
-        observeEvent(input[[paste0("optNum_",x)]], {
+        observeEvent(input[[paste0("optNum_", x)]], {
           # Display number of desired ULAs
-          output[[paste0('num_summary',x)]] <- renderText(paste0(input[[paste0("optNum_",x)]], " ULAs desired."))
+          output[[paste0('num_summary', x)]] <- renderText(paste0(input[[paste0("optNum_", x)]], " ULAs desired."))
         })
       })
     })
@@ -197,8 +199,8 @@ server <- function(session, input, output) {
     # New line before each course, then the course name, number of ULAs desired, and students in order of ranking. All in new lines.
     observeEvent(input$submit, {
       lapply(1:length(prof_courses), function(x) {
-        write.table("\n",paste0(input$username, input$pin, ".csv"), append=TRUE, sep=",", row.names=FALSE, col.names=FALSE)
-        write.table(c(prof_courses[x],input[[paste0("optNum_",x)]], chosen[[x]]), 
+        write.table("\n", paste0(input$username, input$pin, ".csv"), append=TRUE, sep=",", row.names=FALSE, col.names=FALSE)
+        write.table(c(prof_courses[x], input[[paste0("optNum_", x)]], chosen[[x]]), 
                     paste0(input$username, input$pin, ".csv"), append=TRUE, sep=",", row.names=FALSE, col.names=FALSE)})
       showNotification("Submission Successful!", duration=5, type="message")
       
