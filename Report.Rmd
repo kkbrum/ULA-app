@@ -25,6 +25,7 @@ The structure of this project is divided into 4 main parts: a student interface,
 ## Maria
 - Set up basic initial structure for the student side of the application by creating the tabs that are used to collect student meta-data, record their course preferences, and summarize their inputs and set up all numeric and text fields on the meta-data tab. 
 - Created basic error checks for all tabs of the student side of the application to ensure that responses are non-blank and follow the correct input format (ex. 4-digit pin is actually 4 digits.) When input is not correct students see an error message or warning and they may only submit their application, which writes to their personal preferences csv, when all input issues have been resolved.
+- Built the summary tab with Jon. In particular, I made the code more concise and provided two HTML formatting options depending on whether or not a particular field had a response.
 - Helped debug and merge other peoples' code together.
 - Helped plan the course of the project by contacting administrators, creating a paper outline of the general structure of the app, organizing team meetings, and adding issues to the git as necessary to guide peoples' work.
 
