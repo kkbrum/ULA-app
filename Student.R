@@ -100,7 +100,7 @@ server <- function(session, input, output) {
         input$first_name, input$last_name, input$year != "Select a year", input$major, input$why)
   })
   
-  # Load informatin from login on the myinfo tab
+  # Load information from login on the myinfo tab
   observeEvent(input$login, {
     tryCatch({
       mydata <- read.csv(paste0(input$username, "_", input$pin, ".csv"), header=TRUE)
@@ -266,16 +266,16 @@ server <- function(session, input, output) {
   })
   
   
-  #When the "submit" button in the "Course Preferences" tab is clicked, it checks to see whether
-  #the table.condition is met. If so, the submitcourse$bool is changed to TRUE and the summary tab is updated.
+  # When the "submit" button in the "Course Preferences" tab is clicked, it checks to see whether
+  # the table.condition is met. If so, the submitcourse$bool is changed to TRUE and the summary tab is updated.
   
-  #table.condition can be any desired criteria that needs to be met before the user sees approval
-  #in the "summary" tab. It could be that all of the tables values are populated with something, 
-  #for example. I left it blank for now, set to TRUE by default.
+  # table.condition can be any desired criteria that needs to be met before the user sees approval
+  # in the "summary" tab. It could be that all of the tables values are populated with something, 
+  # for example. I left it blank for now, set to TRUE by default.
   
-  #It does a similar thing for the course selections. When "Select" in the course selections
-  #tab is pressed, it checks to see if the choices field is null. If so, display a warning,
-  #if not, update the summary tab.
+  # It does a similar thing for the course selections. When "Select" in the course selections
+  # tab is pressed, it checks to see if the choices field is null. If so, display a warning,
+  # if not, update the summary tab.
   
   table.condition <- TRUE
   
