@@ -68,8 +68,10 @@ server <- function(session, input, output) {
     # What courses are they teaching?
     courses <- read.csv("courses.csv", as.is=TRUE)
     prof_courses <- courses$course[courses$prof==professor]
-    # Create a list of all the students who have filled out the form
-    students <- substr(list.files(pattern= '.*_[0-9]+'), start=0, stop=nchar(list.files(pattern= '.*_[0-9]+'))-9)
+    # Create a list of all the students who have filled out BOTH forms (meta and preferences)
+    students_meta <- substr(list.files(pattern= '.*_[0-9]+'), start=0, stop=nchar(list.files(pattern= '.*_[0-9]+'))-9)
+    students_pref <- substr(list.files(pattern= '.*_p'), start=0, stop=nchar(list.files(pattern= '.*_p'))-16)
+    students <- students_meta[students_meta %in% students_pref]
     # Ranking options
     select_extra <- c("first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth")
     # Initialize the list of students a professor ranks for each class
