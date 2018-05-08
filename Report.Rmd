@@ -36,6 +36,9 @@ The structure of this project is divided into 4 main parts: a student interface,
 - Another feature to be added is an autofill feature (the same as the Student meta-data page) where if a student signs in, all of the information a previous session that was saved to a csv is pulled into the App and automatically fills in the Student Preference page. 
 
 ## Cameron
+- Worked with Margaret on the Preferences tab to allow students to submit their course choices. 
+- Created 'error checkers' to ensure the sheet was filled in appropriately. This involved taking the input and making sure that certain tabs were non empty and giving specific error messages that corresponded to the input problem. 
+- May need to add a different table to display the courses once the list of courses increases. At the moment the current table will diplay options as a long list. This will cause issues with space when more courses are added. 
 
 ## Jon
 - Built the 'summary' tab with Maria.
