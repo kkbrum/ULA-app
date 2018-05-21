@@ -2,7 +2,6 @@ library(shiny)
 library(DT)
 library(shinyjs)
 
-
 ui <- fluidPage(
   
   shinyjs::useShinyjs(),
@@ -56,7 +55,7 @@ ui <- fluidPage(
                                  fluidRow(
                                    selectizeInput(
                                      inputId = "choices",
-                                     label = "Choose your courses",
+                                     label = "Choose courses you would be interested in ULAing",
                                      choices = " ",
                                      multiple = TRUE
                                    ),
@@ -65,13 +64,19 @@ ui <- fluidPage(
                                    hr(),
                                    textOutput("length"),
                                    br(),
-                                   DT::dataTableOutput("testDT"),
+                                   DT::dataTableOutput("rankDT"),
                                    br(),
-                                   verbatimTextOutput('printForm'),
-                                   actionButton("submit.table", "Submit")
+                                   verbatimTextOutput('printForm')
                                  )
                         ),
-                        tabPanel("Summary", br(), htmlOutput("summarytext"), br(), actionButton("submit", "Submit"))
+                        tabPanel("Summary", 
+                                 br(), 
+                                 htmlOutput("summarytext"), 
+                                 htmlOutput("summarytext2"), 
+                                 htmlOutput("ranked"),
+                                 br(), 
+                                 actionButton("submit", "Submit")
+                        )
             )
   ),
   
@@ -86,6 +91,7 @@ ui <- fluidPage(
 
 
 server <- function(session, input, output) {
+  
   # Load in course information
   courses <- read.csv("courses.csv", as.is = TRUE)
   courses <- courses[,-1]
@@ -95,7 +101,7 @@ server <- function(session, input, output) {
   updateSelectizeInput(session, "choices", choices=courses[,1])
   
   # Error checking
-  r <- reactive({
+  errCheck <- reactive({
     req(input$netid, input$new_pin, !is.na(as.numeric(input$new_pin)), nchar(input$new_pin) == 4, 
         input$first_name, input$last_name, input$year != "Select a year", input$major, input$why)
   })
@@ -132,6 +138,9 @@ server <- function(session, input, output) {
   
   # Enter more information for those selected classes
   observeEvent(input$select, {
+    
+    if(is.null(input$choices)) { showNotification("Please choose at least one class and press 'Select' again", type = "error") }
+    
     # Load up the chosen courses
     if (length(input$choices) > 0) {
       this <- rep(NA, length(input$choices))
@@ -181,7 +190,7 @@ server <- function(session, input, output) {
                       "Rank your preference of ULAing this course")
       
       # render the table containing shiny inputs 
-      output$testDT = DT::renderDataTable( 
+      output$rankDT = DT::renderDataTable( 
         DF, server = FALSE, escape = 2, selection='none', options = list( 
           preDrawCallback = JS('function() { 
                              Shiny.unbindAll(this.api().table().node()); }'), 
@@ -219,7 +228,7 @@ server <- function(session, input, output) {
     }
     
     # Write preferences csv upon submit on preferences page
-    observeEvent(input$submit.table, {
+    observeEvent(input$submit, {
       # Collect student inputs
       preferences <- data.frame(Title= DF[,'Course Title'],
                                 Taken = shinyValue('taken', nrow(DF)), 
@@ -263,35 +272,24 @@ server <- function(session, input, output) {
       }
       
     })
+    
+    observeEvent(shinyValue("num",nrow(DF)),
+                 if (sum(is.na(shinyValue("num",nrow(DF))))==0) {
+                   hide("summarytext2")
+                   if (length(unique(shinyValue("num",nrow(DF)))) != length(shinyValue("num",nrow(DF)))) {
+                     output$ranked <- renderUI(HTML("<font color='red'>Please select unique rankings of courses.</font>"))
+                   } else {
+                     output$ranked <- renderUI(HTML(paste0("<strong>You have selected (from highest to lowest preference): </strong> </br>", paste(input$choices[order(shinyValue('num', nrow(DF)))], collapse=", "))))
+                   }
+                 }
+    )
+    
   })
   
-  
-  # When the "submit" button in the "Course Preferences" tab is clicked, it checks to see whether
-  # the table.condition is met. If so, the submitcourse$bool is changed to TRUE and the summary tab is updated.
-  
-  # table.condition can be any desired criteria that needs to be met before the user sees approval
-  # in the "summary" tab. It could be that all of the tables values are populated with something, 
-  # for example. I left it blank for now, set to TRUE by default.
-  
-  # It does a similar thing for the course selections. When "Select" in the course selections
-  # tab is pressed, it checks to see if the choices field is null. If so, display a warning,
-  # if not, update the summary tab.
-  
-  table.condition <- TRUE
-  
-  submitcourse <- reactiveValues(bool1 = FALSE, bool2 = FALSE)
-  observeEvent(input$submit.table, if(table.condition) submitcourse$bool1 <- TRUE)
-  
-  observeEvent(input$select, if(is.null(input$choices)){
-    showNotification("Please choose at least one class and press 'Select' again",
-                     type = "error")
-  } else {
-    submitcourse$bool2 <- TRUE
-  })
   
   # Summary tab
   output$summarytext <- renderUI({
-    text <- character(8)
+    text <- character(6)
     ifelse(input$netid == "", 
            text[1] <- "<font color='red'>Please input your NetID</font>",
            text[1] <- paste0("<strong>You have entered your NetID as: </strong>", input$netid))
@@ -311,19 +309,15 @@ server <- function(session, input, output) {
     ifelse(input$why == "", 
            text[6] <- "<font color='red'>Please explain why you would like to serve as a ULA</font>", 
            text[6] <- paste0("<strong>You have entered your reason for applying as: </strong>", input$why))   
-    ifelse(submitcourse$bool2,
-           text[7] <- paste0("<strong>You have selected: </strong>", paste(input$choices, collapse=", ")),
-           text[7] <- "<font color='red'>Please make a course selection.</font>")
-    ifelse(submitcourse$bool1,
-           text[8] <- "<strong>You have submitted a course selection. </strong>",
-           text[8] <- "<font color='red'>Please submit your desired course information in the correct form.</font>")
     expr = HTML(paste(text, collapse="<br/>"))
   })
+  
+  output$summarytext2 <- renderUI(HTML("<font color='red'>Please select and rank courses to ULA.</font>"))
   
   # Write file upon meta data completion
   observeEvent(input$submit, {
     # Error checking
-    r()
+    errCheck()
     write.csv(as.data.frame(cbind("netid"=input$netid, 
                                   "new_pin"=input$new_pin, 
                                   "first_name"=input$first_name, 
