@@ -1,11 +1,12 @@
 ## Katherine
 #### 5/20/18 19:45-21:45
 Worked on fixing student app. Removed double submit buttons, removed double error checking, and made summary display courses in ranked order.
+#### 5/21/18 10:15-
 
 ## Maria
 #### 5/13/18 17:00-19:00
 Researching on matching algorithms, R implementations
 #### 5/19/18 16:00-17:00
 Getting `matchingMarkets` and all dependencies installed on my machines. Major issues with `rJava` (make sure that same type of R and Java installed ex. 64-bit R with 64-bit Java, and do an R restart after Java reinstall) 
-#### 5/21/18 08:15-0:915
+#### 5/21/18 08:15-09:15
 Reviewed current state of `Student.R` and made a list of bugs that need to be addresssed.
