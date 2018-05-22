@@ -176,7 +176,8 @@ server <- function(session, input, output) {
                                  step = 1, width="60%")
       DF$Professor  <- shinyInput(textInput, nrow(DF), 'prof')
       DF$Grade  <- shinyInput(selectInput, nrow(DF), "grade",
-                              choices = c("", "A", "B", "C", "D", "F"),
+                              choices = c("", "A, A-, B+", "B, B-, C+",
+                                          "C, C-, D+", "D, D-, F", "CR, P"),
                               multiple = FALSE, selectize=FALSE, width="50%")
       DF$Suitable <- shinyInput(textInput, nrow(DF), "suitable")
       DF$Rank <- shinyInput(numericInput, nrow(DF), 'num',
