@@ -3,7 +3,8 @@
 Worked on fixing student app. Removed double submit buttons, removed double error checking, and made summary display courses in ranked order.
 #### 5/21/18 10:15-12:00
 Renamed the student app and attempted to get preferences loaded in after log in... not successful thus far.
-#### 5/22/18 20:15-
+#### 5/22/18 20:15-23:00
+Managed to get the preferences loaded in after log in. But, I deleted the "select" button along the way, which is nice, but highlighted some problems. Mainly that if you add or remove courses, the whole table is rebuilt and all previous entries in the table are removed. The enabling/disabling features are also messed up, but I think this stems from rebuilding the table and only the last entry has proper enabling/disabling. 
 
 ## Maria
 #### 5/13/18 17:00-19:00
