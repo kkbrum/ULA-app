@@ -37,4 +37,15 @@ plot(res, energy=TRUE)
 # need to map students and classes to numbers
 
 # -----------------------------------------------------------------------------
+# install.packages("hash")
+library(hash, quietly=TRUE)
+courses <- read.csv("courses.csv", as.is=TRUE)
+course.mapping <- hash(keys=courses$course, values=seq(1, nrow(courses)))
+
+get.value <- function(key, hash_table) {
+  return(eval(parse(text=hash_table))[[key]])
+}
+
+k <- read.csv("kb797_preferences.csv", as.is=TRUE)
+m <- read.csv("mg2396_preferences.csv", as.is=TRUE)
 
