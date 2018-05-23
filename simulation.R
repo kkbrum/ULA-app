@@ -11,6 +11,7 @@ library(matchingMarkets)
 # 7 students, 2 professors with 3 slots each, random preferences
 m1 <- hri(nStudents=7, nSlots=c(3, 3), seed=64)
 
+# CASE OF INTEREST
 # 7 students, 2 professors with 3 slots each, given preferences
 # Make matrix with student preferences, one col per student,
 # one row per class
@@ -44,17 +45,31 @@ get.id <- function(string) {
   return(substring(string, 1, regexpr("_", string) - 1))
 }
 
-get.name <- function(first, last) {
-  
+get.name <- function(file) {
+  temp <- read.csv(file)
+  return(paste(temp$first_name, temp$last_name))
 }
 
 get.studentinfo <- function() {
-  temp <- list.files(pattern="*_preferences.csv")
-  s.id <- unlist(lapply(temp, get.id))
-  myfiles <- lapply(temp, read.csv)
+  temp.prefs <- list.files(pattern="*_preferences.csv")
+  s.id <- unlist(lapply(temp.prefs, get.id))
+  s.prefs <- lapply(temp.prefs, read.csv, as.is=TRUE)
   
-  temp <- list.files(pattern="*_[0-9]")
+  temp.meta <- list.files(pattern="*_[0-9]")
+  s.name <- unlist(lapply(temp.meta, get.name))
   
+  s.pref.matrix <- matrix(ncol=length(s.id), nrow=nrow(courses))
+  for (i in 1:length(s.prefs)) {
+    s.temp <- rep(NA, nrow(courses))
+    for (j in 1:nrow(s.prefs[[i]])) {
+      s.temp[j] <- get.value(s.prefs[[i]]$Title[j], "course.mapping")
+    }
+    s.pref.matrix[,i] <- s.temp
+  }
+  
+  colnames(s.pref.matrix) <- s.id
+  
+  return(s.pref.matrix)
   #temp_mapping <- hash(keys=students, values=myfiles)
 }
 
