@@ -58,6 +58,8 @@ get.studentinfo <- function() {
   temp.meta <- list.files(pattern="*_[0-9]")
   s.name <- unlist(lapply(temp.meta, get.name))
   
+  student.mapping <- hash(keys=s.name, values=seq(1, length(s.id)))
+  
   s.pref.matrix <- matrix(ncol=length(s.id), nrow=nrow(courses))
   for (i in 1:length(s.prefs)) {
     s.temp <- rep(NA, nrow(courses))
@@ -67,10 +69,7 @@ get.studentinfo <- function() {
     s.pref.matrix[,i] <- s.temp
   }
   
-  colnames(s.pref.matrix) <- s.id
-  
   return(s.pref.matrix)
-  #temp_mapping <- hash(keys=students, values=myfiles)
 }
 
 
