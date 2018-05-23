@@ -14,3 +14,4 @@ Getting `matchingMarkets` and all dependencies installed on my machines. Major i
 Reviewed current state of `Student.R` and made a list of bugs that need to be addresssed.
 #### 5/22/18 08:30-09:30
 Created more in depth options for inputting grade for student meta data, played around with a different numeric input type for year (more trouble than it's worth in terms of error checking), was working on an error message, but it doesn't play nicely with `req()`, so there was limited success
+#### 5/22/18 20:30-
