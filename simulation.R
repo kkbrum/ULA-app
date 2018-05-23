@@ -40,6 +40,24 @@ get.value <- function(key, hash_table) {
   return(eval(parse(text=hash_table))[[key]])
 }
 
+get.id <- function(string) {
+  return(substring(string, 1, regexpr("_", string) - 1))
+}
+
+get.name <- function(first, last) {
+  
+}
+
+get.studentinfo <- function() {
+  temp <- list.files(pattern="*_preferences.csv")
+  s.id <- unlist(lapply(temp, get.id))
+  myfiles <- lapply(temp, read.csv)
+  
+  temp <- list.files(pattern="*_[0-9]")
+  
+  #temp_mapping <- hash(keys=students, values=myfiles)
+}
+
 
 
 # -----------------------------------------------------------------------------
