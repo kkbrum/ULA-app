@@ -37,6 +37,7 @@ library(hash, quietly=TRUE)
 courses <- read.csv("courses.csv", as.is=TRUE)
 course.mapping <- hash(keys=courses$course, values=seq(1, nrow(courses)))
 
+
 get.value <- function(key, hash_table) {
   return(eval(parse(text=hash_table))[[key]])
 }
@@ -69,6 +70,11 @@ get.studentinfo <- function() {
     s.pref.matrix[,i] <- s.temp
   }
   
+  temp.profs <- list.files(pattern="[A-Z]{2}[0-9]{4}")
+  # Need a new faculty save pattern, should be instead a list of lists:
+  # inner lists: course name, # ULAs, list of prefs
+  p.prefs <- lapply(temp.profs, read.delim, as.is=TRUE, header=FALSE)
+    
   return(s.pref.matrix)
 }
 
