@@ -21,11 +21,6 @@ c.prefs <- matrix(c(1,2,3,4,5,6,7, 1,2,3,4,5,NA,NA), 7, 2)
 m2 <- hri(s.prefs=s.prefs, c.prefs=c.prefs, nSlots=c(3,3))
 plot(m2, energy=TRUE)
 
-# 100 students, 100 colleges with 1 slot each
-res <- hri(nStudents=200, nColleges=200, seed=64)
-plot(res)
-plot(res, energy=TRUE)
-
 # -----------------------------------------------------------------------------
 
 # -----------------------------------------------------------------------------
@@ -36,7 +31,6 @@ plot(res, energy=TRUE)
 # always need to pad with NA's to ensure proper matrix dims
 # need to map students and classes to numbers
 
-# -----------------------------------------------------------------------------
 # install.packages("hash")
 library(hash, quietly=TRUE)
 courses <- read.csv("courses.csv", as.is=TRUE)
@@ -46,6 +40,8 @@ get.value <- function(key, hash_table) {
   return(eval(parse(text=hash_table))[[key]])
 }
 
-k <- read.csv("kb797_preferences.csv", as.is=TRUE)
-m <- read.csv("mg2396_preferences.csv", as.is=TRUE)
+
+
+# -----------------------------------------------------------------------------
+
 
