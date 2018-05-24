@@ -198,12 +198,13 @@ server <- function(session, input, output) {
     
     # Write CSV upon submit (NEED TO ADD ERRORS)
     # Current format is that the file is called JL1234.csv for example. No _ between user and pin unlike for students.
-    # New line before each course, then the course name, number of ULAs desired, and students in order of ranking. All in new lines.
+    # Each line is a an evaluable character string with the course number, number of ULAs needed, and ordered 
+    # preferences in an vector.
+    # The files should be read as: read.table("JL1234.csv", header=FALSE)
     observeEvent(input$submit, {
       lapply(1:length(prof_courses), function(x) {
-        write.table("\n", paste0(input$username, input$pin, ".csv"), append=TRUE, sep=",", row.names=FALSE, col.names=FALSE)
-        write.table(c(prof_courses[x], input[[paste0("optNum_", x)]], chosen[[x]]), 
-                    paste0(input$username, input$pin, ".csv"), append=TRUE, sep=",", row.names=FALSE, col.names=FALSE)})
+        write.table(as.character(list(c(prof_courses[x], input[[paste0("optNum_", x)]], list(chosen[[x]])))), 
+                    paste0(input$username, input$pin, ".csv"), append=TRUE, sep="\n", row.names=FALSE, col.names=FALSE)})
       showNotification("Submission Successful!", duration=5, type="message")
       
     })
