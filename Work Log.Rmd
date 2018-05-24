@@ -3,7 +3,8 @@
 Worked on fixing student app. Removed double submit buttons, removed double error checking, and made summary display courses in ranked order.
 #### 5/21/18 10:15-12:00
 Renamed the student app and attempted to get preferences loaded in after log in... not successful thus far.
-#### 5/22/18 20:15-
+#### 5/22/18 20:15-23:00
+Managed to get the preferences loaded in after log in. But, I deleted the "select" button along the way, which is nice, but highlighted some problems. Mainly that if you add or remove courses, the whole table is rebuilt and all previous entries in the table are removed. The enabling/disabling features are also messed up, but I think this stems from rebuilding the table and only the last entry has proper enabling/disabling. 
 
 ## Maria
 #### 5/13/18 17:00-19:00
@@ -14,4 +15,7 @@ Getting `matchingMarkets` and all dependencies installed on my machines. Major i
 Reviewed current state of `Student.R` and made a list of bugs that need to be addresssed.
 #### 5/22/18 08:30-09:30
 Created more in depth options for inputting grade for student meta data, played around with a different numeric input type for year (more trouble than it's worth in terms of error checking), was working on an error message, but it doesn't play nicely with `req()`, so there was limited success
-#### 5/22/18 20:30-
+#### 5/22/18 20:30-23:30
+Did basic tests of the `matchingMarkets` package and figured out data structures necessary for the ULA problem (which is just the college admissions aka hospital/residents problem). Wrote basic script elements to gather information related to student inputs and format them correctly. Started some work on professor inputs, but the output of `Faculty.R` needs to be changed before I can do more work on the faculty data structure to do the stable matching. 
+#### 5/23/18 08:30-09:30
+Changed file output on faculty side to give files with each line being an evaluable list with all of the information and preferences for professors. Created a pull request to merge into master.
