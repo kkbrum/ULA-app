@@ -71,8 +71,11 @@ get.studentinfo <- function() {
   }
   
   temp.profs <- list.files(pattern="[A-Z]{2}[0-9]{4}")
-  p.info <- as.data.frame(unlist(lapply(temp.profs, read.table, as.is=TRUE, header=FALSE)), 
-                           row.names=FALSE)
+  p.info <- unlist(lapply(temp.profs, read.table, stringsAsFactors=FALSE, header=FALSE))
+  
+  for (i in 1:length(p.info)) {
+    print(eval(parse(text=p.info[i])))
+  }
   
   
   return(s.pref.matrix)
