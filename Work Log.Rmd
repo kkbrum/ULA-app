@@ -21,3 +21,5 @@ Created more in depth options for inputting grade for student meta data, played 
 Did basic tests of the `matchingMarkets` package and figured out data structures necessary for the ULA problem (which is just the college admissions aka hospital/residents problem). Wrote basic script elements to gather information related to student inputs and format them correctly. Started some work on professor inputs, but the output of `Faculty.R` needs to be changed before I can do more work on the faculty data structure to do the stable matching. 
 #### 5/23/18 08:30-09:30
 Changed file output on faculty side to give files with each line being an evaluable list with all of the information and preferences for professors. Created a pull request to merge into master.
+#### 5/23/18 22:45-23:45
+Some progressing on creating the faculty output matrices and creation of two faculty preferences files for testing purposes. Had difficulties with formatting at first, always check evaluation vs. printout.
