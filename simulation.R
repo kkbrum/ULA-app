@@ -71,10 +71,10 @@ get.studentinfo <- function() {
   }
   
   temp.profs <- list.files(pattern="[A-Z]{2}[0-9]{4}")
-  # Need a new faculty save pattern, should be instead a list of lists:
-  # inner lists: course name, # ULAs, list of prefs
-  p.prefs <- lapply(temp.profs, read.delim, as.is=TRUE, header=FALSE)
-    
+  p.info <- as.data.frame(unlist(lapply(temp.profs, read.table, as.is=TRUE, header=FALSE)), 
+                           row.names=FALSE)
+  
+  
   return(s.pref.matrix)
 }
 
