@@ -22,5 +22,6 @@ Did basic tests of the `matchingMarkets` package and figured out data structures
 #### 5/23/18 08:30-09:30
 Changed file output on faculty side to give files with each line being an evaluable list with all of the information and preferences for professors. Created a pull request to merge into master.
 #### 5/23/18 22:45-23:45
-Some progressing on creating the faculty output matrices and creation of two faculty preferences files for testing purposes. Had difficulties with formatting at first, always check evaluation vs. printout.
-#### 5/24/18 19:30-
+Some progress on creating the faculty output matrices and creation of two faculty preferences files for testing purposes. Had difficulties with formatting at first, always check evaluation vs. printout.
+#### 5/24/18 19:30-20:30
+Created faculty ouput matrices, got a toy matching using `hri` up and running.
