@@ -70,7 +70,8 @@ student.mapping <- hash(keys=s.name, values=seq(1, length(s.id)))
 
 # Get professor preferences
 temp.profs <- list.files(pattern="[A-Z]{2}[0-9]{4}")
-p.info <- unname(unlist(lapply(temp.profs, read.table, stringsAsFactors=FALSE, header=FALSE)))
+p.info <- unname(unlist(lapply(temp.profs, read.table, 
+                               stringsAsFactors=FALSE, header=FALSE)))
 
 # Create hash table mapping course name to course number
 # This number is based on the order in which the professor files are read in
