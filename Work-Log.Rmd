@@ -28,3 +28,5 @@ Changed file output on faculty side to give files with each line being an evalua
 Some progress on creating the faculty output matrices and creation of two faculty preferences files for testing purposes. Had difficulties with formatting at first, always check evaluation vs. printout.
 #### 5/24/18 19:30-20:30
 Created faculty ouput matrices, got a toy matching using `hri` up and running.
+#### 5/27/18 21:00-21:45
+Planning meeting with Katherine.
