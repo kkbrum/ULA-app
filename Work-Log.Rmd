@@ -9,7 +9,8 @@ Managed to get the preferences loaded in after log in. But, I deleted the "selec
 Messed around with the table of course preferences to try to fix some of the problems... but didn't accomplish anything :(
 #### 5/27/18 18:30-21:45
 Login now loads preferences; meeting with Maria to plan stuff out.
-
+#### 5/28/18 10:00-11:15
+Login on separate page; worked on error messages.
 
 ## Maria
 #### 5/13/18 17:00-19:00
