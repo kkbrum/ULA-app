@@ -46,8 +46,25 @@ get.id <- function(string) {
 }
 
 get.name <- function(file) {
-  temp <- read.csv(file)
+  temp <- read.csv(file, as.is=TRUE)
   return(paste(temp$first_name, temp$last_name))
+}
+
+get.grade <- function(class, s.id) {
+  # get a student's grade in a class
+}
+
+get.year <- function(file) {
+  temp <- read.csv(file, as.is=TRUE)
+  return(temp$year)
+}
+
+get.response <- function(class, s.id) {
+  # get the number of words in a student's reponse
+}
+
+get.sorted <- function(mat) {
+  # function to sort by breaking ties
 }
 
 # Reading in files, doing manipulations, creating hash table mappings
@@ -63,6 +80,7 @@ s.prefs <- lapply(temp.prefs, read.csv, as.is=TRUE)
 # Get student meta data, in particular, first and last name
 temp.meta <- list.files(pattern="*_[0-9]")
 s.name <- unlist(lapply(temp.meta, get.name))
+s.year <- unlist(lapply(temp.meta, get.year))
 
 # Create hash table mapping student name to student number
 # This number is based on the order in which the student files are read in
@@ -124,10 +142,15 @@ empty.cols <- which(apply(p.pref.matrix, 2, sum, na.rm=TRUE) == 0)
 # grade, senority, num words 
 
 for (i in empty.cols) {
-  temp.prefs <- list(rep(NA, ncol(s.pref.matrix)))
+  temp.prefs <- matrix(nrow=ncol(s.pref.matrix), ncol=2)
   for (j in ncol(s.pref.matrix)) {
-    if (any(s.pref.matrix[,j]) == i) {}
-    temp.prefs[[j]] <- unlist(list(j, which(s.pref.matrix[,j] == i)))
+    if (any(s.pref.matrix[,j]) == i) {
+      temp.prefs[j,] <- c(j, which(s.pref.matrix[,j] == i))
+    }
+  }  
+  temp.prefs <- temp.prefs[order(temp.prefs[,2], decreasing=FALSE),]
+  if (length(unique(temp.prefs[,2])) < nrow(temp.prefs)) {
+    temp.prefs <- get.sorted(temp.prefs)
   }
 }
 
