@@ -50,8 +50,9 @@ get.name <- function(file) {
   return(paste(temp$first_name, temp$last_name))
 }
 
-get.grade <- function(class, s.id) {
-  # get a student's grade in a class
+get.grade <- function(s.num, course) {
+  temp <- s.prefs[[s.num]]
+  return(temp$Grade[which(unlist(lapply(temp$Title, get.value, hash_table="course.mapping")) == course)])
 }
 
 get.year <- function(file) {
@@ -59,10 +60,12 @@ get.year <- function(file) {
   return(temp$year)
 }
 
-get.response <- function(class, s.id) {
-  # get the number of words in a student's reponse
+get.response <- function(s.num, course) {
+  temp <- s.prefs[[s.num]]
+  return(nchar(temp$Suitable[which(unlist(lapply(temp$Title, get.value, hash_table="course.mapping")) == course)]))
 }
 
+# input is a matrix, already partially sorted
 get.sorted <- function(mat) {
   # function to sort by breaking ties
 }
