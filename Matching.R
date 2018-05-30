@@ -107,10 +107,14 @@ for (i in 1:length(p.info)) {
 # professors who don't input their preferences.
 # hri(s.prefs=s.pref.matrix, c.prefs=p.pref.matrix, nSlots=num.ula)
 
-# Now need to work on what to do in the event that a professor doesn't fill
-# out their stuff
-# number of ULAs?
-# ordering preferences?
+# 30 May 2018
+# Things to work out:
+# Setting up default number of ULAs, should be in prof files and loaded upon login
+# Ordering of preferences if professor doesn't submit rankings
+# What to do if class not done by professor or students
+
+
+
 
 # -----------------------------------------------------------------------------
 
