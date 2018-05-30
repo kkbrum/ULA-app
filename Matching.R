@@ -66,6 +66,7 @@ get.response <- function(s.num, course) {
 }
 
 # input is a matrix, already partially sorted
+# first col is student number, second is student pref
 get.sorted <- function(mat) {
   # function to sort by breaking ties
 }
