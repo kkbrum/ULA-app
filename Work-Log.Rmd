@@ -31,3 +31,5 @@ Some progress on creating the faculty output matrices and creation of two facult
 Created faculty ouput matrices, got a toy matching using `hri` up and running.
 #### 5/27/18 21:00-21:45
 Planning meeting with Katherine.
+#### 5/30/18 10:00-11:30
+Set up loop structure and some initial functions to sort on ties in student preferences in the absence of faculty preferences being submitted.
