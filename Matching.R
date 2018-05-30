@@ -113,7 +113,23 @@ for (i in 1:length(p.info)) {
 # Ordering of preferences if professor doesn't submit rankings
 # What to do if class not done by professor or students
 
+empty.cols <- which(apply(p.pref.matrix, 2, sum, na.rm=TRUE) == 0)
 
+# logic:
+# loop through each class
+# check s.pref.matrix to see if students have class ranked
+# if yes, save a tuple with the student number and their pref
+# after looking through whole matrix, look through temp list
+# to determine how to order the students: first by pref, any ties broken by
+# grade, senority, num words 
+
+for (i in empty.cols) {
+  temp.prefs <- list(rep(NA, ncol(s.pref.matrix)))
+  for (j in ncol(s.pref.matrix)) {
+    if (any(s.pref.matrix[,j]) == i) {}
+    temp.prefs[[j]] <- unlist(list(j, which(s.pref.matrix[,j] == i)))
+  }
+}
 
 
 # -----------------------------------------------------------------------------
