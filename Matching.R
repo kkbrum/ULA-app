@@ -165,9 +165,11 @@ empty.cols <- which(apply(p.pref.matrix, 2, sum, na.rm=TRUE) == 0)
 
 for (i in empty.cols) {
   temp.prefs <- as.data.frame(matrix(nrow=ncol(s.pref.matrix), ncol=2))
-  for (j in ncol(s.pref.matrix)) {
-    if (any(s.pref.matrix[,j]) == i) {
+  for (j in 1:nrow(temp.prefs)) {
+    if (any(s.pref.matrix[,j] == i, na.rm=TRUE)) {
       temp.prefs[j,] <- c(j, which(s.pref.matrix[,j] == i))
+    } else {
+      temp.prefs[j] <- c(j, NA)
     }
   }  
   temp.prefs <- temp.prefs[order(temp.prefs[,2], decreasing=FALSE),]
