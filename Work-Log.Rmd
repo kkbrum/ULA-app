@@ -33,4 +33,5 @@ Created faculty ouput matrices, got a toy matching using `hri` up and running.
 Planning meeting with Katherine.
 #### 5/30/18 10:00-11:30
 Set up loop structure and some initial functions to sort on ties in student preferences in the absence of faculty preferences being submitted.
-#### 6/01/18 19:00-
+#### 6/01/18 19:00-21:00
+Wrote function to sort preferences for a class when a professor does not provide their own preferences.
