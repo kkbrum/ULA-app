@@ -69,19 +69,18 @@ get.response <- function(s.num, course) {
   return(-nchar(temp$Suitable[which(unlist(lapply(temp$Title, get.value, hash_table="course.mapping")) == course)]))
 }
 
-# input is a matrix, already partially sorted
-# first col is student number, second is student pref
 get.sorted <- function(mat, course) {
-  # function to sort by breaking ties
   mat$grade <- NA
   mat$year <- NA
   mat$response <- NA
   for (i in 1:nrow(mat)) {
-    if (!is.na(mat[]))
-    mat$grade[i] <- get.value(get.grade(mat[i,1], course), hash_table="grade.mapping")
-    #mat$year[i] <-
-    #mat$response[i] <-
+    if (!is.na(mat[i,2])) {
+      mat$grade[i] <- get.value(get.grade(mat[i,1], course), hash_table="grade.mapping")
+      mat$year[i] <- get.year(meta[i])
+      mat$response[i] <- get.response(mat[i,1], course=course)
+    }
   }
+  mat <- mat[order(mat$grade, mat$year, mat$response, decreasing=TRUE),]
   return(mat)
 }
 
@@ -96,9 +95,9 @@ s.id <- unlist(lapply(temp.prefs, get.id))
 s.prefs <- lapply(temp.prefs, read.csv, as.is=TRUE)
 
 # Get student meta data, in particular, first and last name
-temp.meta <- list.files(pattern="*_[0-9]")
-s.name <- unlist(lapply(temp.meta, get.name))
-s.year <- unlist(lapply(temp.meta, get.year))
+meta <- list.files(pattern="*_[0-9]")
+s.name <- unlist(lapply(meta, get.name))
+s.year <- unlist(lapply(meta, get.year))
 
 # Create hash table mapping student name to student number
 # This number is based on the order in which the student files are read in
@@ -171,12 +170,17 @@ for (i in empty.cols) {
     } else {
       temp.prefs[j] <- c(j, NA)
     }
+    temp.prefs <- temp.prefs[order(temp.prefs[,2], decreasing=FALSE),]
+    if (length(unique(temp.prefs[,2])) < nrow(temp.prefs)) {
+      temp.prefs <- get.sorted(temp.prefs, i)[,1:2]
+    }
+    temp.prefs$V1[is.na(temp.prefs$V2)] <- NA
   }  
-  temp.prefs <- temp.prefs[order(temp.prefs[,2], decreasing=FALSE),]
-  if (length(unique(temp.prefs[,2])) < nrow(temp.prefs)) {
-    temp.prefs <- get.sorted(temp.prefs, i)
-  }
+  p.pref.matrix[,i] <- temp.prefs[,1]
 }
+
+num.ula[which(apply(p.pref.matrix, 2, sum, na.rm=TRUE) == 0)] <- 0
+
 
 
 # -----------------------------------------------------------------------------
