@@ -52,7 +52,8 @@ get.name <- function(file) {
 
 get.grade <- function(s.num, course) {
   temp <- s.prefs[[s.num]]
-  return(temp$Grade[which(unlist(lapply(temp$Title, get.value, hash_table="course.mapping")) == course)])
+  x <- temp$Grade[which(unlist(lapply(temp$Title, get.value, hash_table="course.mapping")) == course)]
+  ifelse (x == "", return("Not taken"), return(x))
 }
 
 get.year <- function(file) {
@@ -60,15 +61,28 @@ get.year <- function(file) {
   return(temp$year)
 }
 
+# Nota bene: `course` needs to be the course number from the hash table; returns
+# negative response length (in characters) because the sorts are done with the 
+# order decreasing
 get.response <- function(s.num, course) {
   temp <- s.prefs[[s.num]]
-  return(nchar(temp$Suitable[which(unlist(lapply(temp$Title, get.value, hash_table="course.mapping")) == course)]))
+  return(-nchar(temp$Suitable[which(unlist(lapply(temp$Title, get.value, hash_table="course.mapping")) == course)]))
 }
 
 # input is a matrix, already partially sorted
 # first col is student number, second is student pref
-get.sorted <- function(mat) {
+get.sorted <- function(mat, course) {
   # function to sort by breaking ties
+  mat$grade <- NA
+  mat$year <- NA
+  mat$response <- NA
+  for (i in 1:nrow(mat)) {
+    if (!is.na(mat[]))
+    mat$grade[i] <- get.value(get.grade(mat[i,1], course), hash_table="grade.mapping")
+    #mat$year[i] <-
+    #mat$response[i] <-
+  }
+  return(mat)
 }
 
 # Reading in files, doing manipulations, creating hash table mappings
@@ -98,6 +112,10 @@ p.info <- unname(unlist(lapply(temp.profs, read.table,
 # Create hash table mapping course name to course number
 # This number is based on the order in which the professor files are read in
 course.mapping <- hash(keys=courses$course, values=seq(1, nrow(courses)))
+
+# Create hash table mapping grade options to point values
+grade.mapping <- hash(keys=c("A", "A-", "B+", "Not taken", "B", "B-", "C+", "C, C-, D+", "D, D-, F", "CR, P"), 
+                      values=seq(1, length(c("A", "A-", "B+", "", "B", "B-", "C+", "C, C-, D+", "D, D-, F", "CR, P"))))
 
 # Create matrix of student preferences
 s.pref.matrix <- matrix(ncol=length(s.id), nrow=nrow(courses))
@@ -146,7 +164,7 @@ empty.cols <- which(apply(p.pref.matrix, 2, sum, na.rm=TRUE) == 0)
 # grade, senority, num words 
 
 for (i in empty.cols) {
-  temp.prefs <- matrix(nrow=ncol(s.pref.matrix), ncol=2)
+  temp.prefs <- as.data.frame(matrix(nrow=ncol(s.pref.matrix), ncol=2))
   for (j in ncol(s.pref.matrix)) {
     if (any(s.pref.matrix[,j]) == i) {
       temp.prefs[j,] <- c(j, which(s.pref.matrix[,j] == i))
@@ -154,7 +172,7 @@ for (i in empty.cols) {
   }  
   temp.prefs <- temp.prefs[order(temp.prefs[,2], decreasing=FALSE),]
   if (length(unique(temp.prefs[,2])) < nrow(temp.prefs)) {
-    temp.prefs <- get.sorted(temp.prefs)
+    temp.prefs <- get.sorted(temp.prefs, i)
   }
 }
 
