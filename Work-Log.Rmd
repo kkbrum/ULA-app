@@ -35,4 +35,5 @@ Planning meeting with Katherine.
 Set up loop structure and some initial functions to sort on ties in student preferences in the absence of faculty preferences being submitted.
 #### 6/01/18 19:00-21:00
 Wrote function to sort preferences for a class when a professor does not provide their own preferences.
-#### 6/0/2/18 19:30-
+#### 6/0/2/18 19:30-20:30
+Generated student and faculty testing data and did some bug fixes
