@@ -33,7 +33,7 @@ plot(m2, energy=TRUE)
 # need to map students and classes to numbers
 
 # install.packages("hash")
-library(hash, quietly=TRUE)
+library(hash)
 
 # Maria defined functions
 
@@ -135,7 +135,8 @@ for (i in 1:length(p.info)) {
   
   temp <- rep(NA, length(s.id))
   for (j in 1:length(info[[3]])) {
-    temp[j] <- get.value(info[[3]][j], "student.mapping")
+    ifelse(is.null(info[[3]][j]), 
+           temp[j] <- NA, temp[j] <- get.value(info[[3]][j], "student.mapping"))
   }
   p.pref.matrix[,get.value(info[[1]], "course.mapping")] <- temp
 }
@@ -168,7 +169,7 @@ for (i in empty.cols) {
     if (any(s.pref.matrix[,j] == i, na.rm=TRUE)) {
       temp.prefs[j,] <- c(j, which(s.pref.matrix[,j] == i))
     } else {
-      temp.prefs[j] <- c(j, NA)
+      temp.prefs[j,] <- c(j, NA)
     }
     temp.prefs <- temp.prefs[order(temp.prefs[,2], decreasing=FALSE),]
     if (length(unique(temp.prefs[,2])) < nrow(temp.prefs)) {
