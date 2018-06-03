@@ -180,8 +180,12 @@ for (i in empty.cols) {
   p.pref.matrix[,i] <- temp.prefs[,1]
 }
 
-num.ula[which(apply(p.pref.matrix, 2, sum, na.rm=TRUE) == 0)] <- 0
+empty.cols <- which(apply(p.pref.matrix, 2, sum, na.rm=TRUE) == 0)
+for (i in empty.cols) {
+  p.pref.matrix[,i] <- sample(1:ncol(s.pref.matrix), replace=FALSE)
+}
 
+# Need to figure out what to do if no interest + no prof submit
 
 
 # -----------------------------------------------------------------------------
