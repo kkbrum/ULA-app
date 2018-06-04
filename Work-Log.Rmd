@@ -11,6 +11,8 @@ Messed around with the table of course preferences to try to fix some of the pro
 Login now loads preferences; meeting with Maria to plan stuff out.
 #### 5/28/18 10:00-11:15
 Login on separate page; worked on error messages.
+#### 6/03/18  19:15-20:00
+Reordered student app code so that it has a logical grouping and flow structure. Started working on combining the error checking and file writing into cohesive code.
 
 ## Maria
 #### 5/13/18 17:00-19:00
@@ -35,5 +37,5 @@ Planning meeting with Katherine.
 Set up loop structure and some initial functions to sort on ties in student preferences in the absence of faculty preferences being submitted.
 #### 6/01/18 19:00-21:00
 Wrote function to sort preferences for a class when a professor does not provide their own preferences.
-#### 6/0/2/18 19:30-20:30
+#### 6/02/18 19:30-20:30
 Generated student and faculty testing data and did some bug fixes
