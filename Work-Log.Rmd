@@ -39,3 +39,4 @@ Set up loop structure and some initial functions to sort on ties in student pref
 Wrote function to sort preferences for a class when a professor does not provide their own preferences.
 #### 6/02/18 19:30-20:30
 Generated student and faculty testing data and did some bug fixes
+#### 6/03/18 20:30-
