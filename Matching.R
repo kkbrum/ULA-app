@@ -84,15 +84,29 @@ get.sorted <- function(mat, course) {
   return(mat)
 }
 
+
 # Reading in files, doing manipulations, creating hash table mappings
 
 # Courses being offered for a given semester
 courses <- read.csv("courses.csv", as.is=TRUE)
+courses$interest <- 0
 
 # Get student preferences
 temp.prefs <- list.files(pattern="*_preferences.csv")
 s.id <- unlist(lapply(temp.prefs, get.id))
 s.prefs <- lapply(temp.prefs, read.csv, as.is=TRUE)
+
+# Get course interest
+for (i in 1:length(s.prefs)) {
+  for (j in 1:nrow(s.prefs[[i]])) {
+    if (any(courses$course == s.prefs[[i]][j,1])) {
+      courses$interest[which(courses$course == s.prefs[[i]]$Title[j])] <- courses$interest[which(courses$course == s.prefs[[i]]$Title[j])] + 1
+    }
+  }
+}
+
+courses.interest <- courses$course[courses$interest != 0 ]
+courses.nointerest <- courses$course[courses$interest == 0]
 
 # Get student meta data, in particular, first and last name
 meta <- list.files(pattern="*_[0-9]")
