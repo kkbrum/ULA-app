@@ -27,8 +27,8 @@ plot(m2, energy=TRUE)
 # -----------------------------------------------------------------------------
 # ULA problem data structures
 
-# dim(s.prefs) <- nrow=nclasses, ncol=nstudents
-# dim(c.prefs) <- nrow=nstudents, ncol=nclasses
+# dim(s.prefs) <- nrow=nclasses (with interest), ncol=nstudents
+# dim(c.prefs) <- nrow=nstudents, ncol=nclasses (with interest)
 # always need to pad with NA's to ensure proper matrix dims
 # need to map students and classes to numbers
 
@@ -61,7 +61,7 @@ get.year <- function(file) {
   return(temp$year)
 }
 
-# Nota bene: `course` needs to be the course number from the hash table; returns
+# NB: `course` needs to be the course number from the hash table; returns
 # negative response length (in characters) because the sorts are done with the 
 # order decreasing
 get.response <- function(s.num, course) {
@@ -84,7 +84,6 @@ get.sorted <- function(mat, course) {
   return(mat)
 }
 
-
 # Reading in files, doing manipulations, creating hash table mappings
 
 # Courses being offered for a given semester
@@ -105,8 +104,8 @@ for (i in 1:length(s.prefs)) {
   }
 }
 
-courses.interest <- courses$course[courses$interest != 0 ]
-courses.nointerest <- courses$course[courses$interest == 0]
+courses.interest <- courses[courses$interest != 0,]
+courses.nointerest <- courses[courses$interest == 0,]
 
 # Get student meta data, in particular, first and last name
 meta <- list.files(pattern="*_[0-9]")
@@ -124,16 +123,16 @@ p.info <- unname(unlist(lapply(temp.profs, read.table,
 
 # Create hash table mapping course name to course number
 # This number is based on the order in which the professor files are read in
-course.mapping <- hash(keys=courses$course, values=seq(1, nrow(courses)))
+course.mapping <- hash(keys=courses.interest$course, values=seq(1, nrow(courses.interest)))
 
 # Create hash table mapping grade options to point values
-grade.mapping <- hash(keys=c("A", "A-", "B+", "Not taken", "B", "B-", "C+", "C, C-, D+", "D, D-, F", "CR, P"), 
-                      values=seq(1, length(c("A", "A-", "B+", "", "B", "B-", "C+", "C, C-, D+", "D, D-, F", "CR, P"))))
+g <- c("A", "A-", "B+", "Not taken", "B", "B-", "C+", "C, C-, D+", "D, D-, F", "CR, P")
+grade.mapping <- hash(keys=g, values=seq(1, length(g)))
 
 # Create matrix of student preferences
-s.pref.matrix <- matrix(ncol=length(s.id), nrow=nrow(courses))
+s.pref.matrix <- matrix(ncol=length(s.id), nrow=nrow(courses.interest))
 for (i in 1:length(s.prefs)) {
-  s.temp <- rep(NA, nrow(courses))
+  s.temp <- rep(NA, nrow(courses.interest))
   for (j in 1:nrow(s.prefs[[i]])) {
     s.temp[j] <- get.value(s.prefs[[i]]$Title[j], "course.mapping")
   }
@@ -141,8 +140,8 @@ for (i in 1:length(s.prefs)) {
 }
 
 # Create matrix of professor preferences, collect number of slots per class
-num.ula <- rep(NA, nrow(courses))
-p.pref.matrix <- matrix(ncol=nrow(courses), nrow=length(s.id))
+num.ula <- rep(NA, nrow(courses.interest))
+p.pref.matrix <- matrix(ncol=nrow(courses.interest), nrow=length(s.id))
 for (i in 1:length(p.info)) {
   info <- eval(parse(text=p.info[i]))
   num.ula[get.value(info[[1]], "course.mapping")] <- info[[2]]
@@ -155,17 +154,9 @@ for (i in 1:length(p.info)) {
   p.pref.matrix[,get.value(info[[1]], "course.mapping")] <- temp
 }
 
-# For the below simulation to work: remove S&DS 100, S&DS 230 from courses
-# and remove all references to those classes from student preferences
-# Need to do this because there's currently no mechanism to deal with
-# professors who don't input their preferences.
-# hri(s.prefs=s.pref.matrix, c.prefs=p.pref.matrix, nSlots=num.ula)
-
 # 30 May 2018
 # Things to work out:
 # Setting up default number of ULAs, should be in prof files and loaded upon login
-# Ordering of preferences if professor doesn't submit rankings
-# What to do if class not done by professor or students
 
 empty.cols <- which(apply(p.pref.matrix, 2, sum, na.rm=TRUE) == 0)
 
@@ -199,9 +190,9 @@ for (i in empty.cols) {
   p.pref.matrix[,i] <- sample(1:ncol(s.pref.matrix), replace=FALSE)
 }
 
-# Need to figure out what to do if no interest + no prof submit
-
-
 # -----------------------------------------------------------------------------
 
+# A working matching!
+m <- hri(s.prefs=s.pref.matrix, c.prefs=p.pref.matrix, nSlots=num.ula)
 
+# Next steps: data extraction from `hri` object
