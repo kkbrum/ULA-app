@@ -13,6 +13,8 @@ Login now loads preferences; meeting with Maria to plan stuff out.
 Login on separate page; worked on error messages.
 #### 6/03/18  19:15-20:00
 Reordered student app code so that it has a logical grouping and flow structure. Started working on combining the error checking and file writing into cohesive code.
+#### 6/05/18 21:00-22:30
+Made an option to save your inputs even if the inputs are not yet all correct. Continued working on cohesive error checking, making it clear what the exact errors are and having just one error checking framework.
 
 ## Maria
 #### 5/13/18 17:00-19:00
