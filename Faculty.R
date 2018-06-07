@@ -17,15 +17,15 @@ ui <- fluidPage(
            }",
            
            "#loginbox {
-            background-color: #99ccff;
-            padding-left: 20px;
-            padding-bottom: 20px;
-            padding-top: 10px;
-            }
+           background-color: #99ccff;
+           padding-left: 20px;
+           padding-bottom: 20px;
+           padding-top: 10px;
+           }
            "
       )
-    )
-  ),
+      )
+      ),
   
   titlePanel("Faculty View"), 
   
@@ -38,7 +38,7 @@ ui <- fluidPage(
                 textInput("pin", "4-digit Pin", "", width="90%"),
                 actionButton("login", "Log in")
   )
-)
+      )
 
 server <- function(session, input, output) {
   
@@ -69,9 +69,10 @@ server <- function(session, input, output) {
     courses <- read.csv("courses.csv", as.is=TRUE)
     prof_courses <- courses$course[courses$prof==professor]
     # Create a list of all the students who have filled out BOTH forms (meta and preferences)
-    students_meta <- substr(list.files(pattern= '.*_[0-9]+'), start=0, stop=nchar(list.files(pattern= '.*_[0-9]+'))-9)
-    students_pref <- substr(list.files(pattern= '.*_p'), start=0, stop=nchar(list.files(pattern= '.*_p'))-16)
-    students <- students_meta[students_meta %in% students_pref]
+    saved_files <- list.files(pattern= '^save')
+    all_files <- list.files(pattern= '.*_[0-9]+')
+    meta_files <- all_files[!all_files %in% saved_files]
+    students <- substr(meta_files, start=0, stop=nchar(list.files(pattern= '.*_[0-9]+'))-9)
     # Ranking options
     select_extra <- c("first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth")
     # Initialize the list of students a professor ranks for each class
@@ -198,12 +199,13 @@ server <- function(session, input, output) {
     
     # Write CSV upon submit (NEED TO ADD ERRORS)
     # Current format is that the file is called JL1234.csv for example. No _ between user and pin unlike for students.
-    # New line before each course, then the course name, number of ULAs desired, and students in order of ranking. All in new lines.
+    # Each line is a an evaluable character string with the course number, number of ULAs needed, and ordered 
+    # preferences in an vector.
+    # The files should be read as: read.table("JL1234.csv", header=FALSE)
     observeEvent(input$submit, {
       lapply(1:length(prof_courses), function(x) {
-        write.table("\n", paste0(input$username, input$pin, ".csv"), append=TRUE, sep=",", row.names=FALSE, col.names=FALSE)
-        write.table(c(prof_courses[x], input[[paste0("optNum_", x)]], chosen[[x]]), 
-                    paste0(input$username, input$pin, ".csv"), append=TRUE, sep=",", row.names=FALSE, col.names=FALSE)})
+        write.table(as.character(list(c(prof_courses[x], input[[paste0("optNum_", x)]], list(chosen[[x]])))), 
+                    paste0(input$username, input$pin, ".csv"), append=TRUE, sep="\n", row.names=FALSE, col.names=FALSE)})
       showNotification("Submission Successful!", duration=5, type="message")
       
     })
@@ -212,4 +214,3 @@ server <- function(session, input, output) {
 }
 
 shinyApp(ui, server)
-

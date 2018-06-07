@@ -306,7 +306,8 @@ server <- function(session, input, output) {
   
   # Write files if no errors ----
   
-  # Saving (could have errors, but netid and pin need to be set)
+  # Saving ----
+  # (could have errors, but netid and pin need to be set)
   
   observeEvent(input$save, {
     if(input$netid != "" & !is.na(as.numeric(input$new_pin)) & nchar(input$new_pin) == 4) {
@@ -317,7 +318,7 @@ server <- function(session, input, output) {
                                     "year"=input$year, 
                                     "major"=input$major, 
                                     "why"=input$why)), 
-                paste0(input$netid, "_", input$new_pin, ".csv"))
+                paste0("save_", input$netid, "_", input$new_pin, ".csv"))
       # Preferences file
       ind <- which(shinyValue('Desire', nrow(DF))=="Y")
       preferences <- data.frame(Title= DF[ind,'Course Title'],
@@ -327,7 +328,7 @@ server <- function(session, input, output) {
                                 Grade = shinyValue('Grade', nrow(DF))[ind],
                                 Suitable = shinyValue('Suitable', nrow(DF))[ind],
                                 Rank = shinyValue('Rank', nrow(DF))[ind])
-      write.csv(preferences, paste0(input$netid, "_preferences.csv"), row.names = FALSE)
+      write.csv(preferences, paste0("save_", input$netid, "_preferences.csv"), row.names = FALSE)
       showNotification("Save successful!", duration=5, type="message")
     } else {
       showNotification("Please enter your netid and select a pin before saving", duration=5, type="error")
@@ -348,6 +349,7 @@ server <- function(session, input, output) {
                                     "major"=input$major, 
                                     "why"=input$why)), 
                 paste0(input$netid, "_", input$new_pin, ".csv"))
+      try(file.remove(paste0("save_", input$netid, "_", input$new_pin, ".csv")))
       # Preferences file
       ind <- which(shinyValue('Desire', nrow(DF))=="Y")
       preferences <- data.frame(Title= DF[ind,'Course Title'],
@@ -358,6 +360,7 @@ server <- function(session, input, output) {
                                 Suitable = shinyValue('Suitable', nrow(DF))[ind],
                                 Rank = shinyValue('Rank', nrow(DF))[ind])
       write.csv(preferences, paste0(input$netid, "_preferences.csv"), row.names = FALSE)
+      try(file.remove(paste0("save_", input$netid, "_preferences.csv")))
       showNotification("Application successful!", duration=5, type="message")
     } else {
       showNotification("Please fix the errors in red above", duration=5, type="error")
@@ -368,7 +371,7 @@ server <- function(session, input, output) {
   # Log in functionality ----
   observeEvent(input$login, {
     tryCatch({
-      mydata <- read.csv(paste0(input$username, "_", input$pin, ".csv"), header=TRUE)
+      mydata <- read.csv(list.files(pattern= paste0('.*', input$username, '_', input$pin, '.csv')), header=TRUE)
       updateTextInput(session, 'netid', value = mydata$netid)
       updateTextInput(session, 'new_pin', value = mydata$new_pin)
       updateTextInput(session, 'first_name', value = mydata$first_name)
@@ -377,9 +380,9 @@ server <- function(session, input, output) {
       updateTextInput(session, 'major', value = mydata$major)
       updateTextAreaInput(session, 'why', value = mydata$why)
       rv$loginSuccess <- TRUE
-    }, error= function(e) {showNotification('User and pin not found', duration=5, type="error")})
+    }, error= function(e) {showNotification('User and pin not found (beware user is case sensitive)', duration=5, type="error")})
     try({
-      mypref <- read.csv(paste0(input$username, "_preferences.csv"), header=TRUE, as.is=TRUE)
+      mypref <- read.csv(list.files(pattern= paste0('.*', input$username, '_', input$pin, '.csv')), header=TRUE, as.is=TRUE)
       chosen <- which(DF[,1] %in% mypref$Title)
       row <- unlist(lapply(chosen, function(x) which(mypref$Title==DF[chosen,1])))
       DF[chosen, 2] <- unlist(lapply(chosen, function(x) as.character(selectizeInput(paste0('Desire', x), 
