@@ -6,6 +6,7 @@ ui <- fluidPage(
   
   shinyjs::useShinyjs(),
   
+  # Formatting ----
   # HTML formatting for notifications and log in box
   tags$head(
     tags$style(
@@ -27,8 +28,8 @@ ui <- fluidPage(
     )
   ),
   
+  # Panels ----
   titlePanel("ULA application for S&DS courses"), 
-  
   shinyjs::hidden(
     mainPanel(id="main", width=12,
               tabsetPanel(type = "tabs",
@@ -42,8 +43,7 @@ ui <- fluidPage(
                                    selectInput("year", "Class Year*", 
                                                c("Select a year", 2018, 2019, 2020, 2021), width="60%"),
                                    textInput("major", "Major*", "", width="60%"),
-                                   textAreaInput("why", 
-                                                 "Why do you want to serve as a ULA?*", 
+                                   textAreaInput("why", "Why do you want to serve as a ULA?*", 
                                                  "", width="60%", height="60%"),
                                    br(),
                                    "(*) Denotes a required field."
@@ -60,20 +60,20 @@ ui <- fluidPage(
                           ),
                           tabPanel("Summary", 
                                    br(), 
-                                   htmlOutput("summarytext"), 
-                                   htmlOutput("summarytext2"), 
-                                   htmlOutput("ranked"),
+                                   htmlOutput("summarytext"),
                                    br(), 
-                                   actionButton("submit", "Submit")
+                                   fluidRow(
+                                     column(3, actionButton("save", "Save and continue later")),
+                                     column(3, actionButton("submit", "Submit application"))
+                                   )
+                                   
+                                   
                           )
-                          
               )
-              
-              
     )
   ),
   
-  #Log in box
+  #Log in box ----
   mainPanel(id="startPage", 
             fluidRow(
               column(6, 
@@ -94,19 +94,48 @@ ui <- fluidPage(
               )
             )
   )
-  
 )
 
-
 server <- function(session, input, output) {
-  rv <- reactiveValues(page = 1, loginSuccess=FALSE)
+  # Functions for later ----
+  
+  # Create a character vector of shiny inputs 
+  shinyInput = function(FUN, len, id, ...) { 
+    inputs = character(len) 
+    for (i in seq_len(len)) { 
+      inputs[i] = as.character(FUN(paste0(id, i), label = NULL, ...)) 
+    } 
+    inputs 
+  } 
+  
+  # Obtain the values of inputs 
+  shinyValue = function(id, len) { 
+    unlist(lapply(seq_len(len), function(i) { 
+      value = input[[paste0(id, i)]] 
+      if (is.null(value)) NA else value 
+    })) 
+  } 
+  
+  # Info for later ----
+  
+  # Load in course information
+  courses <- read.csv("courses.csv", as.is = TRUE)
+  courses <- courses[,-1]
+  colnames(courses) <- c("Course Code", "Day", "Meeting Time", "Professor")
+  
+  # Display course information
+  output$t_course <- renderTable(courses)
+  
+  # Page structure ----
+  
+  # Switch pages after log in / start button
+  rv <- reactiveValues(page = 1, loginSuccess=FALSE, errors = rep(FALSE, 8))
   
   observe({
     if(rv$page==2) {
       hide("startPage")
       show("main")
     }
-    
   })
   
   navPage <- function(direction) {
@@ -118,33 +147,10 @@ server <- function(session, input, output) {
   )
   observeEvent(input$begin, navPage(1))
   
-  # create a character vector of shiny inputs 
-  shinyInput = function(FUN, len, id, ...) { 
-    inputs = character(len) 
-    for (i in seq_len(len)) { 
-      inputs[i] = as.character(FUN(paste0(id, i), label = NULL, ...)) 
-    } 
-    inputs 
-  } 
-  
-  # obtain the values of inputs 
-  shinyValue = function(id, len) { 
-    unlist(lapply(seq_len(len), function(i) { 
-      value = input[[paste0(id, i)]] 
-      if (is.null(value)) NA else value 
-    })) 
-  } 
-  
-  
-  # Load in course information
-  courses <- read.csv("courses.csv", as.is = TRUE)
-  courses <- courses[,-1]
-  colnames(courses) <- c("Course Code", "Day", "Meeting Time", "Professor")
+  # DF creation ----
   
   # Update the course options based on course information
-  
   DF <- data.frame(x = courses[,1])
-  
   
   # Create fields to be inputted for each class in the table
   DF$Desire <- shinyInput(selectizeInput, nrow(DF), 'Desire', choices = c("", "Y", "N"), 
@@ -166,32 +172,16 @@ server <- function(session, input, output) {
                         value = NA, min = 1, 
                         max = nrow(DF), step = 1, width="60%")
   
-  names(DF) <-  c("Course Title", "Would you ULA this course if offered?", "Have you Taken this course? (Y/N)",
+  names(DF) <-  c("Course Title", 
+                  "Would you ULA this course if offered?", 
+                  "Have you Taken this course? (Y/N)",
                   "What year did you take this course?",
                   "Who was your professor?",
                   "What was your Grade in this course?",
                   "Why are you Suitable for this course?",
                   "Rank your preference of ULAing this course (1 is the most preferred)")
   
-  
-  # Error checking
-  errCheck <- reactive({
-    req(input$netid, input$new_pin, !is.na(as.numeric(input$new_pin)), nchar(input$new_pin) == 4, 
-        input$first_name, input$last_name, input$year != "Select a year", input$major, input$why)
-  })
-  
-  
-  
-  # Display course information
-  output$t_course <- renderTable(courses)
-  
-  
-  
-  
-  
-  
-  # Enter more information for those selected classes
-  
+  # DF use ----
   
   # render the table containing shiny inputs 
   output$rankDT = DT::renderDataTable( 
@@ -227,7 +217,6 @@ server <- function(session, input, output) {
       shinyjs::enable(paste0("Suitable",j))
       shinyjs::enable(paste0("Rank", j))
     })
-    
   })
   
   observeEvent(shinyValue("Desire",nrow(DF)), {
@@ -240,70 +229,143 @@ server <- function(session, input, output) {
     lapply(which(shinyValue("Desire", nrow(DF))=="Y"), function(j) {
       shinyjs::enable(paste0("Taken",j))
     })
-    
   })
   
   
-  # Write preferences csv upon submit on preferences page
-  observeEvent(input$submit, {
-    # Collect student inputs
-    ind <- which(shinyValue('Desire', nrow(DF))=="Y")
-    preferences <- data.frame(Title= DF[ind,'Course Title'],
-                              Taken = shinyValue('Taken', nrow(DF))[ind], 
-                              WhenTaken = shinyValue('WhenTaken', nrow(DF))[ind],
-                              Professor = shinyValue('Professor', nrow(DF))[ind],
-                              Grade = shinyValue('Grade', nrow(DF))[ind],
-                              Suitable = shinyValue('Suitable', nrow(DF))[ind],
-                              Rank = shinyValue('Rank', nrow(DF))[ind])
-    # Basic error checking of preferences
-    input.correct <- rep(NA, nrow(preferences))
-    if (any(sort(preferences$Rank) != 1:nrow(preferences))) {
-      input.correct <- rep(FALSE, nrow(preferences))
-      showNotification(paste0("Please pick unique ranks from 1 to ", nrow(preferences), " (the number of classes you chose)."), duration=5, type="error")
-    }
-    for (i in 1:nrow(preferences)) {
-      if (preferences$Taken[i] == "") {
-        input.correct[i] <- FALSE
-      } else if (preferences$Taken[i] == "Y" & 
-                 (is.na(preferences$WhenTaken[i]) | preferences$Professor[i] == "" |
-                  preferences$Grade[i] == "" | preferences$Suitable[i] == "" |
-                  is.na(preferences$Rank[i]))) {
-        input.correct[i] <- FALSE
-      } else if (preferences$Taken[i] == "Y" & 
-                 (!is.na(preferences$WhenTaken[i]) & preferences$Professor[i] != "" &
-                  preferences$Grade[i] != "" & preferences$Suitable[i] != "" &
-                  !is.na(preferences$Rank[i]))) {
-        input.correct[i] <- TRUE
-      } else if (preferences$Taken[i] == "N" & 
-                 (preferences$Suitable[i] == "" | is.na(preferences$Rank[i]))) {
-        input.correct[i] <- FALSE
-      } else if (preferences$Taken[i] == "N" & 
-                 (preferences$Suitable[i] != "" & !is.na(preferences$Rank[i]))) {
-        input.correct[i] <- TRUE
+  # Summary tab ----
+  output$summarytext <- renderUI({
+    text <- character(8)
+    ifelse(input$netid == "", 
+           {text[1] <- "<font color='red'>Please input your NetID</font>"; rv$errors[1] <- FALSE},
+           {text[1] <- paste0("<strong>You have entered your NetID as: </strong>", input$netid); rv$errors[1] <- TRUE})
+    ifelse(input$new_pin == "" | nchar(input$new_pin) != 4 | is.na(as.numeric(input$new_pin)),
+           {text[2] <- "<font color='red'>Please create a 4-digit pin</font>"; rv$errors[2] <- FALSE},
+           {text[2] <- "<strong>You have entered a pin</strong>"; rv$errors[2] <- TRUE})
+    ifelse(input$first_name == "" | input$last_name == "",
+           {text[3] <- "<font color='red'>Please enter your full name</font>"; rv$errors[3] <- FALSE},
+           {text[3] <- paste0("<strong>You have entered your name as: </strong>", 
+                              input$first_name, " ", input$last_name); rv$errors[3] <- TRUE})
+    ifelse(input$year == "Select a year",
+           {text[4] <- "<font color='red'>Please select a class year</font>"; rv$errors[4] <- FALSE},
+           {text[4] <- paste0("<strong>You have entered your class year as: </strong>", input$year); rv$errors[4] <- TRUE})
+    ifelse(input$major == "", 
+           {text[5] <- "<font color='red'>Please enter your major(s)</font>"; rv$errors[5] <- FALSE},
+           {text[5] <- paste0("<strong>You have entered your major(s) as: </strong>", input$major); rv$errors[5] <- TRUE})
+    ifelse(input$why == "", 
+           {text[6] <- "<font color='red'>Please explain why you would like to serve as a ULA</font>";  rv$errors[6] <- FALSE},
+           {text[6] <- paste0("<strong>You have entered your reason for applying as: </strong>", input$why); rv$errors[6] <- TRUE})   
+    print(shinyValue('Desire', nrow(DF)))
+    if(!any(shinyValue('Desire', nrow(DF))=="Y") | is.na(any(shinyValue('Desire', nrow(DF))=="Y"))) {
+      text[7] <- "<font color='red'>Please select at least one course you would like to ULA</font>"
+      rv$errors[7] <- FALSE
+    } else {
+      ind <- which(shinyValue('Desire', nrow(DF))=="Y")
+      preferences <- data.frame(Title= DF[ind,'Course Title'],
+                                Taken = shinyValue('Taken', nrow(DF))[ind],
+                                WhenTaken = shinyValue('WhenTaken', nrow(DF))[ind],
+                                Professor = shinyValue('Professor', nrow(DF))[ind],
+                                Grade = shinyValue('Grade', nrow(DF))[ind],
+                                Suitable = shinyValue('Suitable', nrow(DF))[ind],
+                                Rank = shinyValue('Rank', nrow(DF))[ind])
+      print(preferences$Rank)
+      if (any(sort(preferences$Rank) != 1:nrow(preferences)) | any(is.na(preferences$Rank))) {
+        text[7] <- paste0("<font color='red'>Please pick unique ranks from 1 to ", nrow(preferences), " (the number of classes you chose).</font>")
+        rv$errors[7] <- FALSE
+      } else {
+        rv$errors[7] <- TRUE
+        text[7] <- paste0("<strong>You have selected (from highest to lowest preference): </strong> </br>", paste(DF[ind,'Course Title'][order(shinyValue('Rank', nrow(DF))[ind])], collapse=", "))
+      }
+      # Check that all the inputs are there for each selected class
+      for (i in 1:nrow(preferences)) {
+        if (preferences$Taken[i] == "") {
+          rv$errors[8] <- FALSE
+        } else if (preferences$Taken[i] == "Y" &
+                   (is.na(preferences$WhenTaken[i]) | preferences$Professor[i] == "" |
+                    preferences$Grade[i] == "" | preferences$Suitable[i] == "" |
+                    is.na(preferences$Rank[i]))) {
+          rv$errors[8] <- FALSE
+        } else if (preferences$Taken[i] == "Y" &
+                   (!is.na(preferences$WhenTaken[i]) & preferences$Professor[i] != "" &
+                    preferences$Grade[i] != "" & preferences$Suitable[i] != "" &
+                    !is.na(preferences$Rank[i]))) {
+          rv$errors[8] <- TRUE
+        } else if (preferences$Taken[i] == "N" &
+                   (preferences$Suitable[i] == "" | is.na(preferences$Rank[i]))) {
+          rv$errors[8] <- FALSE
+        } else if (preferences$Taken[i] == "N" &
+                   (preferences$Suitable[i] != "" & !is.na(preferences$Rank[i]))) {
+          rv$errors[8] <- TRUE
+        }
+      }
+      if(rv$errors[8] == FALSE) {
+        text[8] <- "<font color='red'>Please input all the relevant information for each class you would like to ULA</font>"
       }
     }
-    if (all(input.correct)) {
-      write.csv(preferences, paste0(input$netid, "_preferences.csv"), row.names = FALSE)
-    } else {
-      showNotification("Incorrect inputs", duration=5, type="error")
-    }
-    
+    expr = HTML(paste(text, collapse="<br/>"))
   })
   
-  observeEvent(c(shinyValue("Rank",nrow(DF)), rv$loginSuccess),
-               if (sum(is.na(shinyValue("Rank",nrow(DF)))) < nrow(DF)) {
-                 hide("summarytext2")
-                 ind <- which(shinyValue("Desire", nrow(DF))=="Y")
-                 if (any(sort(shinyValue("Rank",nrow(DF))[ind]) != 1:length(ind))) {
-                   output$ranked <- renderUI(HTML(paste0("<font color='red'>Please select unique ranks of courses from 1 to ", length(ind), " (the number of classes you chose).</font>")))
-                 } else {
-                   output$ranked <- renderUI(HTML(paste0("<strong>You have selected (from highest to lowest preference): </strong> </br>", paste(DF[ind,'Course Title'][order(shinyValue('Rank', nrow(DF))[ind])], collapse=", "))))
-                 }
-               }
-  )
+  # Write files if no errors ----
+  
+  # Saving (could have errors, but netid and pin need to be set)
+  
+  observeEvent(input$save, {
+    if(input$netid != "" & !is.na(as.numeric(input$new_pin)) & nchar(input$new_pin) == 4) {
+      write.csv(as.data.frame(cbind("netid"=input$netid, 
+                                    "new_pin"=input$new_pin, 
+                                    "first_name"=input$first_name, 
+                                    "last_name"=input$last_name,
+                                    "year"=input$year, 
+                                    "major"=input$major, 
+                                    "why"=input$why)), 
+                paste0(input$netid, "_", input$new_pin, ".csv"))
+      # Preferences file
+      ind <- which(shinyValue('Desire', nrow(DF))=="Y")
+      preferences <- data.frame(Title= DF[ind,'Course Title'],
+                                Taken = shinyValue('Taken', nrow(DF))[ind], 
+                                WhenTaken = shinyValue('WhenTaken', nrow(DF))[ind],
+                                Professor = shinyValue('Professor', nrow(DF))[ind],
+                                Grade = shinyValue('Grade', nrow(DF))[ind],
+                                Suitable = shinyValue('Suitable', nrow(DF))[ind],
+                                Rank = shinyValue('Rank', nrow(DF))[ind])
+      write.csv(preferences, paste0(input$netid, "_preferences.csv"), row.names = FALSE)
+      showNotification("Save successful!", duration=5, type="message")
+    } else {
+      showNotification("Please enter your netid and select a pin before saving", duration=5, type="error")
+    }
+  })
+  
+  # Write files uponcompletion
+  observeEvent(input$submit, {
+    # Error checking
+    print(rv$errors)
+    if(all(rv$errors)) {
+      # Meta data file
+      write.csv(as.data.frame(cbind("netid"=input$netid, 
+                                    "new_pin"=input$new_pin, 
+                                    "first_name"=input$first_name, 
+                                    "last_name"=input$last_name,
+                                    "year"=input$year, 
+                                    "major"=input$major, 
+                                    "why"=input$why)), 
+                paste0(input$netid, "_", input$new_pin, ".csv"))
+      showNotification("Save successful!", duration=5, type="message")
+      # Preferences file
+      ind <- which(shinyValue('Desire', nrow(DF))=="Y")
+      preferences <- data.frame(Title= DF[ind,'Course Title'],
+                                Taken = shinyValue('Taken', nrow(DF))[ind], 
+                                WhenTaken = shinyValue('WhenTaken', nrow(DF))[ind],
+                                Professor = shinyValue('Professor', nrow(DF))[ind],
+                                Grade = shinyValue('Grade', nrow(DF))[ind],
+                                Suitable = shinyValue('Suitable', nrow(DF))[ind],
+                                Rank = shinyValue('Rank', nrow(DF))[ind])
+      write.csv(preferences, paste0(input$netid, "_preferences.csv"), row.names = FALSE)
+    } else {
+      showNotification("Please fix the errors in red above", duration=5, type="error")
+    }
+  })
   
   
-  # Load information from login on the myinfo tab
+  # Log in functionality ----
   observeEvent(input$login, {
     tryCatch({
       mydata <- read.csv(paste0(input$username, "_", input$pin, ".csv"), header=TRUE)
@@ -356,49 +418,6 @@ server <- function(session, input, output) {
       
     })
   })
-  
-  # Summary tab
-  output$summarytext <- renderUI({
-    text <- character(6)
-    ifelse(input$netid == "", 
-           text[1] <- "<font color='red'>Please input your NetID</font>",
-           text[1] <- paste0("<strong>You have entered your NetID as: </strong>", input$netid))
-    ifelse(input$new_pin == "" | nchar(input$new_pin) != 4 | is.na(as.numeric(input$new_pin)),
-           text[2] <- "<font color='red'>Please create a 4-digit pin</font>",
-           text[2] <- "<strong>You have entered a pin</strong>")
-    ifelse(input$first_name == "" | input$last_name == "",
-           text[3] <- "<font color='red'>Please enter your full name</font>",
-           text[3] <- paste0("<strong>You have entered your name as: </strong>", 
-                             input$first_name, " ", input$last_name))
-    ifelse(input$year == "Select a year",
-           text[4] <- "<font color='red'>Please select a class year</font>",
-           text[4] <- paste0("<strong>You have entered your class year as: </strong>", input$year))
-    ifelse(input$major == "", 
-           text[5] <- "<font color='red'>Please enter your major(s)</font>",
-           text[5] <- paste0("<strong>You have entered your major(s) as: </strong>", input$major))
-    ifelse(input$why == "", 
-           text[6] <- "<font color='red'>Please explain why you would like to serve as a ULA</font>", 
-           text[6] <- paste0("<strong>You have entered your reason for applying as: </strong>", input$why))   
-    expr = HTML(paste(text, collapse="<br/>"))
-  })
-  
-  output$summarytext2 <- renderUI(HTML("<font color='red'>Please select and rank courses to ULA.</font>"))
-  
-  # Write file upon meta data completion
-  observeEvent(input$submit, {
-    # Error checking
-    errCheck()
-    write.csv(as.data.frame(cbind("netid"=input$netid, 
-                                  "new_pin"=input$new_pin, 
-                                  "first_name"=input$first_name, 
-                                  "last_name"=input$last_name,
-                                  "year"=input$year, 
-                                  "major"=input$major, 
-                                  "why"=input$why)), 
-              paste0(input$netid, "_", input$new_pin, ".csv"))
-    showNotification("Application Successful!", duration=5, type="message")
-  })
-  
 }
 
 shinyApp(ui, server)
