@@ -48,3 +48,4 @@ Generated student and faculty testing data and did some bug fixes.
 Created mechanism to see what courses students have interest in ULAing and then isolate course names.
 #### 6/05/18 21:15-21:45
 Modified functions to act only on courses with demonstrated student interest. Matching example with data from Student and Faculty working.
+#### 6/06/18 20:15-
