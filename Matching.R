@@ -208,10 +208,22 @@ for (i in 1:nrow(assignments)) {
                                       "student.mapping.inverted")
 }
 
-ula.demand <- as.data.frame(cbind(keys(course.mapping), 
-                                  num.ula, 
-                                  table(assignments$course)))
-ula.demand[,2] <- as.numeric(ula.demand[,2])
-ula.demand[,3] <- as.numeric(ula.demand[,3])
-names(ula.demand) <- c("course", "desired", "assigned") 
+ula.demand <- as.data.frame(cbind(seq(1:nrow(courses.interest)), num.ula))
+names(ula.demand) <- c("course", "desired")
+for (i in 1:nrow(ula.demand)) {
+  ula.demand$course[i] <- get.value(toString(ula.demand$course[i]), 
+                                    "course.mapping.inverted")
+}
+
+temp.assignments <- data.frame(table(assignments$course))
+names(temp.assignments) <- c("course", "assigned")
+
+ula.demand <- merge(ula.demand, temp.assignments, by="course")
+
+# Need to get num ULA from professors with no course interest
+# nointerest.df <- as.data.frame(courses.nointerest$course, , 0)
+
 ula.demand$needed <- ula.demand$desired - ula.demand$assigned
+
+# Need to generate a list of students who have not been assigned to a class
+# and get meta data on which courses they ranked as potentially of interest
