@@ -115,6 +115,7 @@ s.year <- unlist(lapply(meta, get.year))
 # Create hash table mapping student name to student number
 # This number is based on the order in which the student files are read in
 student.mapping <- hash(keys=s.name, values=seq(1, length(s.id)))
+student.mapping.inverted <- invert(student.mapping)
 
 # Get professor preferences
 temp.profs <- list.files(pattern="[A-Z]{2}[0-9]{4}")
@@ -124,6 +125,7 @@ p.info <- unname(unlist(lapply(temp.profs, read.table,
 # Create hash table mapping course name to course number
 # This number is based on the order in which the professor files are read in
 course.mapping <- hash(keys=courses.interest$course, values=seq(1, nrow(courses.interest)))
+course.mapping.inverted <- invert(course.mapping)
 
 # Create hash table mapping grade options to point values
 g <- c("A", "A-", "B+", "Not taken", "B", "B-", "C+", "C, C-, D+", "D, D-, F", "CR, P")
@@ -195,4 +197,21 @@ for (i in empty.cols) {
 # A working matching!
 m <- hri(s.prefs=s.pref.matrix, c.prefs=p.pref.matrix, nSlots=num.ula)
 
-# Next steps: data extraction from `hri` object
+# Extract relevant information from matching
+assignments <- as.data.frame(cbind(m$matchings$college, m$matchings$student))
+names(assignments) <- c("course", "student")
+
+for (i in 1:nrow(assignments)) {
+  assignments$course[i] <- get.value(toString(assignments$course[i]), 
+                                     "course.mapping.inverted")
+  assignments$student[i] <- get.value(toString(assignments$student[i]), 
+                                      "student.mapping.inverted")
+}
+
+ula.demand <- as.data.frame(cbind(keys(course.mapping), 
+                                  num.ula, 
+                                  table(assignments$course)))
+ula.demand[,2] <- as.numeric(ula.demand[,2])
+ula.demand[,3] <- as.numeric(ula.demand[,3])
+names(ula.demand) <- c("course", "desired", "assigned") 
+ula.demand$needed <- ula.demand$desired - ula.demand$assigned
