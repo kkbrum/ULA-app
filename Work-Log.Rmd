@@ -15,6 +15,9 @@ Login on separate page; worked on error messages.
 Reordered student app code so that it has a logical grouping and flow structure. Started working on combining the error checking and file writing into cohesive code.
 #### 6/05/18 21:00-22:30
 Made an option to save your inputs even if the inputs are not yet all correct. Continued working on cohesive error checking, making it clear what the exact errors are and having just one error checking framework.
+#### 6/06/18 21:45-22:45
+Finished the error checking. Student app is in pretty good shape. Should make the in progress but saved applications have different file names (affects the log in functionality) than submitted ones. Need to conduct thorough testing of student app.
+
 
 ## Maria
 #### 5/13/18 17:00-19:00
