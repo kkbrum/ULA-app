@@ -334,7 +334,7 @@ server <- function(session, input, output) {
     }
   })
   
-  # Write files uponcompletion
+  # Write files upon completion
   observeEvent(input$submit, {
     # Error checking
     print(rv$errors)
@@ -348,7 +348,6 @@ server <- function(session, input, output) {
                                     "major"=input$major, 
                                     "why"=input$why)), 
                 paste0(input$netid, "_", input$new_pin, ".csv"))
-      showNotification("Save successful!", duration=5, type="message")
       # Preferences file
       ind <- which(shinyValue('Desire', nrow(DF))=="Y")
       preferences <- data.frame(Title= DF[ind,'Course Title'],
@@ -359,6 +358,7 @@ server <- function(session, input, output) {
                                 Suitable = shinyValue('Suitable', nrow(DF))[ind],
                                 Rank = shinyValue('Rank', nrow(DF))[ind])
       write.csv(preferences, paste0(input$netid, "_preferences.csv"), row.names = FALSE)
+      showNotification("Application successful!", duration=5, type="message")
     } else {
       showNotification("Please fix the errors in red above", duration=5, type="error")
     }
