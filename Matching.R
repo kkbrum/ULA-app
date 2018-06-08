@@ -142,23 +142,32 @@ for (i in 1:length(s.prefs)) {
 }
 
 # Create matrix of professor preferences, collect number of slots per class
-num.ula <- rep(NA, nrow(courses.interest))
-p.pref.matrix <- matrix(ncol=nrow(courses.interest), nrow=length(s.id))
-for (i in 1:length(p.info)) {
-  info <- eval(parse(text=p.info[i]))
-  num.ula[get.value(info[[1]], "course.mapping")] <- info[[2]]
-  
-  temp <- rep(NA, length(s.id))
-  for (j in 1:length(info[[3]])) {
-    ifelse(is.null(info[[3]][j]), 
-           temp[j] <- NA, temp[j] <- get.value(info[[3]][j], "student.mapping"))
-  }
-  p.pref.matrix[,get.value(info[[1]], "course.mapping")] <- temp
-}
+ula.notinterested <- as.data.frame(cbind(courses.nointerest$course, NA, 0), stringsAsFactors=FALSE)
+names(ula.notinterested) <- c("course", "desired", "assigned")
 
-# 30 May 2018
-# Things to work out:
-# Setting up default number of ULAs, should be in prof files and loaded upon login
+ula.notinterested$desired <- as.numeric(ula.notinterested$desired)
+ula.interested <- rep(NA, nrow(courses.interest))
+p.pref.matrix <- matrix(ncol=nrow(courses.interest), nrow=length(s.id))
+
+for (i in 1:length(p.info)) {
+  
+  info <- eval(parse(text=p.info[i]))
+  
+  if (info[[1]] %in% courses.interest$course) {
+    ula.interested[get.value(info[[1]], "course.mapping")] <- info[[2]]
+    
+    temp <- rep(NA, length(s.id))
+    for (j in 1:length(info[[3]])) {
+      ifelse(is.null(info[[3]][j]), 
+             temp[j] <- NA, temp[j] <- get.value(info[[3]][j], "student.mapping"))
+    }
+    p.pref.matrix[,get.value(info[[1]], "course.mapping")] <- temp
+    
+  } else {
+    ula.notinterested$desired[ula.notinterested$course == info[[1]]] <- info[2]
+  }
+  
+}
 
 empty.cols <- which(apply(p.pref.matrix, 2, sum, na.rm=TRUE) == 0)
 
@@ -195,9 +204,10 @@ for (i in empty.cols) {
 # -----------------------------------------------------------------------------
 
 # A working matching!
-m <- hri(s.prefs=s.pref.matrix, c.prefs=p.pref.matrix, nSlots=num.ula)
+m <- hri(s.prefs=s.pref.matrix, c.prefs=p.pref.matrix, nSlots=ula.interested)
 
-# Extract relevant information from matching
+# Extract information from matching regarding student assignment and generate
+# a list of unmatched students and their potential interest
 assignments <- as.data.frame(cbind(m$matchings$college, m$matchings$student))
 names(assignments) <- c("course", "student")
 
@@ -208,20 +218,28 @@ for (i in 1:nrow(assignments)) {
                                       "student.mapping.inverted")
 }
 
-ula.demand <- as.data.frame(cbind(seq(1:nrow(courses.interest)), num.ula))
+# Need to make a data frame with student name as one column, and then a list of 
+# their preferences in order
+"%!in%" <- Negate("%in%")
+unassigned <- keys(student.mapping)[which(keys(student.mapping) %!in% assignments$student)]
+
+# Extract information regarding ULA counts per class and bind with information
+# from classes that have not been assigned any ULAs
+ula.demand <- as.data.frame(cbind(seq(1:nrow(courses.interest)), ula.interested), stringsAsFactors=FALSE)
 names(ula.demand) <- c("course", "desired")
 for (i in 1:nrow(ula.demand)) {
   ula.demand$course[i] <- get.value(toString(ula.demand$course[i]), 
                                     "course.mapping.inverted")
 }
 
-temp.assignments <- data.frame(table(assignments$course))
+temp.assignments <- as.data.frame(table(assignments$course), stringsAsFactors=FALSE)
 names(temp.assignments) <- c("course", "assigned")
 
-ula.demand <- merge(ula.demand, temp.assignments, by="course")
+ula.notinterested$desired <- as.numeric(ula.notinterested$desired)
+ula.notinterested$assigned <- as.numeric(ula.notinterested$assigned)
 
-# Need to get num ULA from professors with no course interest
-# nointerest.df <- as.data.frame(courses.nointerest$course, , 0)
+ula.demand <- merge(ula.demand, temp.assignments, by="course")
+ula.demand <- rbind(ula.demand, ula.notinterested)
 
 ula.demand$needed <- ula.demand$desired - ula.demand$assigned
 
