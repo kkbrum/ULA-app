@@ -52,3 +52,4 @@ Created mechanism to see what courses students have interest in ULAing and then 
 Modified functions to act only on courses with demonstrated student interest. Matching example with data from Student and Faculty working.
 #### 6/06/18 20:15-21:30
 Data extraction from hri output, final data frame for courses with student interest formatted
+#### 6/08/2018 13:00-
