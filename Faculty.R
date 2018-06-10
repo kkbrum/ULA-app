@@ -234,7 +234,7 @@ server <- function(session, input, output) {
       })
     })
     
-    # Write CSV upon submit (NEED TO ADD ERRORS) ----
+    # Write CSV upon submit ----
     # Current format is that the file is called JL1234.csv for example. No _ between user and pin unlike for students.
     # Each line is a an evaluable character string with the course number, number of ULAs needed, and ordered 
     # preferences in an vector.
