@@ -70,7 +70,7 @@ get.sorted <- function(mat, course) {
   mat$response <- NA
   for (i in 1:nrow(mat)) {
     if (!is.na(mat[i,2])) {
-      mat$grade[i] <- get.value(get.grade(mat[i,1], course), hash_table="grade.mapping")
+      mat$grade[i] <- get.value(toString(get.grade(mat[i,1], course)), hash_table="grade.mapping")
       mat$year[i] <- get.year(meta[i])
       mat$response[i] <- get.response(mat[i,1], course=course)
     }
@@ -140,11 +140,15 @@ for (i in 1:length(s.prefs)) {
 }
 
 # Create matrix of professor preferences, collect number of slots per class
-ula.notinterested <- as.data.frame(cbind(courses.nointerest$course, NA, 0), 
-                                   stringsAsFactors=FALSE)
-names(ula.notinterested) <- c("course", "desired", "assigned")
+if (nrow(courses.nointerest) > 0) {
+  
+  ula.notinterested <- as.data.frame(cbind(courses.nointerest$course, NA, 0), 
+                                     stringsAsFactors=FALSE)
+  names(ula.notinterested) <- c("course", "desired", "assigned")
+  ula.notinterested$desired <- as.numeric(ula.notinterested$desired)
+  
+}
 
-ula.notinterested$desired <- as.numeric(ula.notinterested$desired)
 ula.interested <- rep(NA, nrow(courses.interest))
 p.pref.matrix <- matrix(ncol=nrow(courses.interest), nrow=length(s.id))
 
@@ -181,7 +185,7 @@ for (i in empty.cols) {
       temp.prefs[j,] <- c(j, NA)
     }
     temp.prefs <- temp.prefs[order(temp.prefs[,2], decreasing=FALSE),]
-    if (length(unique(temp.prefs[,2])) < nrow(temp.prefs)) {
+    if (sum(is.na(temp.prefs[,2])) + length(unique(temp.prefs[,2][!is.na(temp.prefs[,2])])) < nrow(temp.prefs)) {
       temp.prefs <- get.sorted(temp.prefs, i)[,1:2]
     }
     temp.prefs$V1[is.na(temp.prefs$V2)] <- NA
@@ -201,7 +205,7 @@ for (i in empty.cols) {
 
 # A working matching!
 m <- hri(s.prefs=s.pref.matrix, c.prefs=p.pref.matrix, nSlots=ula.interested)
-
+# CURRENTLY BROKEN
 # NEED TO TEST TO SEE UNDER WHAT CONDITIONS THE MATCHING ALGORITHM DOES NOT CONVERGE
 
 # -----------------------------------------------------------------------------
