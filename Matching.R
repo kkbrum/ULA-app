@@ -8,9 +8,6 @@ library(matchingMarkets)
 # Toy version of college admission (hospital/residents) problem
 # Using language relevant to the ULA problem
 
-# 7 students, 2 professors with 3 slots each, random preferences
-m1 <- hri(nStudents=7, nSlots=c(3, 3), seed=64)
-
 # CASE OF INTEREST
 # 7 students, 2 professors with 3 slots each, given preferences
 # Make matrix with student preferences, one col per student,
@@ -19,10 +16,8 @@ s.prefs <- matrix(c(1,NA, 1,2, 1,NA, 2,1, 1,2, 1,2, 1,2), 2, 7)
 # Make matrix with professor preferences, one col per professor,
 # one row per student
 c.prefs <- matrix(c(1,2,3,4,5,6,7, 1,2,3,4,5,NA,NA), 7, 2)
-m2 <- hri(s.prefs=s.prefs, c.prefs=c.prefs, nSlots=c(3,3))
-plot(m2, energy=TRUE)
-
-# -----------------------------------------------------------------------------
+h <- hri(s.prefs=s.prefs, c.prefs=c.prefs, nSlots=c(3,3))
+plot(h, energy=TRUE)
 
 # -----------------------------------------------------------------------------
 # ULA problem data structures
@@ -145,7 +140,8 @@ for (i in 1:length(s.prefs)) {
 }
 
 # Create matrix of professor preferences, collect number of slots per class
-ula.notinterested <- as.data.frame(cbind(courses.nointerest$course, NA, 0), stringsAsFactors=FALSE)
+ula.notinterested <- as.data.frame(cbind(courses.nointerest$course, NA, 0), 
+                                   stringsAsFactors=FALSE)
 names(ula.notinterested) <- c("course", "desired", "assigned")
 
 ula.notinterested$desired <- as.numeric(ula.notinterested$desired)
@@ -164,6 +160,7 @@ for (i in 1:length(p.info)) {
       ifelse(is.null(info[[3]][j]), 
              temp[j] <- NA, temp[j] <- get.value(info[[3]][j], "student.mapping"))
     }
+    
     p.pref.matrix[,get.value(info[[1]], "course.mapping")] <- temp
     
   } else {
@@ -172,16 +169,9 @@ for (i in 1:length(p.info)) {
   
 }
 
+# Deal with case where professor has not submitted preferences, but students
+# have ranked the class
 empty.cols <- which(apply(p.pref.matrix, 2, sum, na.rm=TRUE) == 0)
-
-# logic:
-# loop through each class
-# check s.pref.matrix to see if students have class ranked
-# if yes, save a tuple with the student number and their pref
-# after looking through whole matrix, look through temp list
-# to determine how to order the students: first by pref, any ties broken by
-# grade, senority, num words 
-
 for (i in empty.cols) {
   temp.prefs <- as.data.frame(matrix(nrow=ncol(s.pref.matrix), ncol=2))
   for (j in 1:nrow(temp.prefs)) {
@@ -199,15 +189,22 @@ for (i in empty.cols) {
   p.pref.matrix[,i] <- temp.prefs[,1]
 }
 
-empty.cols <- which(apply(p.pref.matrix, 2, sum, na.rm=TRUE) == 0)
-for (i in empty.cols) {
-  p.pref.matrix[,i] <- sample(1:ncol(s.pref.matrix), replace=FALSE)
-}
+# Original handling of no student or faculty interest -- randomly assign a 
+# student to a class. Legacy code to be deleted, just check that nothing gets
+# messed up if it is
+# empty.cols <- which(apply(p.pref.matrix, 2, sum, na.rm=TRUE) == 0)
+# for (i in empty.cols) {
+#  p.pref.matrix[,i] <- sample(1:ncol(s.pref.matrix), replace=FALSE)
+# }
 
 # -----------------------------------------------------------------------------
 
 # A working matching!
 m <- hri(s.prefs=s.pref.matrix, c.prefs=p.pref.matrix, nSlots=ula.interested)
+
+# NEED TO TEST TO SEE UNDER WHAT CONDITIONS THE MATCHING ALGORITHM DOES NOT CONVERGE
+
+# -----------------------------------------------------------------------------
 
 # Extract information from matching regarding student assignment and generate
 # a list of unmatched students and their potential interest
@@ -221,8 +218,7 @@ for (i in 1:nrow(assignments)) {
                                       "student.mapping.inverted")
 }
 
-# Need to make a data frame with student name as one column, and then a list of 
-# their preferences in order
+# Find unassigned students and get a list of their course preferences in order
 unassigned <- as.data.frame(keys(student.mapping)[which(keys(student.mapping) %!in% assignments$student)], 
                             stringsAsFactors=FALSE)
 names(unassigned) <- c("student")
