@@ -1,4 +1,4 @@
-"Title","Taken","WhenTaken","Prof","Grade","Suitable","Rank"
-"S&DS 241","Y",2010,"fg","C","dfg",1
-"S&DS 365","N",NA,"","","fdg",2
-"S&DS 361","N",NA,"","","fdg",3
+"Title","Taken","WhenTaken","Prof","Grade","Suitable","Available","Rank"
+"S&DS 241","Y",2010,"fg","C","dfg","Y",1
+"S&DS 365","N",NA,"","","fdg","N",2
+"S&DS 361","N",NA,"","","fdg","Y",3
