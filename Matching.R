@@ -225,7 +225,7 @@ names(unassigned) <- c("student")
 unassigned$prefs <- NA
 for (i in 1:nrow(unassigned)) {
   temp.mat <- s.prefs[[get.value(unassigned$student[i], "student.mapping")]]
-  unassigned$prefs[i] <- list(temp.mat$Title[order(temp.mat$Rank)])
+  unassigned$prefs[i] <- toString(list(temp.mat$Title[order(temp.mat$Rank)]))
 }
 
 # Extract information regarding ULA counts per class and bind with information
@@ -249,3 +249,9 @@ ula.demand <- merge(ula.demand, temp.assignments, by="course")
 ula.demand <- rbind(ula.demand, ula.notinterested)
 
 ula.demand$needed <- ula.demand$desired - ula.demand$assigned
+
+# Write csvs with course assignment numbers, assigned student information, and
+# unassigned student information
+write.csv(assignments, "Assignments.csv", row.names=FALSE)
+write.csv(unassigned, "Unassigned-Students.csv", row.names=FALSE)
+write.csv(ula.demand, "Demand.csv", row.names=FALSE)
