@@ -84,6 +84,8 @@ get.sorted <- function(mat, course) {
   return(mat)
 }
 
+"%!in%" <- Negate("%in%")
+
 # Reading in files, doing manipulations, creating hash table mappings
 
 # Courses being offered for a given semester
@@ -99,7 +101,8 @@ s.prefs <- lapply(temp.prefs, read.csv, as.is=TRUE)
 for (i in 1:length(s.prefs)) {
   for (j in 1:nrow(s.prefs[[i]])) {
     if (any(courses$course == s.prefs[[i]][j,1])) {
-      courses$interest[which(courses$course == s.prefs[[i]]$Title[j])] <- courses$interest[which(courses$course == s.prefs[[i]]$Title[j])] + 1
+      temp <- which(courses$course == s.prefs[[i]]$Title[j])
+      courses$interest[temp] <- courses$interest[temp] + 1
     }
   }
 }
@@ -220,19 +223,27 @@ for (i in 1:nrow(assignments)) {
 
 # Need to make a data frame with student name as one column, and then a list of 
 # their preferences in order
-"%!in%" <- Negate("%in%")
-unassigned <- keys(student.mapping)[which(keys(student.mapping) %!in% assignments$student)]
+unassigned <- as.data.frame(keys(student.mapping)[which(keys(student.mapping) %!in% assignments$student)], 
+                            stringsAsFactors=FALSE)
+names(unassigned) <- c("student")
+unassigned$prefs <- NA
+for (i in 1:nrow(unassigned)) {
+  temp.mat <- s.prefs[[get.value(unassigned$student[i], "student.mapping")]]
+  unassigned$prefs[i] <- list(temp.mat$Title[order(temp.mat$Rank)])
+}
 
 # Extract information regarding ULA counts per class and bind with information
 # from classes that have not been assigned any ULAs
-ula.demand <- as.data.frame(cbind(seq(1:nrow(courses.interest)), ula.interested), stringsAsFactors=FALSE)
+ula.demand <- as.data.frame(cbind(seq(1:nrow(courses.interest)), ula.interested), 
+                            stringsAsFactors=FALSE)
 names(ula.demand) <- c("course", "desired")
 for (i in 1:nrow(ula.demand)) {
   ula.demand$course[i] <- get.value(toString(ula.demand$course[i]), 
                                     "course.mapping.inverted")
 }
 
-temp.assignments <- as.data.frame(table(assignments$course), stringsAsFactors=FALSE)
+temp.assignments <- as.data.frame(table(assignments$course), 
+                                  stringsAsFactors=FALSE)
 names(temp.assignments) <- c("course", "assigned")
 
 ula.notinterested$desired <- as.numeric(ula.notinterested$desired)
@@ -242,6 +253,3 @@ ula.demand <- merge(ula.demand, temp.assignments, by="course")
 ula.demand <- rbind(ula.demand, ula.notinterested)
 
 ula.demand$needed <- ula.demand$desired - ula.demand$assigned
-
-# Need to generate a list of students who have not been assigned to a class
-# and get meta data on which courses they ranked as potentially of interest
