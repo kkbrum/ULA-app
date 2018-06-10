@@ -19,7 +19,17 @@ Made an option to save your inputs even if the inputs are not yet all correct. C
 Finished the error checking. Student app is in pretty good shape. Need to conduct thorough testing.
 #### 6/07/18 17:30-18:15
 Dealt with the saved but not submitted student files in both student and faculty sides.
+#### 6/10/18 13:00-15:00
+# Fixes to Student.R
+-Removed print outs
+-Fixed mistake with loading preferences
+-Instructions on preferences tab
+-New field asking about availability during course meeting times
 
+# Fixes to Faculty.R
+-Log in disappears after logged in
+-Fixed indenting of ranked students
+-Preset number of ULAs in courses.csv
 
 ## Maria
 #### 5/13/18 17:00-19:00
