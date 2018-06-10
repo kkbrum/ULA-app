@@ -54,4 +54,5 @@ Modified functions to act only on courses with demonstrated student interest. Ma
 Data extraction from hri output, final data frame for courses with student interest formatted
 #### 6/08/2018 13:00-14:00
 Reviewed current state of Student.R and Faculty.R. Finalized output for ULA assignments showing how many ULAs were desired for a given class, how many were assigned, and the current course need. Started working on input to show which students were unassigned and their course preferences.
-#### 6/09/18 17:45-
+#### 6/09/18 21:45-22:45
+Gathered all necessary output from matching into two data frames and cleaned up the matching script code
