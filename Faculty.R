@@ -6,6 +6,8 @@ ui <- fluidPage(
   
   useShinyjs(),
   
+  # Formatting ----
+  
   # HTML formatting of notification boxes and log in box
   tags$head(
     tags$style(
@@ -24,42 +26,59 @@ ui <- fluidPage(
            }
            "
       )
-      )
-      ),
-  
-  titlePanel("Faculty View"), 
-  
-  mainPanel(width=12,
-            uiOutput("tabs1")
+    )
   ),
   
-  absolutePanel(id="loginbox", top="15%", right="8%", width="20%", draggable=TRUE,
-                textInput("username", "Username", "", width="90%"),
-                textInput("pin", "4-digit Pin", "", width="90%"),
-                actionButton("login", "Log in")
+  # Panels ----
+  
+  titlePanel("Faculty View"), 
+  shinyjs::hidden(
+    mainPanel(width=12, id="main",
+              uiOutput("tabs1")
+    )
+  ),
+  
+  # Log in box ----
+  
+  mainPanel(id="startPage", 
+            fluidRow(
+              column(6,
+                     div(id="loginbox", 
+                         textInput("username", "Username", "", width="90%"),
+                         textInput("pin", "4-digit Pin", "", width="90%"),
+                         actionButton("login", "Log in")
+                     )
+              )
+            )
   )
-      )
+)
 
 server <- function(session, input, output) {
   
-  # create a character vector of shiny inputs 
-  shinyInput = function(FUN, len, id, ...) { 
-    inputs = character(len) 
-    for (i in seq_len(len)) { 
-      inputs[i] = as.character(FUN(paste0(id, i), label = NULL, ...)) 
-    } 
-    inputs 
-  } 
-  
-  # obtain the values of inputs 
-  shinyValue = function(id, len) { 
-    unlist(lapply(seq_len(len), function(i) { 
-      value = input[[paste0(id, i)]] 
-      if (is.null(value)) NA else value 
-    }))
-  } 
-  
   prof_courses <- NULL
+  
+  # Page structure ----
+  
+  # Switch pages after log in 
+  rv <- reactiveValues(page = 1, loginSuccess=FALSE)
+  
+  observe({
+    if(rv$page==2) {
+      hide("startPage")
+      show("main")
+    }
+  })
+  
+  navPage <- function(direction) {
+    rv$page <- rv$page + direction
+  }
+  
+  observeEvent(rv$loginSuccess, 
+               if(rv$loginSuccess == TRUE) {navPage(1)}
+  )
+  
+  
+  # Log in functionality ----
   
   observeEvent(input$login, {
     # What professor is this?
@@ -68,19 +87,33 @@ server <- function(session, input, output) {
     # What courses are they teaching?
     courses <- read.csv("courses.csv", as.is=TRUE)
     prof_courses <- courses$course[courses$prof==professor]
+    num_ulas <- courses$number[courses$prof==professor]
+    
+    # Load list of students ----
+    
     # Create a list of all the students who have filled out BOTH forms (meta and preferences)
     saved_files <- list.files(pattern= '^save')
     all_files <- list.files(pattern= '.*_[0-9]+')
     meta_files <- all_files[!all_files %in% saved_files]
-    students <- substr(meta_files, start=0, stop=nchar(list.files(pattern= '.*_[0-9]+'))-9)
+    students <- substr(meta_files, start=0, stop=nchar(meta_files)-9)
+    
+    # Initializations ----
+    
     # Ranking options
-    select_extra <- c("first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth")
+    select_extra <- c("1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th",
+                      "11th", "12th", "13th", "14th", "15th", "16th", "17th", "18th", "19th", "20th",
+                      "21st", "22nd", "23rd", "24th", "25th", "26th", "27th", "28th", "29th", "30th")
+                      # "31st", "32nd", "33rd", "34th", "35th", "36th", "37th", "38th", "39th", "40th"
     # Initialize the list of students a professor ranks for each class
     chosen <- vector("list", length(prof_courses))
     
     if (length(prof_courses)>0) {
+      rv$loginSuccess <- TRUE
       output$tabs1 <- renderUI({
         tabs <- list(NULL)
+        
+        # Load info about students ----
+        
         studentInfo <<- list(NULL)
         currentStudents <- vector("list", length(prof_courses))
         # We want to gather the information about students for each course
@@ -94,13 +127,13 @@ server <- function(session, input, output) {
           }
           # Make a data table showing the responses of the students who ranked that course
           if (length(currentStudents[[i]])>0) {
-            DF <- data.frame(matrix(0,nrow = length(currentStudents[[i]]), ncol=8))
-            names(DF) <- c( "Student", "Year", "Major", "Taken", "WhenTaken", "Professor", "Grade", "Suitable")
+            DF <- data.frame(matrix(0,nrow = length(currentStudents[[i]]), ncol=9))
+            names(DF) <- c( "Student", "Year", "Major", "Taken", "WhenTaken", "Professor", "Grade", "Suitable", "Available")
             DF$Student <- currentStudents[[i]]
             for (j in 1:length(currentStudents[[i]])){
               # Get their preferences
               temp <- read.csv(paste0(currentStudents[[i]][j], "_preferences", ".csv"), as.is=TRUE)
-              DF[j,4:8] <- temp[temp$Title==prof_courses[i], 2:6]
+              DF[j,4:9] <- temp[temp$Title==prof_courses[i], 2:7]
               # Get their metadata
               temp2 <- read.csv(list.files(pattern= paste0(currentStudents[[i]][j], '_', '[^p]')), as.is=TRUE)
               DF$Student[j] <- paste0(temp2$first_name, " ", temp2$last_name)
@@ -114,17 +147,20 @@ server <- function(session, input, output) {
                             "When did they take it?",
                             "Who was their professor?",
                             "What was their grade?",
-                            "Why they think they are suitable")
+                            "Why they think they are suitable",
+                            "Are they available during course times?")
             studentInfo[[i]] <<- DF
           }
         }
+        
+        # Tab per course ----
         
         # Now we construct a tab for each course
         tabs <- lapply(1:length(prof_courses), 
                        function(x) tabPanel(prof_courses[x],  
                                             br(), 
                                             # Input how many ULAs desired
-                                            numericInput(paste0("optNum", "_", x), "How many ULAs would you like?", min=0, max=10, value=NA, width='10%'),
+                                            numericInput(paste0("optNum", "_", x), "How many ULAs would you like?", min=0, max=10, value=num_ulas[x], width='10%'),
                                             fluidRow(
                                               # Select rankings
                                               column(4, lapply(1:(min(length(select_extra), length(currentStudents[[x]]))), function(y) {
@@ -132,7 +168,7 @@ server <- function(session, input, output) {
                                                 else {hidden(selectizeInput(paste0(select_extra[y], "_", x), label=paste0("Select your ", select_extra[y], " choice"), selected=" ", choices=c(" ", studentInfo[[x]][,'Student Name'])))}
                                               })),
                                               # Display rankings
-                                              column(3, "Rankings:", verbatimTextOutput(paste0("current_choices", x)))
+                                              column(3, "Rankings:", htmlOutput(paste0("current_choices", x)))
                                             ),
                                             br(),
                                             # Display student information
@@ -145,12 +181,13 @@ server <- function(session, input, output) {
                                             else {renderText("No students ranked this course")}         
                        )
         )
-        # Summary tab
+        # Summary tab ----
         tabs[[length(prof_courses)+1]] <- tabPanel("Summary", 
                                                    fluidRow(column(4, lapply(1:length(prof_courses), function(x) {
                                                      list(br(), 
-                                                          textOutput(paste0("course", x)), 
-                                                          verbatimTextOutput(paste0("choices_summary", x)), 
+                                                          htmlOutput(paste0("course", x)), 
+                                                          htmlOutput(paste0("choices_summary", x)), 
+                                                          br(),
                                                           textOutput(paste0("num_summary", x)), 
                                                           br()
                                                      )
@@ -162,7 +199,7 @@ server <- function(session, input, output) {
       })    
     }
     
-    # Log in errors
+    # Log in errors ----
     if (!input$username %in% mydata$User) {
       showNotification("User not found", duration=5, type="error")
     }
@@ -173,21 +210,21 @@ server <- function(session, input, output) {
       showNotification("No courses found for this professor", duration=5, type="error")
     }
     
-    # Show more ranking fields and update list of rankings
+    # Show more ranking fields and update list of rankings ----
     lapply(1:length(prof_courses), function(x) {
       # Set up courses in summary tab
-      output[[paste0('course', x)]] <- renderText(paste0(prof_courses[x], ' Rankings:'))
+      output[[paste0('course', x)]] <- renderUI(HTML(paste0('<b>', prof_courses[x], ' Rankings: </b>')))
       extra_new <- paste0(select_extra, "_", x)
       lapply(1:(length(select_extra)-1), function(y) {
         observeEvent(input[[extra_new[y]]], {
           if(input[[extra_new[y]]] != " ") {
             show(extra_new[y+1])
             chosen[[x]][y] <<- input[[extra_new[y]]]
-            output[[paste0('current_choices', x)]] <- renderText(paste0(1:length(chosen[[x]]), ") ", chosen[[x]], "\n"))
+            output[[paste0('current_choices', x)]] <- renderUI(HTML(paste0(1:length(chosen[[x]]), ") ", chosen[[x]], "<br>")))
             # Update choices in next selection
             updateSelectizeInput(session, extra_new[y+1], choices=c(" ", studentInfo[[x]][,'Student Name'][!(studentInfo[[x]][,'Student Name']) %in% chosen[[x]]]))
             # Display rankings for each course
-            output[[paste0('choices_summary', x)]] <- renderText(paste0(1:length(chosen[[x]]), ") ", chosen[[x]], "\n"))
+            output[[paste0('choices_summary', x)]] <- renderUI(HTML(paste0(1:length(chosen[[x]]), ") ", chosen[[x]], "<br>")))
           }
         })
         observeEvent(input[[paste0("optNum_", x)]], {
@@ -197,7 +234,7 @@ server <- function(session, input, output) {
       })
     })
     
-    # Write CSV upon submit (NEED TO ADD ERRORS)
+    # Write CSV upon submit (NEED TO ADD ERRORS) ----
     # Current format is that the file is called JL1234.csv for example. No _ between user and pin unlike for students.
     # Each line is a an evaluable character string with the course number, number of ULAs needed, and ordered 
     # preferences in an vector.
