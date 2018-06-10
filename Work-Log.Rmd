@@ -56,4 +56,5 @@ Data extraction from hri output, final data frame for courses with student inter
 Reviewed current state of Student.R and Faculty.R. Finalized output for ULA assignments showing how many ULAs were desired for a given class, how many were assigned, and the current course need. Started working on input to show which students were unassigned and their course preferences.
 #### 6/09/18 21:45-22:45
 Gathered all necessary output from matching into two data frames and cleaned up the matching script code
-#### 6/10/18 7:00-
+#### 6/10/18 7:00-8:00
+Implemented write to csv, bug fixes for sorting, matching broke
