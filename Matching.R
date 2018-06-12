@@ -193,20 +193,10 @@ for (i in empty.cols) {
   p.pref.matrix[,i] <- temp.prefs[,1]
 }
 
-# Original handling of no student or faculty interest -- randomly assign a 
-# student to a class. Legacy code to be deleted, just check that nothing gets
-# messed up if it is
-# empty.cols <- which(apply(p.pref.matrix, 2, sum, na.rm=TRUE) == 0)
-# for (i in empty.cols) {
-#  p.pref.matrix[,i] <- sample(1:ncol(s.pref.matrix), replace=FALSE)
-# }
-
 # -----------------------------------------------------------------------------
 
 # A working matching!
 m <- hri(s.prefs=s.pref.matrix, c.prefs=p.pref.matrix, nSlots=ula.interested)
-# CURRENTLY BROKEN
-# NEED TO TEST TO SEE UNDER WHAT CONDITIONS THE MATCHING ALGORITHM DOES NOT CONVERGE
 
 # -----------------------------------------------------------------------------
 
