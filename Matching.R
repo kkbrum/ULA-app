@@ -246,11 +246,14 @@ temp.assignments <- as.data.frame(table(assignments$course),
                                   stringsAsFactors=FALSE)
 names(temp.assignments) <- c("course", "assigned")
 
-ula.notinterested$desired <- as.numeric(ula.notinterested$desired)
-ula.notinterested$assigned <- as.numeric(ula.notinterested$assigned)
 
 ula.demand <- merge(ula.demand, temp.assignments, by="course")
-ula.demand <- rbind(ula.demand, ula.notinterested)
+
+if (exists("ula.notinterested")) {
+  ula.demand <- rbind(ula.demand, ula.notinterested)
+  ula.notinterested$desired <- as.numeric(ula.notinterested$desired)
+  ula.notinterested$assigned <- as.numeric(ula.notinterested$assigned) 
+}
 
 ula.demand$needed <- ula.demand$desired - ula.demand$assigned
 
