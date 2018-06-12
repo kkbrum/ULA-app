@@ -22,6 +22,8 @@ Dealt with the saved but not submitted student files in both student and faculty
 #### 6/10/18 13:00-15:00
 Fixes to Student.R: -Removed print outs, -Fixed mistake with loading preferences, -Instructions on preferences tab, -New field asking about availability during course meeting times.
 Fixes to Faculty.R: -Log in disappears after logged in, -Fixed indenting of ranked students, -Preset number of ULAs in courses.csv.
+#### 6/11/18 21:30-22:00
+Started working on a couple of fixes to student.R: not displaying number of ULAs in course table and making the summary tab work even if the preferences tab is not loaded first when accessing via log in.
 
 ## Maria
 #### 5/13/18 17:00-19:00
