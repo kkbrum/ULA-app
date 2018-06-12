@@ -257,9 +257,6 @@ if (exists("ula.notinterested")) {
 
 ula.demand$needed <- ula.demand$desired - ula.demand$assigned
 
-# For this script to run fully right now, you need to make up an unassigned
-# student because there are currently no students that are unassigned
-
 # Write csvs with course assignment numbers, assigned student information, and
 # unassigned student information
 write.csv(assignments, "Assignments.csv", row.names=FALSE)
