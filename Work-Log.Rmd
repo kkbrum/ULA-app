@@ -1,0 +1,66 @@
+## Katherine
+#### 5/20/18 19:45-21:45
+Worked on fixing student app. Removed double submit buttons, removed double error checking, and made summary display courses in ranked order.
+#### 5/21/18 10:15-12:00
+Renamed the student app and attempted to get preferences loaded in after log in... not successful thus far.
+#### 5/22/18 20:15-23:00
+Managed to get the preferences loaded in after log in. But, I deleted the "select" button along the way, which is nice, but highlighted some problems. Mainly that if you add or remove courses, the whole table is rebuilt and all previous entries in the table are removed. The enabling/disabling features are also messed up, but I think this stems from rebuilding the table and only the last entry has proper enabling/disabling. 
+#### 5/23/18 21:00-23:00
+Messed around with the table of course preferences to try to fix some of the problems... but didn't accomplish anything :(
+#### 5/27/18 18:30-21:45
+Login now loads preferences; meeting with Maria to plan stuff out.
+#### 5/28/18 10:00-11:15
+Login on separate page; worked on error messages.
+#### 6/03/18  19:15-20:00
+Reordered student app code so that it has a logical grouping and flow structure. Started working on combining the error checking and file writing into cohesive code.
+#### 6/05/18 21:00-22:30
+Made an option to save your inputs even if the inputs are not yet all correct. Continued working on cohesive error checking, making it clear what the exact errors are and having just one error checking framework.
+#### 6/06/18 21:45-22:45
+Finished the error checking. Student app is in pretty good shape. Need to conduct thorough testing.
+#### 6/07/18 17:30-18:15
+Dealt with the saved but not submitted student files in both student and faculty sides.
+#### 6/10/18 13:00-15:00
+Fixes to Student.R: -Removed print outs, -Fixed mistake with loading preferences, -Instructions on preferences tab, -New field asking about availability during course meeting times.
+Fixes to Faculty.R: -Log in disappears after logged in, -Fixed indenting of ranked students, -Preset number of ULAs in courses.csv.
+#### 6/11/18 21:30-22:00
+Started working on a couple of fixes to student.R: not displaying number of ULAs in course table and making the summary tab work even if the preferences tab is not loaded first when accessing via log in.
+
+## Maria
+#### 5/13/18 17:00-19:00
+Researching on matching algorithms, R implementations
+#### 5/19/18 16:00-17:00
+Getting `matchingMarkets` and all dependencies installed on my machines. Major issues with `rJava` (make sure that same type of R and Java installed ex. 64-bit R with 64-bit Java, and do an R restart after Java reinstall) 
+#### 5/21/18 08:15-09:15
+Reviewed current state of `Student.R` and made a list of bugs that need to be addresssed.
+#### 5/22/18 08:30-09:30
+Created more in depth options for inputting grade for student meta data, played around with a different numeric input type for year (more trouble than it's worth in terms of error checking), was working on an error message, but it doesn't play nicely with `req()`, so there was limited success
+#### 5/22/18 20:30-23:30
+Did basic tests of the `matchingMarkets` package and figured out data structures necessary for the ULA problem (which is just the college admissions aka hospital/residents problem). Wrote basic script elements to gather information related to student inputs and format them correctly. Started some work on professor inputs, but the output of `Faculty.R` needs to be changed before I can do more work on the faculty data structure to do the stable matching. 
+#### 5/23/18 08:30-09:30
+Changed file output on faculty side to give files with each line being an evaluable list with all of the information and preferences for professors. Created a pull request to merge into master.
+#### 5/23/18 22:45-23:45
+Some progress on creating the faculty output matrices and creation of two faculty preferences files for testing purposes. Had difficulties with formatting at first, always check evaluation vs. printout.
+#### 5/24/18 19:30-20:30
+Created faculty ouput matrices, got a toy matching using `hri` up and running.
+#### 5/27/18 21:00-21:45
+Planning meeting with Katherine.
+#### 5/30/18 10:00-11:30
+Set up loop structure and some initial functions to sort on ties in student preferences in the absence of faculty preferences being submitted.
+#### 6/01/18 19:00-21:00
+Wrote function to sort preferences for a class when a professor does not provide their own preferences.
+#### 6/02/18 19:30-20:30
+Generated student and faculty testing data and did some bug fixes.
+#### 6/04/18 19:30-20:30
+Created mechanism to see what courses students have interest in ULAing and then isolate course names.
+#### 6/05/18 21:15-21:45
+Modified functions to act only on courses with demonstrated student interest. Matching example with data from Student and Faculty working.
+#### 6/06/18 20:15-21:30
+Data extraction from hri output, final data frame for courses with student interest formatted
+#### 6/08/2018 13:00-14:00
+Reviewed current state of Student.R and Faculty.R. Finalized output for ULA assignments showing how many ULAs were desired for a given class, how many were assigned, and the current course need. Started working on input to show which students were unassigned and their course preferences.
+#### 6/09/18 21:45-22:45
+Gathered all necessary output from matching into two data frames and cleaned up the matching script code
+#### 6/10/18 7:00-8:00
+Implemented write to csv, bug fixes for sorting, matching broke
+#### 6/11/18 20:15-20:45
+Tidied up Matching.R, got a working hri matching, wrote sample output to csv, opened a pull request
