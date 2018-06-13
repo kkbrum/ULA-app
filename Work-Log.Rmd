@@ -64,3 +64,4 @@ Gathered all necessary output from matching into two data frames and cleaned up 
 Implemented write to csv, bug fixes for sorting, matching broke
 #### 6/11/18 20:15-20:45
 Tidied up Matching.R, got a working hri matching, wrote sample output to csv, opened a pull request
+#### 6/12/18 20:00-
