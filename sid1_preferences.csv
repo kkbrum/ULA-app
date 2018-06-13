@@ -1,6 +1,6 @@
-"Title","Taken","WhenTaken","Prof","Grade","Suitable","Rank"
-"S&DS 100","Y",2017,"JRDS","A","Because",2
-"S&DS 230","Y",2018,"JDRS","A","Because",1
-"S&DS 241","N",NA,"","","Because",5
-"S&DS 365","N",NA,"","","Because",3
-"S&DS 361","N",NA,"","","Because",4
+"Title","Taken","WhenTaken","Prof","Grade","Suitable","Available","Rank"
+"S&DS 100","Y",2017,"JRDS","A","Because","Y",2
+"S&DS 230","Y",2018,"JDRS","A","Because","Y",1
+"S&DS 241","N",NA,"","","Because","Y",5
+"S&DS 365","N",NA,"","","Because","Y",3
+"S&DS 361","N",NA,"","","Because","Y",4
