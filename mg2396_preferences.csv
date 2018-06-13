@@ -1,5 +1,5 @@
-"Title","Taken","WhenTaken","Prof","Grade","Suitable","Rank"
-"S&DS 100","N",NA,"","","I want to work with students just getting started learning statistics",2
-"S&DS 230","Y",2016,"Jay Emerson","A","I am good at teaching people how to use R",1
-"S&DS 365","Y",2017,"John Lafferty","D","I liked this course and feel like I learned a lot, but struggled",3
-"S&DS 361","Y",2017,"Jessi Cisewski","A","This course was my favorite course I have taken in the S&DS Department thus far",4
+"Title","Taken","WhenTaken","Prof","Grade","Suitable","Available","Rank"
+"S&DS 100","N",NA,"","","I want to work with students just getting started learning statistics","Y",2
+"S&DS 230","Y",2016,"Jay Emerson","A","I am good at teaching people how to use R","Y",1
+"S&DS 365","Y",2017,"John Lafferty","D","I liked this course and feel like I learned a lot, but struggled","Y",3
+"S&DS 361","Y",2017,"Jessi Cisewski","A","This course was my favorite course I have taken in the S&DS Department thus far","Y",4
