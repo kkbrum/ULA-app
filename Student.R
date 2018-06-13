@@ -127,7 +127,7 @@ server <- function(session, input, output) {
   
   # Load in course information
   courses <- read.csv("courses.csv", as.is = TRUE)
-  courses <- courses[,-1]
+  courses <- courses[,c(-1, -6)]
   colnames(courses) <- c("Course Code", "Day", "Meeting Time", "Professor")
   
   # Display course information
@@ -344,6 +344,7 @@ server <- function(session, input, output) {
                 paste0("save_", input$netid, "_", input$new_pin, ".csv"))
       # Preferences file
       ind <- which(shinyValue('Desire', nrow(DF))=="Y")
+      print(ind)
       preferences <- data.frame(Title= DF[ind,'Course Title'],
                                 Taken = shinyValue('Taken', nrow(DF))[ind], 
                                 WhenTaken = shinyValue('WhenTaken', nrow(DF))[ind],
@@ -437,6 +438,8 @@ server <- function(session, input, output) {
       DF[chosen,9] <- unlist(lapply(1:length(chosen), function(x) as.character(numericInput(paste0('Rank', chosen[x]),
                                                                                             value = mypref$Rank[row[x]], min = 1, 
                                                                                             max = nrow(DF), step = 1, width="60%",label=NULL))))
+      print(shinyValue('Desire', nrow(DF)))
+      
       output$rankDT = DT::renderDataTable( 
         DF, server = FALSE, escape = 2, selection='none', options = list( 
           preDrawCallback = JS('function() { 
