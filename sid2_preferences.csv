@@ -1,5 +1,3 @@
-"Title","Taken","WhenTaken","Prof","Grade","Suitable","Available","Rank"
-"S&DS 365","N",NA,"","","Because","Y",1
-"S&DS 100","N",NA,"","","Because","Y",2
-"S&DS 230","Y",2017,"Jay","D","Because","Y",3
-"S&DS 241","Y",2017,"Winston","D","Because","Y",4
+"Title","Taken","WhenTaken","Professor","Grade","Suitable","Available","Rank"
+"S&DS 100","Y",2017,"JRS","A","Because","Y",2
+"S&DS 365","Y",2018,"John Lafferty","B-","Because","Y",1
