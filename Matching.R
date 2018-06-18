@@ -48,7 +48,7 @@ get.name <- function(file) {
 get.grade <- function(s.num, course) {
   temp <- s.prefs[[s.num]]
   x <- temp$Grade[which(unlist(lapply(temp$Title, get.value, hash_table="course.mapping")) == course)]
-  ifelse (x == "", return("Not taken"), return(x))
+  ifelse (x == "" | x == NA, return("Not taken"), return(x))
 }
 
 get.year <- function(file) {
