@@ -215,12 +215,15 @@ for (i in 1:nrow(assignments)) {
 # Find unassigned students and get a list of their course preferences in order
 unassigned <- as.data.frame(keys(student.mapping)[which(keys(student.mapping) %!in% assignments$student)], 
                             stringsAsFactors=FALSE)
-names(unassigned) <- c("student")
-unassigned$prefs <- NA
-for (i in 1:nrow(unassigned)) {
-  temp.mat <- s.prefs[[get.value(unassigned$student[i], "student.mapping")]]
-  unassigned$prefs[i] <- toString(list(temp.mat$Title[order(temp.mat$Rank)]))
+if (nrow(unassigned) > 0) {
+  names(unassigned) <- c("student")
+  unassigned$prefs <- NA
+  for (i in 1:nrow(unassigned)) {
+    temp.mat <- s.prefs[[get.value(unassigned$student[i], "student.mapping")]]
+    unassigned$prefs[i] <- toString(list(temp.mat$Title[order(temp.mat$Rank)]))
+  }
 }
+
 
 # Extract information regarding ULA counts per class and bind with information
 # from classes that have not been assigned any ULAs
