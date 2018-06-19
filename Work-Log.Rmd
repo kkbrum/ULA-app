@@ -72,3 +72,4 @@ Tidied up Matching.R, got a working hri matching, wrote sample output to csv, op
 Played with hri failures and brainstormed possible solutions
 #### 6/17/18 19:45-21:45
 Fixed issues with Master branch by regenerating inputs and re-running matching with bug fixes along the way.
+#### 6/18/18 21:00-
