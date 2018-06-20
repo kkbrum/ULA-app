@@ -28,6 +28,8 @@ Started working on a couple of fixes to student.R: not displaying number of ULAs
 Tried to get rjava working without success.
 #### 6/13/18 17:30-18:00
 Tried some more to get rjava working.
+#### 6/19/18 19:00-22:30
+Worked on a click and move admin interface.
 
 ## Maria
 #### 5/13/18 17:00-19:00
