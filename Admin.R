@@ -1,6 +1,7 @@
 library(shiny)
 # devtools::install_github('ayayron/shinydnd')
 library(shinyDND)
+library(shinyBS)
 
 assignments <- read.csv("Assignments.csv", as.is=TRUE)
 
@@ -20,7 +21,9 @@ ui <- shinyUI(
     sidebarLayout(
       
       sidebarPanel(width =3, 
-                   actionButton(inputId= paste0("course_", 0), label="Unassigned", style = "background-color: dodgerblue"),
+                   actionButton(inputId= paste0("course_", 0), 
+                                label="Unassigned", 
+                                style = "background-color: dodgerblue"),
                    br(),
                    br(),
                    uiOutput(paste0("course_", 0, "_list"))
@@ -30,10 +33,16 @@ ui <- shinyUI(
         h2("Courses"),
         fluidRow(
           column(6,
-                 lapply(1:ceiling(length(courses)/2), function(x) list(uiOutput(paste0("course_", x)), br(), uiOutput(paste0("course_", x, "_list"))))
+                 lapply(1:ceiling(length(courses)/2), 
+                        function(x) list(uiOutput(paste0("course_", x)), 
+                                         br(), 
+                                         uiOutput(paste0("course_", x, "_list"))))
           ),
           column(6,
-                 lapply((ceiling(length(courses)/2)+1) : length(courses), function(x) list(uiOutput(paste0("course_", x)), br(), uiOutput(paste0("course_", x, "_list"))))
+                 lapply((ceiling(length(courses)/2)+1):length(courses), 
+                        function(x) list(uiOutput(paste0("course_", x)), 
+                                         br(), 
+                                         uiOutput(paste0("course_", x, "_list"))))
           )
         )
       )
@@ -72,7 +81,9 @@ server <- shinyServer(function(input, output,session) {
   
   lapply(1:length(courses), function(x)
     output[[paste0("course_", x)]] <- renderUI({
-      actionButton(inputId= paste0("course_", x), label=courses[x], style = "background-color: dodgerblue")
+      actionButton(inputId= paste0("course_", x), 
+                   label=courses[x], 
+                   style = "background-color:dodgerblue")
     })
   )
   
@@ -80,7 +91,8 @@ server <- shinyServer(function(input, output,session) {
   
   lapply(1:length(courses), function(x)
     output[[paste0("course_", x, "_list")]] <- renderUI({
-      lapply( assignments[assignments$course == courses[x],"student"], function(x) list(uiOutput(x), br()))
+      lapply(assignments[assignments$course == courses[x],"student"], 
+             function(x) list(uiOutput(x), br()))
     })
   )
   output[['course_0_list']] <- renderUI(
@@ -89,7 +101,7 @@ server <- shinyServer(function(input, output,session) {
   
   # Attempt to move a student into "course_0" which is the unassigned group
   # I think the problem has to do with having the same inputID already loaded elsewhere,
-  #   so it won't regenerate in the unassigned category
+  # so it won't regenerate in the unassigned category
   
   observeEvent(input[["course_0"]],
                {
