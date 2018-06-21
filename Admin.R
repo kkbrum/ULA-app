@@ -1,6 +1,32 @@
 library(shiny)
 # devtools::install_github('ayayron/shinydnd')
 library(shinyDND)
+library(shinyBS)
+
+# ======================= BEGIN MARIA'S FAILED ATTEMPTS ========================
+
+# Load this object in (generated from Matching.R)
+student_preferences <- readRDS("student_preferences.RDS")
+
+# Function that theoretically creates a pop-up with student preferences
+hover <- function(student) {
+  stu <- student_preferences$temp
+  bsPopover(id=input$student, 
+            title=student, 
+            content=(paste0(stu[, "Title"], ": ", stu[, "Rank"], collapse=" | ")),
+            placement="left")
+}
+
+# These names need to exist in the preferences df in order to get printout
+student_preferences$"Maria" <- student_preferences$"Maria G"
+student_preferences$"Katherine" <- student_preferences$"Katherine B"
+student_preferences$"Shah" <- student_preferences$"Student Five"
+
+# This doesn't work... at all, but I tried this in server. Needs a reactive
+# component and I don't think that buttons have fine enough id's currently
+lapply(students, hover)
+
+# ======================= END MARIA'S FAILED ATTEMPTS ==========================
 
 assignments <- read.csv("Assignments.csv", as.is=TRUE)
 # Make this list be all the unassigned and assigned people
