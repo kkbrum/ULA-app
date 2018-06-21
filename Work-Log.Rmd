@@ -80,3 +80,4 @@ Fixed issues with Master branch by regenerating inputs and re-running matching w
 Fiddling with drag and drop capabilities for administrative login
 #### 6/19/18 21:45-22:15
 Reviewed Admin.R code and made some syntax edits. Some preliminary research into hovering functionality in R. 
+#### 6/20/18 20:30-
