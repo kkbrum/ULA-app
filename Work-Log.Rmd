@@ -30,6 +30,8 @@ Tried to get rjava working without success.
 Tried some more to get rjava working.
 #### 6/19/18 19:00-22:30
 Worked on a click and move admin interface.
+#### 6/20/18 19:45-20:45
+Worked on admin interface.
 
 ## Maria
 #### 5/13/18 17:00-19:00
