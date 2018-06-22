@@ -32,6 +32,8 @@ Tried some more to get rjava working.
 Worked on a click and move admin interface.
 #### 6/20/18 19:45-20:45
 Worked on admin interface.
+#### 6/21/18 21:00-21:30
+Made it so students can be moved between classes.
 
 ## Maria
 #### 5/13/18 17:00-19:00
