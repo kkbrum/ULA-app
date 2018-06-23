@@ -6,8 +6,8 @@ library(shinyBS)
 # ======================= BEGIN MARIA'S FAILED ATTEMPTS ========================
 
 # # Load this object in (generated from Matching.R)
-# student_preferences <- readRDS("student_preferences.RDS")
-# 
+student_preferences <- readRDS("student_preferences.RDS")
+
 # # Function that theoretically creates a pop-up with student preferences
 # hover <- function(student) {
 #   stu <- student_preferences$temp
@@ -17,10 +17,6 @@ library(shinyBS)
 #             placement="left")
 # }
 # 
-# # These names need to exist in the preferences df in order to get printout
-# student_preferences$"Maria" <- student_preferences$"Maria G"
-# student_preferences$"Katherine" <- student_preferences$"Katherine B"
-# student_preferences$"Shah" <- student_preferences$"Student Five"
 # 
 # # This doesn't work... at all, but I tried this in server. Needs a reactive
 # # component and I don't think that buttons have fine enough id's currently
@@ -30,7 +26,7 @@ library(shinyBS)
 
 assignments <- read.csv("Assignments.csv", as.is=TRUE)
 # Make this list be all the unassigned and assigned people
-students <- c("Maria", "Shah", "Katherine", assignments$student)
+students <- names(student_preferences)
 unassigned <- students[!students %in% assignments$student]
 courses <- c(unique(assignments$course), "unassigned")
 course_assignments <- vector("list", length(courses))
@@ -61,7 +57,7 @@ ui <- shinyUI(
       
       mainPanel(
         h2("Students"),
-        "Assigned students are shaded grey. To unassign them, press on their grey button and hit the unassign button. To assign a student to a course, click their name and then click on the course name.",
+        "Assigned students are shaded. Green means they have either their first or second choice, yellow for third or fourth, and red for other choices. Grey means they have been assigned to a class they did not rank (which means they were not willing to ULA the course). To unassign them, press on their button and hit the unassign button. To assign a student to a course, click their name and then click on the course name.",
         br(),
         br(),
         actionButton(inputId= "unassigned", label="Unassign", style = "background-color: dodgerblue"),
@@ -87,20 +83,27 @@ server <- shinyServer(function(input, output,session) {
   )
   
   # Render buttons for students that change color when clicked
-  lapply(students, function(x)
+  lapply(students, function(x) {
+    most_desired <- student_preferences[[x]]$Title[student_preferences[[x]]$Rank < 3]
+    desired <- student_preferences[[x]]$Title[student_preferences[[x]]$Rank %in% c(3,4)]
+    not_desired <- student_preferences[[x]]$Title[student_preferences[[x]]$Rank > 4]
     output[[x]] <- renderUI({
       if(clicked$s[[x]]) {
         actionButton(inputId= x, label=x, style = "border-color:red")
-      }
-      else {
-        if (x %in% course_assignments[["unassigned"]] ) {
-          actionButton(inputId= x, label=x)
-        } else {
-          actionButton(inputId= x, label=x, style = "background-color:grey")
-        }
-      }
+      } else if (x %in% course_assignments[["unassigned"]] ) {
+        actionButton(inputId= x, label=x)
+      } else if(x %in% course_assignments[[most_desired[1]]] | x %in% course_assignments[[most_desired[2]]]) {
+        actionButton(inputId= x, label=x, style = "background-color:rgba(66, 244, 78, .6)")
+      } else if(x %in% course_assignments[[desired[1]]] | x %in% course_assignments[[desired[2]]]) {
+        actionButton(inputId= x, label=x, style = "background-color:rgba(244, 241, 65, .6)")
+      } else if(x %in% course_assignments[[not_desired[1]]] | x %in% course_assignments[[not_desired[2]]] | x %in% course_assignments[[not_desired[3]]] | x %in% course_assignments[[not_desired[4]]]){
+        actionButton(inputId= x, label=x, style = "background-color:rgba(244, 65, 65, .4)")
+      } else {actionButton(inputId= x, label=x, style = "background-color:grey")}
+      
+      # actionButton(inputId= x, label=x, style = "background-color:grey")
     })
-  )
+  })
+  
   
   # Make buttons for the courses
   lapply(courses[-length(courses)], function(x)
