@@ -34,6 +34,8 @@ Worked on a click and move admin interface.
 Worked on admin interface.
 #### 6/21/18 21:00-21:30
 Made it so students can be moved between classes.
+#### 6/23/18 14:00-15:00 
+Students now colored based on happiness.
 
 ## Maria
 #### 5/13/18 17:00-19:00
