@@ -36,6 +36,8 @@ Worked on admin interface.
 Made it so students can be moved between classes.
 #### 6/23/18 14:00-15:00 
 Students now colored based on happiness.
+#### 6/23/18 17:00-18:15
+Added submit, legend for colors, and number of ULAs desired.
 
 ## Maria
 #### 5/13/18 17:00-19:00
