@@ -25,6 +25,7 @@ student_preferences <- readRDS("student_preferences.RDS")
 # ======================= END MARIA'S FAILED ATTEMPTS ==========================
 
 assignments <- read.csv("Assignments.csv", as.is=TRUE)
+demand <- read.csv("Demand.csv", as.is=TRUE)
 # Make this list be all the unassigned and assigned people
 students <- names(student_preferences)
 unassigned <- students[!students %in% assignments$student]
@@ -42,6 +43,19 @@ names(s) <- students
 
 ui <- shinyUI(
   fluidPage(
+    # HTML formatting for notification
+    tags$head(
+      tags$style(
+        HTML(".shiny-notification {
+             position:fixed;
+             top: calc(30%);
+             left: calc(50%);
+             width: calc(20%);
+             }"
+        )
+      )
+    ),
+    
     sidebarLayout(
       sidebarPanel(
         h2("Courses"),
@@ -57,13 +71,17 @@ ui <- shinyUI(
       
       mainPanel(
         h2("Students"),
-        "Assigned students are shaded. Green means they have either their first or second choice, yellow for third or fourth, and red for other choices. Grey means they have been assigned to a class they did not rank (which means they were not willing to ULA the course). To unassign them, press on their button and hit the unassign button. To assign a student to a course, click their name and then click on the course name.",
+        "To unassign a student, press on their button and hit the unassign button. To assign a student to a course, click their name and then click on the course name.",
         br(),
         br(),
         actionButton(inputId= "unassigned", label="Unassign", style = "background-color: dodgerblue"),
         br(),
         br(),
-        uiOutput(paste0("unassigned_list"))
+        uiOutput(paste0("unassigned_list")),
+        br(),
+        hr(),
+        plotOutput("legend", width ="100%"),
+        actionButton("submit", "Submit new assignments")
       )
     )
   )
@@ -72,6 +90,11 @@ ui <- shinyUI(
 
 # server with reactive for observing reactive drop event
 server <- shinyServer(function(input, output,session) {
+  
+  output$legend <- renderPlot({
+    plot(NULL ,xaxt='n',yaxt='n',bty='n',ylab='',xlab='', xlim=0:1, ylim=0:1)
+    legend("topleft", cex = 1.5, pch=c(15, 15, 15, 15, 0), col=c(rgb(66, 244, 78, alpha=180, maxColorValue=255), rgb(244, 241, 65, alpha=180, maxColorValue=255), rgb(244, 65, 65, alpha=180, maxColorValue=255), "grey", "black"), 
+           legend=c("First or second choice", "Third or fourth choice", "Fifth or lower choice", "Unwilling to ULA this course", "No assignment"))})
   
   clicked <- reactiveValues(s = s, change = FALSE)
   
@@ -116,7 +139,14 @@ server <- shinyServer(function(input, output,session) {
   observeEvent(clicked$change, {
     lapply(courses[-length(courses)], function(x)
       output[[paste0(x, "_list")]] <- renderUI({
-        HTML(paste0(course_assignments[[x]], "</br>"))
+        print(length(course_assignments[[x]]))
+        print (demand$desired[demand$course ==x])
+        if(length(course_assignments[[x]]) != demand$desired[demand$course == x]) {
+          HTML(c("<font color=red>", demand$desired[demand$course == x], " ULAs desired <hr> </font>", paste0(course_assignments[[x]], "</br>")))
+        }
+        else {
+          HTML(c("<font color=black>", demand$desired[demand$course == x], " ULAs desired <hr> </font>", paste0(course_assignments[[x]], "</br>")))
+        }
       })
     )
     output[['unassigned_list']] <- renderUI(
@@ -153,6 +183,17 @@ server <- shinyServer(function(input, output,session) {
       }
       clicked$change <- !clicked$change
     })
+  })
+  
+  observeEvent(input$submit, {
+    final_assignments <- data.frame("student" = students, "course" = rep(NA, length(students)))
+    for (course in courses) {
+      for (student in course_assignments[[course]]) {
+        final_assignments$course[final_assignments$student == student] <- course
+      }
+    }
+    write.csv(final_assignments, file="Final_assignments.csv")
+    showNotification("Submission successful!", duration=5, type="message")
   })
 })
 
