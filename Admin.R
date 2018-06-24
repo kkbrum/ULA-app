@@ -3,6 +3,8 @@ library(shiny)
 library(shinyDND)
 library(shinyBS)
 
+source("Matching.R")
+
 # ======================= BEGIN MARIA'S FAILED ATTEMPTS ========================
 
 # # Load this object in (generated from Matching.R)
@@ -122,7 +124,7 @@ server <- shinyServer(function(input, output,session) {
       } else if(x %in% course_assignments[[not_desired[1]]] | x %in% course_assignments[[not_desired[2]]] | x %in% course_assignments[[not_desired[3]]] | x %in% course_assignments[[not_desired[4]]]){
         actionButton(inputId= x, label=x, style = "background-color:rgba(244, 65, 65, .4)")
       } else {actionButton(inputId= x, label=x, style = "background-color:grey")}
-      
+
       # actionButton(inputId= x, label=x, style = "background-color:grey")
     })
   })
