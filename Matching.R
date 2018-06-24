@@ -208,7 +208,6 @@ if (nrow(unassigned) > 0) {
   }
 }
 
-
 # Extract information regarding ULA counts per class and bind with information
 # from classes that have not been assigned any ULAs
 ula.demand <- as.data.frame(cbind(seq(1:nrow(courses.interest)), ula.interested), 
