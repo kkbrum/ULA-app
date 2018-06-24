@@ -97,6 +97,11 @@ meta <- list.files(pattern="*_[0-9]")
 s.name <- unlist(lapply(meta, get.name))
 s.year <- unlist(lapply(meta, get.year))
 
+# Write file with all student preferences and name
+student_preferences <- s.prefs
+names(student_preferences) <- s.name
+saveRDS(student_preferences, "student_preferences.RDS")
+
 # Create hash table mapping student name to student number
 # This number is based on the order in which the student files are read in
 # Also get the reversed hashing (student number as key)
