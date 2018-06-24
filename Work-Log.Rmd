@@ -88,4 +88,5 @@ Fiddling with drag and drop capabilities for administrative login
 Reviewed Admin.R code and made some syntax edits. Some preliminary research into hovering functionality in R.
 #### 6/20/18 20:30-22:00
 Tried and failed with button hovering on admin. Created a new output from matching that has student preferences tagged by student name.
-#### 6/23/18 21:00-
+#### 6/23/18 21:00-22:15
+Cleaned up Matching.R script and added a source call to it in Admin.R. Played around aagain with hovering, but made no tangible progress.
