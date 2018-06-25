@@ -90,3 +90,4 @@ Reviewed Admin.R code and made some syntax edits. Some preliminary research into
 Tried and failed with button hovering on admin. Created a new output from matching that has student preferences tagged by student name.
 #### 6/23/18 21:00-22:15
 Cleaned up Matching.R script and added a source call to it in Admin.R. Played around aagain with hovering, but made no tangible progress.
+#### 6/24/18 20:15-
