@@ -95,4 +95,5 @@ Tried and failed with button hovering on admin. Created a new output from matchi
 Cleaned up Matching.R script and added a source call to it in Admin.R. Played around aagain with hovering, but made no tangible progress.
 #### 6/24/18 20:15-21:00
 Updates to README, general cleaning of repo (closing old branches, old issues, etc.)
-
+#### 7/01/18 22:30-23:00
+Wrote faculty preferences to RDS file.

@@ -180,12 +180,12 @@ for (i in empty.cols) {
 }
 
 # Create faculty interest output
-faculty_preferences <- as.data.frame(matrix(nrow=length(s.id), ncol=length(p.info)))
+faculty_preferences <- list()
 list_names <- rep(NA, length(p.info))
 for (i in 1:length(p.info)) {
   info <- eval(parse(text=p.info[i]))
   list_names[i] <- info[[1]]
-  faculty_preferences[1:length(info[[3]]), i] <- info[[3]]
+  faculty_preferences[[i]] <- info[[3]]
 }
 names(faculty_preferences) <- list_names
 
