@@ -3,28 +3,9 @@ library(shiny)
 library(shinyDND)
 library(shinyBS)
 
-source("Matching.R")
+# source("Matching.R")
 
-# ======================= BEGIN MARIA'S FAILED ATTEMPTS ========================
-
-# # Load this object in (generated from Matching.R)
 student_preferences <- readRDS("student_preferences.RDS")
-
-# # Function that theoretically creates a pop-up with student preferences
-# hover <- function(student) {
-#   stu <- student_preferences$temp
-#   bsPopover(id=input$student, 
-#             title=student, 
-#             content=(paste0(stu[, "Title"], ": ", stu[, "Rank"], collapse=" | ")),
-#             placement="left")
-# }
-# 
-# 
-# # This doesn't work... at all, but I tried this in server. Needs a reactive
-# # component and I don't think that buttons have fine enough id's currently
-# lapply(students, hover)
-
-# ======================= END MARIA'S FAILED ATTEMPTS ==========================
 
 assignments <- read.csv("Assignments.csv", as.is=TRUE)
 demand <- read.csv("Demand.csv", as.is=TRUE)
@@ -44,6 +25,7 @@ s <- rep(list(FALSE), length(students))
 names(s) <- students
 
 ui <- shinyUI(
+  
   fluidPage(
     # HTML formatting for notification
     tags$head(
@@ -53,6 +35,9 @@ ui <- shinyUI(
              top: calc(30%);
              left: calc(50%);
              width: calc(20%);
+             }",
+             "th, td {
+             padding-right: 12px;
              }"
         )
       )
@@ -76,13 +61,18 @@ ui <- shinyUI(
         "To unassign a student, press on their button and hit the unassign button. To assign a student to a course, click their name and then click on the course name.",
         br(),
         br(),
-        actionButton(inputId= "unassigned", label="Unassign", style = "background-color: dodgerblue"),
+        "To view a student's preferences in order, click on their name.",
+        br(),
+        br(),
+        fluidRow(
+          column(6, br(), br(), actionButton(inputId= "unassigned", label="Unassign", style = "background-color: dodgerblue")),
+          column(6, img(src="Legend.png", width="200px"))
+        ),
         br(),
         br(),
         uiOutput(paste0("unassigned_list")),
         br(),
         hr(),
-        plotOutput("legend", width ="100%"),
         actionButton("submit", "Submit new assignments")
       )
     )
@@ -92,11 +82,6 @@ ui <- shinyUI(
 
 # server with reactive for observing reactive drop event
 server <- shinyServer(function(input, output,session) {
-  
-  output$legend <- renderPlot({
-    plot(NULL ,xaxt='n',yaxt='n',bty='n',ylab='',xlab='', xlim=0:1, ylim=0:1)
-    legend("topleft", cex = 1.5, pch=c(15, 15, 15, 15, 0), col=c(rgb(66, 244, 78, alpha=180, maxColorValue=255), rgb(244, 241, 65, alpha=180, maxColorValue=255), rgb(244, 65, 65, alpha=180, maxColorValue=255), "grey", "black"), 
-           legend=c("First or second choice", "Third or fourth choice", "Fifth or lower choice", "Unwilling to ULA this course", "No assignment"))})
   
   clicked <- reactiveValues(s = s, change = FALSE)
   
@@ -112,6 +97,15 @@ server <- shinyServer(function(input, output,session) {
     most_desired <- student_preferences[[x]]$Title[student_preferences[[x]]$Rank < 3]
     desired <- student_preferences[[x]]$Title[student_preferences[[x]]$Rank %in% c(3,4)]
     not_desired <- student_preferences[[x]]$Title[student_preferences[[x]]$Rank > 4]
+    output[[paste0(x, "_prefs")]] <- renderUI(
+      if(clicked$s[[x]]) {
+      HTML(paste0(c("<table style='width=100%'> <tr> <th> Course     </th> <th> Taken      </th><th> Grade     </th><th> Reason </th><th> </tr><tr> <td>",
+        unlist(lapply(order(student_preferences[[x]]$Rank), function(y) {
+        c(paste0(student_preferences[[x]][y,c("Title", "Taken", "Grade", "Suitable")], "</td> <td>"), "</td> </tr> <tr> <td>")
+      })), "</td></tr></table>")))
+      }
+    )
+    
     output[[x]] <- renderUI({
       if(clicked$s[[x]]) {
         actionButton(inputId= x, label=x, style = "border-color:red")
@@ -124,7 +118,7 @@ server <- shinyServer(function(input, output,session) {
       } else if(x %in% course_assignments[[not_desired[1]]] | x %in% course_assignments[[not_desired[2]]] | x %in% course_assignments[[not_desired[3]]] | x %in% course_assignments[[not_desired[4]]]){
         actionButton(inputId= x, label=x, style = "background-color:rgba(244, 65, 65, .4)")
       } else {actionButton(inputId= x, label=x, style = "background-color:grey")}
-
+      
       # actionButton(inputId= x, label=x, style = "background-color:grey")
     })
   })
@@ -141,8 +135,6 @@ server <- shinyServer(function(input, output,session) {
   observeEvent(clicked$change, {
     lapply(courses[-length(courses)], function(x)
       output[[paste0(x, "_list")]] <- renderUI({
-        print(length(course_assignments[[x]]))
-        print (demand$desired[demand$course ==x])
         if(length(course_assignments[[x]]) != demand$desired[demand$course == x]) {
           HTML(c("<font color=red>", demand$desired[demand$course == x], " ULAs desired <hr> </font>", paste0(course_assignments[[x]], "</br>")))
         }
@@ -154,10 +146,10 @@ server <- shinyServer(function(input, output,session) {
     output[['unassigned_list']] <- renderUI(
       fluidRow(
         column(6,
-               lapply(students[1:(ceiling(length(students))/2)], function(x) list(uiOutput(x), br()))
+               lapply(students[1:(ceiling(length(students))/2)], function(x) list(uiOutput(x), uiOutput(paste0(x, "_prefs")), br()))
         ), 
         column(6,
-               lapply(students[((ceiling(length(students))/2)+1):length(students)], function(x) list(uiOutput(x), br()))
+               lapply(students[((ceiling(length(students))/2)+1):length(students)], function(x) list(uiOutput(x), uiOutput(paste0(x, "_prefs")), br()))
         )
       )
     )
