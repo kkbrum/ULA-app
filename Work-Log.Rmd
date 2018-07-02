@@ -38,6 +38,9 @@ Made it so students can be moved between classes.
 Students now colored based on happiness.
 #### 6/23/18 17:00-18:15
 Added submit, legend for colors, and number of ULAs desired.
+#### 6/30/18 9:00-11:30, 18:00-20:00
+Messed around with hovering on admin, gave up and displayed student preferences in HTML table.
+
 
 ## Maria
 #### 5/13/18 17:00-19:00
@@ -92,3 +95,4 @@ Tried and failed with button hovering on admin. Created a new output from matchi
 Cleaned up Matching.R script and added a source call to it in Admin.R. Played around aagain with hovering, but made no tangible progress.
 #### 6/24/18 20:15-21:00
 Updates to README, general cleaning of repo (closing old branches, old issues, etc.)
+
