@@ -179,6 +179,18 @@ for (i in empty.cols) {
   p.pref.matrix[,i] <- temp.prefs[,1]
 }
 
+# Create faculty interest output
+faculty_preferences <- as.data.frame(matrix(nrow=length(s.id), ncol=length(p.info)))
+list_names <- rep(NA, length(p.info))
+for (i in 1:length(p.info)) {
+  info <- eval(parse(text=p.info[i]))
+  list_names[i] <- info[[1]]
+  faculty_preferences[1:length(info[[3]]), i] <- info[[3]]
+}
+names(faculty_preferences) <- list_names
+
+saveRDS(faculty_preferences, "faculty_preferences.RDS")
+
 # ==============================================================================
 # Carry out matching
 m <- hri(s.prefs=s.pref.matrix, c.prefs=p.pref.matrix, nSlots=ula.interested)
