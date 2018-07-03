@@ -40,6 +40,10 @@ get.id <- function(string) {
   return(substring(string, 1, regexpr("_", string) - 1))
 }
 
+get.pin <- function(string) {
+  return(substring(string, regexpr("_", string) + 1, nchar(string)))
+}
+
 get.name <- function(file) {
   temp <- read.csv(file, as.is=TRUE)
   return(paste(temp$first_name, temp$last_name))
@@ -114,6 +118,12 @@ s.year <- unlist(lapply(meta, get.year))
 student_preferences <- s.prefs
 names(student_preferences) <- s.name
 saveRDS(student_preferences, "student_preferences.RDS")
+
+# Write file with student names, netids, and pins
+s.pin <- unlist(lapply(meta, get.pin))
+student_credentials <- as.data.frame(cbind(s.name, s.id, s.pin))
+names(student_credentials) <- c("student", "netid", "pin")
+write.csv(student_credentials, "student_credentials.csv", row.names=FALSE)
 
 # Create hash table mapping student name to student number
 # This number is based on the order in which the student files are read in
