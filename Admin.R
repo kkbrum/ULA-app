@@ -6,6 +6,7 @@ library(shinyBS)
 # source("Matching.R")
 
 student_preferences <- readRDS("student_preferences.RDS")
+faculty_preferences <- readRDS("faculty_preferences.RDS")
 
 assignments <- read.csv("Assignments.csv", as.is=TRUE)
 demand <- read.csv("Demand.csv", as.is=TRUE)
@@ -22,6 +23,8 @@ course_assignments[["unassigned"]] <- unassigned
 
 # for clicking purposes later
 s <- rep(list(FALSE), length(students))
+c <- rep(list(FALSE), length(courses))
+names(c) <- courses
 names(s) <- students
 
 ui <- shinyUI(
@@ -48,10 +51,26 @@ ui <- shinyUI(
         h2("Courses"),
         fluidRow(
           column(6,
-                 lapply(courses[1:ceiling((length(courses)-1)/2)], function(x) list(uiOutput(x), br(), uiOutput(paste0(x, "_list")), br()))
+                 lapply(courses[1:ceiling((length(courses)-1)/2)], function(x) {
+                   list(uiOutput(x), 
+                        actionLink(paste0(x, "_show"), "Preferences"),
+                        uiOutput(paste0(x, "_prefs")),
+                        br(), 
+                        uiOutput(paste0(x, "_list")), 
+                        br()
+                   )
+                 })
           ),
           column(6,
-                 lapply(courses[(ceiling((length(courses)-1)/2)+1) : (length(courses)-1)], function(x) list(uiOutput(x), br(), uiOutput(paste0(x, "_list")), br()))
+                 lapply(courses[(ceiling((length(courses)-1)/2)+1) : (length(courses)-1)], function(x) {
+                   list(uiOutput(x), 
+                        actionLink(inputId= paste0(x, "_show"), "Preferences"),
+                        uiOutput(paste0(x, "_prefs")),
+                        br(), 
+                        uiOutput(paste0(x, "_list")), 
+                        br()
+                   )
+                 })
           )
         )
       ),
@@ -62,6 +81,9 @@ ui <- shinyUI(
         br(),
         br(),
         "To view a student's preferences in order, click on their name.",
+        br(),
+        br(),
+        "To view a professor's preferences in order, click on 'preferences' below the course title. Students in blue are already assigned to that class, and crossed out students are assigned to another class. Bold students have not yet been assigned to a class and are willing to ULA the class.",
         br(),
         br(),
         fluidRow(
@@ -83,7 +105,7 @@ ui <- shinyUI(
 # server with reactive for observing reactive drop event
 server <- shinyServer(function(input, output,session) {
   
-  clicked <- reactiveValues(s = s, change = FALSE)
+  clicked <- reactiveValues(s = s, c = c, change = FALSE)
   
   # Record whether students have been clicked
   lapply(students, function(x)
@@ -92,6 +114,31 @@ server <- shinyServer(function(input, output,session) {
     )
   )
   
+  # Record whether courses have been clicked
+  lapply(courses, function(x)
+    observeEvent(input[[paste0(x, "_show")]], 
+                 clicked$c[[x]] <- !clicked$c[[x]]
+    )
+  )
+  
+  lapply(courses, function(x) {
+    output[[paste0(x, "_prefs")]] <- renderUI(
+      if(clicked$c[[x]]) {
+        text <- paste0(unlist(
+          lapply(faculty_preferences[[x]], function(y) {
+            if (y %in% course_assignments[["unassigned"]]) {
+              return(paste0("<b>", y, "</b></br>"))
+            } 
+            else if (y %in% course_assignments[[x]]) {
+              return(paste0("<font color='blue'>", y, "</font></br>"))
+            }
+            else {return(paste0("<del>", y, "</del></br>"))}
+          })))
+        HTML(text)
+      }
+    )
+  })
+  
   # Render buttons for students that change color when clicked
   lapply(students, function(x) {
     most_desired <- student_preferences[[x]]$Title[student_preferences[[x]]$Rank < 3]
@@ -99,10 +146,10 @@ server <- shinyServer(function(input, output,session) {
     not_desired <- student_preferences[[x]]$Title[student_preferences[[x]]$Rank > 4]
     output[[paste0(x, "_prefs")]] <- renderUI(
       if(clicked$s[[x]]) {
-      HTML(paste0(c("<table style='width=100%'> <tr> <th> Course     </th> <th> Taken      </th><th> Grade     </th><th> Reason </th><th> </tr><tr> <td>",
-        unlist(lapply(order(student_preferences[[x]]$Rank), function(y) {
-        c(paste0(student_preferences[[x]][y,c("Title", "Taken", "Grade", "Suitable")], "</td> <td>"), "</td> </tr> <tr> <td>")
-      })), "</td></tr></table>")))
+        HTML(paste0(c("<table style='width=100%'> <tr> <th> Course     </th> <th> Taken      </th><th> Grade     </th><th> Reason </th><th> </tr><tr> <td>",
+                      unlist(lapply(order(student_preferences[[x]]$Rank), function(y) {
+                        c(paste0(student_preferences[[x]][y,c("Title", "Taken", "Grade", "Suitable")], "</td> <td>"), "</td> </tr> <tr> <td>")
+                      })), "</td></tr></table>")))
       }
     )
     
