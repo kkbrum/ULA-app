@@ -99,4 +99,5 @@ Cleaned up Matching.R script and added a source call to it in Admin.R. Played ar
 Updates to README, general cleaning of repo (closing old branches, old issues, etc.)
 #### 7/01/18 22:30-23:00
 Wrote faculty preferences to RDS file.
-#### 7/02/18 21:15-
+#### 7/02/18 21:15-22:15
+Wrote student credneitals file from matching output. Created decision branch and started setup of decision interface.
