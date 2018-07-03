@@ -40,6 +40,8 @@ Students now colored based on happiness.
 Added submit, legend for colors, and number of ULAs desired.
 #### 6/30/18 9:00-11:30, 18:00-20:00
 Messed around with hovering on admin, gave up and displayed student preferences in HTML table.
+#### 07/02/18 22:30-23:30 
+Displayed faculty preferences in admin.
 
 
 ## Maria
