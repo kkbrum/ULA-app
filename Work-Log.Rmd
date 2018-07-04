@@ -101,3 +101,4 @@ Updates to README, general cleaning of repo (closing old branches, old issues, e
 Wrote faculty preferences to RDS file.
 #### 7/02/18 21:15-22:15
 Wrote student credneitals file from matching output. Created decision branch and started setup of decision interface.
+#### 7/03/18 20:15-
