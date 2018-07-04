@@ -1,10 +1,6 @@
 library(shiny)
 library(shinyjs)
 
-final_assignments <- read.csv("Final_assignments.csv", stringsAsFactors=FALSE)
-student_credentials <- read.csv("student_credentials.csv", stringsAsFactors=FALSE)
-student_info <- merge(final_assignments, student_credentials, by="student", all.y=TRUE)
-
 ui <- fluidPage(
   
   useShinyjs(),
@@ -29,18 +25,20 @@ ui <- fluidPage(
            }
            "
       )
-      )
-      ),
-  
-  # Panels ----
-  
-  titlePanel("Faculty View"), 
-  shinyjs::hidden(
-    mainPanel(width=12, id="main",
-              uiOutput("tabs1")
     )
   ),
   
+  # Panels ----
+  
+  titlePanel("Decision Page"), 
+  shinyjs::hidden(
+    mainPanel(width=12, id="main",
+              htmlOutput("student_message"),
+              selectInput("decision", "Do you wish to accept your ULA assignment?",
+                          c("", "Yes", "No")),
+              actionButton("finalize", "Submit")
+    )
+  ),
   # Log in box ----
   
   mainPanel(id="startPage", 
@@ -54,9 +52,14 @@ ui <- fluidPage(
               )
             )
   )
-      )
+)
 
 server <- function(session, input, output) {
+  
+  # Data to be used throughout ----
+  final_assignments <- read.csv("Final_assignments.csv", stringsAsFactors=FALSE)
+  student_credentials <- read.csv("student_credentials.csv", stringsAsFactors=FALSE)
+  student_info <- merge(final_assignments, student_credentials, by="student", all.y=TRUE)
   
   # Page structure ----
   
@@ -77,6 +80,19 @@ server <- function(session, input, output) {
   observeEvent(rv$loginSuccess, 
                if(rv$loginSuccess == TRUE) {navPage(1)}
   )
+  
+  observeEvent(input$login, {
+    tryCatch({
+      student_data <- student_info[input$username == student_info$netid & input$pin == student_info$pin, ]
+      if (nrow(student_data) < 1) {stop()}
+      rv$loginSuccess <- TRUE
+    }, error=function(e) {showNotification("Username or pin incorrect", duration=5, type="error")})
+    
+    
+  })  
+  
+  
+  
   
 }
 
