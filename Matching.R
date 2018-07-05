@@ -1,25 +1,4 @@
-# install.packages('matchingMarkets')
-# Be careful with `rJava` -- make sure that the same version of R and Java are
-# installed on the machine (ex. 64 bit R with 64 bit Java) and make sure the path
-# variable is set correctly to accommodate for this
-library(matchingMarkets)
-
-# -----------------------------------------------------------------------------
-# Toy version of college admission (hospital/residents) problem
-# Using language relevant to the ULA problem
-
-# CASE OF INTEREST
-# 7 students, 2 professors with 3 slots each, given preferences
-# Make matrix with student preferences, one col per student,
-# one row per class
-s.prefs <- matrix(c(1,NA, 1,2, 1,NA, 2,1, 1,2, 1,2, 1,2), 2, 7)
-# Make matrix with professor preferences, one col per professor,
-# one row per student
-c.prefs <- matrix(c(1,2,3,4,5,6,7, 1,2,3,4,5,NA,NA), 7, 2)
-h <- hri(s.prefs=s.prefs, c.prefs=c.prefs, nSlots=c(3,3))
-plot(h, energy=TRUE)
-
-# -----------------------------------------------------------------------------
+# ==============================================================================
 # ULA problem data structures
 
 # dim(s.prefs) <- nrow=nclasses (with interest), ncol=nstudents
@@ -27,10 +6,17 @@ plot(h, energy=TRUE)
 # always need to pad with NA's to ensure proper matrix dims
 # need to map students and classes to numbers
 
+# install.packages('matchingMarkets')
+# Be careful with `rJava` -- make sure that the same version of R and Java are
+# installed on the machine (ex. 64 bit R with 64 bit Java) and make sure the path
+# variable is set correctly to accommodate for this
+library(matchingMarkets)
+
 # install.packages("hash")
 library(hash)
 
-# Maria defined functions
+# ==============================================================================
+# Function assignments
 
 get.value <- function(key, hash_table) {
   return(eval(parse(text=hash_table))[[key]])
@@ -85,6 +71,7 @@ get.sorted <- function(mat, course) {
 
 "%!in%" <- Negate("%in%")
 
+# ==============================================================================
 # Reading in files, doing manipulations, creating hash table mappings
 
 # Courses being offered for a given semester
@@ -127,6 +114,7 @@ write.csv(student_credentials, "student_credentials.csv", row.names=FALSE)
 
 # Create hash table mapping student name to student number
 # This number is based on the order in which the student files are read in
+# Also get the reversed hashing (student number as key)
 student.mapping <- hash(keys=s.name, values=seq(1, length(s.id)))
 student.mapping.inverted <- invert(student.mapping)
 
@@ -137,6 +125,7 @@ p.info <- unname(unlist(lapply(temp.profs, read.table,
 
 # Create hash table mapping course name to course number
 # This number is based on the order in which the professor files are read in
+# Also get the reversed hashing (course number as key)
 course.mapping <- hash(keys=courses.interest$course, values=seq(1, nrow(courses.interest)))
 course.mapping.inverted <- invert(course.mapping)
 
@@ -156,36 +145,28 @@ for (i in 1:length(s.prefs)) {
 
 # Create matrix of professor preferences, collect number of slots per class
 if (nrow(courses.nointerest) > 0) {
-  
   ula.notinterested <- as.data.frame(cbind(courses.nointerest$course, NA, 0), 
                                      stringsAsFactors=FALSE)
   names(ula.notinterested) <- c("course", "desired", "assigned")
   ula.notinterested$desired <- as.numeric(ula.notinterested$desired)
-  
 }
 
 ula.interested <- rep(NA, nrow(courses.interest))
 p.pref.matrix <- matrix(ncol=nrow(courses.interest), nrow=length(s.id))
 
 for (i in 1:length(p.info)) {
-  
   info <- eval(parse(text=p.info[i]))
-  
   if (info[[1]] %in% courses.interest$course) {
     ula.interested[get.value(info[[1]], "course.mapping")] <- info[[2]]
-    
     temp <- rep(NA, length(s.id))
     for (j in 1:length(info[[3]])) {
       ifelse(is.null(info[[3]][j]), 
              temp[j] <- NA, temp[j] <- get.value(info[[3]][j], "student.mapping"))
     }
-    
     p.pref.matrix[,get.value(info[[1]], "course.mapping")] <- temp
-    
   } else {
     ula.notinterested$desired[ula.notinterested$course == info[[1]]] <- info[2]
   }
-  
 }
 
 # Deal with case where professor has not submitted preferences, but students
@@ -208,13 +189,23 @@ for (i in empty.cols) {
   p.pref.matrix[,i] <- temp.prefs[,1]
 }
 
-# -----------------------------------------------------------------------------
+# Create faculty interest output
+faculty_preferences <- list()
+list_names <- rep(NA, length(p.info))
+for (i in 1:length(p.info)) {
+  info <- eval(parse(text=p.info[i]))
+  list_names[i] <- info[[1]]
+  faculty_preferences[[i]] <- info[[3]]
+}
+names(faculty_preferences) <- list_names
 
-# A working matching!
+saveRDS(faculty_preferences, "faculty_preferences.RDS")
+
+# ==============================================================================
+# Carry out matching
 m <- hri(s.prefs=s.pref.matrix, c.prefs=p.pref.matrix, nSlots=ula.interested)
 
-# -----------------------------------------------------------------------------
-
+# ==============================================================================
 # Extract information from matching regarding student assignment and generate
 # a list of unmatched students and their potential interest
 assignments <- as.data.frame(cbind(m$matchings$college, m$matchings$student))
@@ -239,7 +230,6 @@ if (nrow(unassigned) > 0) {
   }
 }
 
-
 # Extract information regarding ULA counts per class and bind with information
 # from classes that have not been assigned any ULAs
 ula.demand <- as.data.frame(cbind(seq(1:nrow(courses.interest)), ula.interested), 
@@ -253,7 +243,6 @@ for (i in 1:nrow(ula.demand)) {
 temp.assignments <- as.data.frame(table(assignments$course), 
                                   stringsAsFactors=FALSE)
 names(temp.assignments) <- c("course", "assigned")
-
 
 ula.demand <- merge(ula.demand, temp.assignments, by="course")
 

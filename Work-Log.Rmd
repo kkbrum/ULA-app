@@ -4,7 +4,7 @@ Worked on fixing student app. Removed double submit buttons, removed double erro
 #### 5/21/18 10:15-12:00
 Renamed the student app and attempted to get preferences loaded in after log in... not successful thus far.
 #### 5/22/18 20:15-23:00
-Managed to get the preferences loaded in after log in. But, I deleted the "select" button along the way, which is nice, but highlighted some problems. Mainly that if you add or remove courses, the whole table is rebuilt and all previous entries in the table are removed. The enabling/disabling features are also messed up, but I think this stems from rebuilding the table and only the last entry has proper enabling/disabling. 
+Managed to get the preferences loaded in after log in. But, I deleted the "select" button along the way, which is nice, but highlighted some problems. Mainly that if you add or remove courses, the whole table is rebuilt and all previous entries in the table are removed. The enabling/disabling features are also messed up, but I think this stems from rebuilding the table and only the last entry has proper enabling/disabling.
 #### 5/23/18 21:00-23:00
 Messed around with the table of course preferences to try to fix some of the problems... but didn't accomplish anything :(
 #### 5/27/18 18:30-21:45
@@ -28,18 +28,33 @@ Started working on a couple of fixes to student.R: not displaying number of ULAs
 Tried to get rjava working without success.
 #### 6/13/18 17:30-18:00
 Tried some more to get rjava working.
+#### 6/19/18 19:00-22:30
+Worked on a click and move admin interface.
+#### 6/20/18 19:45-20:45
+Worked on admin interface.
+#### 6/21/18 21:00-21:30
+Made it so students can be moved between classes.
+#### 6/23/18 14:00-15:00
+Students now colored based on happiness.
+#### 6/23/18 17:00-18:15
+Added submit, legend for colors, and number of ULAs desired.
+#### 6/30/18 9:00-11:30, 18:00-20:00
+Messed around with hovering on admin, gave up and displayed student preferences in HTML table.
+#### 07/02/18 22:30-23:30 
+Displayed faculty preferences in admin.
+
 
 ## Maria
 #### 5/13/18 17:00-19:00
 Researching on matching algorithms, R implementations
 #### 5/19/18 16:00-17:00
-Getting `matchingMarkets` and all dependencies installed on my machines. Major issues with `rJava` (make sure that same type of R and Java installed ex. 64-bit R with 64-bit Java, and do an R restart after Java reinstall) 
+Getting `matchingMarkets` and all dependencies installed on my machines. Major issues with `rJava` (make sure that same type of R and Java installed ex. 64-bit R with 64-bit Java, and do an R restart after Java reinstall)
 #### 5/21/18 08:15-09:15
 Reviewed current state of `Student.R` and made a list of bugs that need to be addresssed.
 #### 5/22/18 08:30-09:30
 Created more in depth options for inputting grade for student meta data, played around with a different numeric input type for year (more trouble than it's worth in terms of error checking), was working on an error message, but it doesn't play nicely with `req()`, so there was limited success
 #### 5/22/18 20:30-23:30
-Did basic tests of the `matchingMarkets` package and figured out data structures necessary for the ULA problem (which is just the college admissions aka hospital/residents problem). Wrote basic script elements to gather information related to student inputs and format them correctly. Started some work on professor inputs, but the output of `Faculty.R` needs to be changed before I can do more work on the faculty data structure to do the stable matching. 
+Did basic tests of the `matchingMarkets` package and figured out data structures necessary for the ULA problem (which is just the college admissions aka hospital/residents problem). Wrote basic script elements to gather information related to student inputs and format them correctly. Started some work on professor inputs, but the output of `Faculty.R` needs to be changed before I can do more work on the faculty data structure to do the stable matching.
 #### 5/23/18 08:30-09:30
 Changed file output on faculty side to give files with each line being an evaluable list with all of the information and preferences for professors. Created a pull request to merge into master.
 #### 5/23/18 22:45-23:45
@@ -72,4 +87,21 @@ Tidied up Matching.R, got a working hri matching, wrote sample output to csv, op
 Played with hri failures and brainstormed possible solutions
 #### 6/17/18 19:45-21:45
 Fixed issues with Master branch by regenerating inputs and re-running matching with bug fixes along the way.
-#### 6/18/18 21:00-
+#### 6/18/18 21:00-22:00
+Fiddling with drag and drop capabilities for administrative login
+#### 6/19/18 21:45-22:15
+Reviewed Admin.R code and made some syntax edits. Some preliminary research into hovering functionality in R.
+#### 6/20/18 20:30-22:00
+Tried and failed with button hovering on admin. Created a new output from matching that has student preferences tagged by student name.
+#### 6/23/18 21:00-22:15
+Cleaned up Matching.R script and added a source call to it in Admin.R. Played around aagain with hovering, but made no tangible progress.
+#### 6/24/18 20:15-21:00
+Updates to README, general cleaning of repo (closing old branches, old issues, etc.)
+#### 7/01/18 22:30-23:00
+Wrote faculty preferences to RDS file.
+#### 7/02/18 21:15-22:15
+Wrote student credentials file from matching output. Created decision branch and started setup of decision interface.
+#### 7/03/18 20:15-21:30
+More work done on the decision interface.
+#### 7/04/18 21:00-22:00
+Decision intreface done and pull request opened.
