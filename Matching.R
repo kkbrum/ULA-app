@@ -41,7 +41,7 @@ get.id <- function(string) {
 }
 
 get.pin <- function(string) {
-  return(substring(string, regexpr("_", string) + 1, nchar(string)))
+  return(substring(string, regexpr("_", string) + 1, nchar(string) - 4))
 }
 
 get.name <- function(file) {
