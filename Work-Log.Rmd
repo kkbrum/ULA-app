@@ -42,6 +42,8 @@ Added submit, legend for colors, and number of ULAs desired.
 Messed around with hovering on admin, gave up and displayed student preferences in HTML table.
 #### 07/02/18 22:30-23:30 
 Displayed faculty preferences in admin.
+#### 07/05/18 18:30-20:30
+Added a bit to decision page and thought about how to connect the 4 apps. Tried modules. Will probably connect the apps in many pages instead.
 
 
 ## Maria
