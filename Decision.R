@@ -36,6 +36,8 @@ ui <- fluidPage(
               htmlOutput("student_message_assigned"),
               selectInput("decision_assigned", "Do you wish to accept your assignment?",
                           c("", "Yes", "No")),
+              shinyjs::hidden(selectInput("decision_rejected", "Do you wish to be considered for a different class if there is an opening?",
+                                          c("", "Yes", "No"))),
               actionButton("finalize_assigned", "Submit")
     )
   ),
@@ -120,9 +122,20 @@ server <- function(session, input, output) {
     expr <- HTML(paste(text, collapse="<br/>"))
   })
   
+  observeEvent(input$decision_assigned, {
+    if( input$decision_assigned == "No") {
+      shinyjs::show("decision_rejected")
+    }
+  })
+  
   # Write decision information to a csv
   observeEvent(input$finalize_assigned, {
-    decision <- as.data.frame(cbind(student_data$course, input$decision_assigned))
+    if (input$decision_assigned== "Yes") {
+      decision <- as.data.frame(cbind(student_data$course, input$decision_assigned))
+    } else {
+      decision <- as.data.frame(rbind(cbind(student_data$course, input$decision_assigned), 
+                                      cbind("unassigned", input$decision_rejected)))
+    }
     names(decision) <- c("course", "decision")
     file_name <- paste0(student_data$netid, "_decision.csv")
     write.csv(decision, file_name, row.names=FALSE)
