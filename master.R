@@ -3,9 +3,10 @@ library(shinyjs)
 library(DT)
 
 courses_names <- c(read.csv("courses.csv", as.is = TRUE)$course, "unassigned")
+open_to <- "<b>Maria and Katherine</b>"
 
 # 1= student_part1, 2=faculty, 3=admin, 4=student_decision
-app_number <- 4
+app_number <- 2
 
 # UNCOMMENT THIS TO LAUNCH APPS BASED ON DATE
 
@@ -130,7 +131,7 @@ ui <- fluidPage(
   hidden(mainPanel(id="studentLogIn", 
                    fluidRow(
                      column(6, 
-                            "To start a new student application, press 'Begin'",
+                            "To start a new application to ULA for the S&DS department, press 'Begin'",
                             br(),
                             br(),
                             actionButton("begin_student", "Begin")
@@ -152,6 +153,7 @@ ui <- fluidPage(
   
   hidden(
     mainPanel(width=12, id="faculty1",
+              HTML("Please rank <b>all</b> students you would be willing to have ULA each course you are teaching. The students willing to ULA your course are shown in the table below along with some more information about them. To unselect a student, select the <please select a student> option."),
               uiOutput("tabs1")
     )
   ),
@@ -159,6 +161,7 @@ ui <- fluidPage(
   # Log in box ----
   
   hidden(mainPanel(id="facultyLogIn", 
+                   HTML("Please log in using the credentials you have been emailed to view your courses and select students you would like to work with."),
                    fluidRow(
                      column(6,
                             div(id="loginbox", 
@@ -173,8 +176,9 @@ ui <- fluidPage(
   ## ADMIN UI ----
   
   # Log in box ----
-
+  
   hidden(mainPanel(id="adminLogIn", 
+                   HTML("Welcome. Please log in using your administrative credentials to edit the matching of students to courses."),
                    fluidRow(
                      column(6,
                             div(id="loginbox", 
@@ -186,61 +190,61 @@ ui <- fluidPage(
                    )
   )),
   
-    hidden(mainPanel(id = "admin1side",  width=4,
-                 h2("Courses"),
-                 fluidRow(
-                   column(6,
-                          lapply(courses_names[1:ceiling((length(courses_names)-1)/2)], function(x) {
-                            list(uiOutput(x),
-                                 actionLink(paste0(x, "_show"), "Preferences"),
-                                 uiOutput(paste0(x, "_prefs")),
-                                 br(),
-                                 uiOutput(paste0(x, "_list")),
-                                 br()
-                            )
-                          })
+  hidden(mainPanel(id = "admin1side",  width=4,
+                   h2("Courses"),
+                   fluidRow(
+                     column(6,
+                            lapply(courses_names[1:ceiling((length(courses_names)-1)/2)], function(x) {
+                              list(uiOutput(x),
+                                   actionLink(paste0(x, "_show"), "Preferences"),
+                                   uiOutput(paste0(x, "_prefs")),
+                                   br(),
+                                   uiOutput(paste0(x, "_list")),
+                                   br()
+                              )
+                            })
+                     )
+                     ,
+                     column(6,
+                            lapply(courses_names[(ceiling((length(courses_names)-1)/2)+1) : (length(courses_names)-1)], function(x) {
+                              list(uiOutput(x),
+                                   actionLink(inputId= paste0(x, "_show"), "Preferences"),
+                                   uiOutput(paste0(x, "_prefs")),
+                                   br(),
+                                   uiOutput(paste0(x, "_list")),
+                                   br()
+                              )
+                            })
+                     )
                    )
+  )
+  ),
+  
+  hidden(mainPanel(id="admin1main", width=8
                    ,
-                   column(6,
-                          lapply(courses_names[(ceiling((length(courses_names)-1)/2)+1) : (length(courses_names)-1)], function(x) {
-                            list(uiOutput(x),
-                                 actionLink(inputId= paste0(x, "_show"), "Preferences"),
-                                 uiOutput(paste0(x, "_prefs")),
-                                 br(),
-                                 uiOutput(paste0(x, "_list")),
-                                 br()
-                            )
-                          })
-                   )
-                 )
-    )
-    ),
-
-    hidden(mainPanel(id="admin1main", width=8
-  ,
-              h2("Students"),
-              "To unassign a student, press on their button and hit the unassign button. To assign a student to a course, click their name and then click on the course name.",
-              br(),
-              br(),
-              "To view a student's preferences in order, click on their name.",
-              br(),
-              br(),
-              "To view a professor's preferences in order, click on 'preferences' below the course title. Students in blue are already assigned to that class, and crossed out students are assigned to another class. Bold students have not yet been assigned to a class and are willing to ULA the class.",
-              br(),
-              br(),
-              fluidRow(
-                column(6, br(), br(), actionButton(inputId= "unassigned", label="Unassign", style = "background-color: dodgerblue")),
-                column(6, img(src="Legend.png", width="200px"))
-              ),
-              br(),
-              br(),
-              uiOutput(paste0("unassigned_list")),
-              br(),
-              hr(),
-              actionButton("submitAdmin", "Submit new assignments"),
-  br(),
-  br()
-    )
+                   h2("Students"),
+                   "To unassign a student, press on their button and hit the unassign button. To assign a student to a course, click their name and then click on the course name.",
+                   br(),
+                   br(),
+                   "To view a student's preferences in order, click on their name.",
+                   br(),
+                   br(),
+                   "To view a professor's preferences in order, click on 'preferences' below the course title. Students in blue are already assigned to that class, and crossed out students are assigned to another class. Bold students have not yet been assigned to a class and are willing to ULA the class.",
+                   br(),
+                   br(),
+                   fluidRow(
+                     column(6, br(), br(), actionButton(inputId= "unassigned", label="Unassign", style = "background-color: dodgerblue")),
+                     column(6, img(src="Legend.png", width="200px"))
+                   ),
+                   br(),
+                   br(),
+                   uiOutput(paste0("unassigned_list")),
+                   br(),
+                   hr(),
+                   actionButton("submitAdmin", "Submit new assignments"),
+                   br(),
+                   br()
+  )
   ),
   
   ## DECISION APP UI ----
@@ -268,15 +272,16 @@ ui <- fluidPage(
   # Log in box ----
   
   hidden(mainPanel(id="decisionLoginPage", 
-            fluidRow(
-              column(6,
-                     div(id="loginbox", 
-                         textInput("usernameDecision", "Username", "", width="90%"),
-                         textInput("pinDecision", "4-digit Pin", "", width="90%"),
-                         actionButton("loginDecision", "Log in")
+                   HTML("Please log in using the same netID and 4 digit pin you used when applying. If you have forgotten your information, please email katherine.brumberg@yale.edu or maria.gargiulo@yale.edu."),
+                   fluidRow(
+                     column(6,
+                            div(id="loginbox", 
+                                textInput("usernameDecision", "Username", "", width="90%"),
+                                textInput("pinDecision", "4-digit Pin", "", width="90%"),
+                                actionButton("loginDecision", "Log in")
+                            )
                      )
-              )
-            )
+                   )
   )
   )
   
@@ -552,7 +557,6 @@ server <- function(session, input, output) {
                 paste0("save_", input$netid, "_", input$new_pin, ".csv"))
       # Preferences file
       ind <- which(shinyValue('Desire', nrow(DF))=="Y")
-      print(ind)
       preferences <- data.frame(Title= DF[ind,'Course Title'],
                                 Taken = shinyValue('Taken', nrow(DF))[ind], 
                                 WhenTaken = shinyValue('WhenTaken', nrow(DF))[ind],
@@ -646,8 +650,6 @@ server <- function(session, input, output) {
       DF[chosen,9] <- unlist(lapply(1:length(chosen), function(x) as.character(numericInput(paste0('Rank', chosen[x]),
                                                                                             value = mypref$Rank[row[x]], min = 1, 
                                                                                             max = nrow(DF), step = 1, width="60%",label=NULL))))
-      print(shinyValue('Desire', nrow(DF)))
-      
       output$rankDT = DT::renderDataTable( 
         DF, server = FALSE, escape = 2, selection='none', options = list( 
           preDrawCallback = JS('function() { 
@@ -767,8 +769,8 @@ server <- function(session, input, output) {
                                             fluidRow(
                                               # Select rankings
                                               column(4, lapply(1:(min(length(select_extra), length(currentStudents[[x]]))), function(y) {
-                                                if (y==1) {selectizeInput(paste0(select_extra[y], "_", x), label=paste0("Select your ", select_extra[y], " choice"), selected=" ", choices=c(" ", studentInfo[[x]][,'Student Name']))}
-                                                else {hidden(selectizeInput(paste0(select_extra[y], "_", x), label=paste0("Select your ", select_extra[y], " choice"), selected=" ", choices=c(" ", studentInfo[[x]][,'Student Name'])))}
+                                                if (y==1) {selectizeInput(paste0(select_extra[y], "_", x), label=paste0("Select your ", select_extra[y], " choice"), selected="<Please select a student>", choices=c("<Please select a student>", studentInfo[[x]][,'Student Name']))}
+                                                else {hidden(selectizeInput(paste0(select_extra[y], "_", x), label=paste0("Select your ", select_extra[y], " choice"), selected="<Please select a student>", choices=c("<Please select a student>", studentInfo[[x]][,'Student Name'])))}
                                               })),
                                               # Display rankings
                                               column(3, "Rankings:", htmlOutput(paste0("current_choices", x)))
@@ -818,17 +820,23 @@ server <- function(session, input, output) {
       # Set up courses in summary tab
       output[[paste0('course', x)]] <- renderUI(HTML(paste0('<b>', prof_courses[x], ' Rankings: </b>')))
       extra_new <- paste0(select_extra, "_", x)
+      z <<- 1
       lapply(1:(length(select_extra)-1), function(y) {
         observeEvent(input[[extra_new[y]]], {
-          if(input[[extra_new[y]]] != " ") {
-            show(extra_new[y+1])
-            chosen[[x]][y] <<- input[[extra_new[y]]]
-            output[[paste0('current_choices', x)]] <- renderUI(HTML(paste0(1:length(chosen[[x]]), ") ", chosen[[x]], "<br>")))
-            # Update choices in next selection
-            updateSelectizeInput(session, extra_new[y+1], choices=c(" ", studentInfo[[x]][,'Student Name'][!(studentInfo[[x]][,'Student Name']) %in% chosen[[x]]]))
-            # Display rankings for each course
-            output[[paste0('choices_summary', x)]] <- renderUI(HTML(paste0(1:length(chosen[[x]]), ") ", chosen[[x]], "<br>")))
-          }
+              if ((y+1) > z) {
+                if (input[[extra_new[y]]] != "<Please select a student>") {
+                z <<- y + 1
+                show(extra_new[y+1])
+                }
+              }
+              chosen[[x]][y] <<- input[[extra_new[y]]]
+              output[[paste0('current_choices', x)]] <- renderUI(HTML(paste0(1:length(chosen[[x]]), ") ", chosen[[x]], "<br>")))
+              # Update choices 
+              lapply(1:z, function(a) {
+                updateSelectizeInput(session, extra_new[a], selected = chosen[[x]][a], choices=c("<Please select a student>", chosen[[x]][a], studentInfo[[x]][,'Student Name'][!(studentInfo[[x]][,'Student Name']) %in% chosen[[x]]]))
+                })
+              # Display rankings for each course
+              output[[paste0('choices_summary', x)]] <- renderUI(HTML(paste0(1:length(chosen[[x]]), ") ", chosen[[x]], "<br>")))
         })
         observeEvent(input[[paste0("optNum_", x)]], {
           # Display number of desired ULAs
@@ -879,7 +887,7 @@ server <- function(session, input, output) {
     }
     else {
       rv$adminLogInSuccess <- TRUE
-
+      
       # UNCOMMENT THIS BEFORE LAUNCHING
       # source("Matching.R")
       
@@ -1072,7 +1080,7 @@ server <- function(session, input, output) {
       if (nrow(student_data) < 1) {stop()}
       rv$loginDecisionSuccess <- TRUE
       
-
+      
       # Render appropriate UI depending on whether or not the student was assigned
       # to a class
       output$student_message_assigned <- renderUI({
