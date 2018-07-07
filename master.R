@@ -6,7 +6,7 @@ courses_names <- c(read.csv("courses.csv", as.is = TRUE)$course, "unassigned")
 open_to <- "<b>Maria and Katherine</b>"
 
 # 1= student_part1, 2=faculty, 3=admin, 4=student_decision
-app_number <- 1
+app_number <- 3
 
 # UNCOMMENT THIS TO LAUNCH APPS BASED ON DATE
 

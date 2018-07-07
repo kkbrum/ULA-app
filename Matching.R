@@ -11,8 +11,6 @@
 # installed on the machine (ex. 64 bit R with 64 bit Java) and make sure the path
 # variable is set correctly to accommodate for this
 library(matchingMarkets)
-
-# install.packages("hash")
 library(hash)
 
 # ==============================================================================
