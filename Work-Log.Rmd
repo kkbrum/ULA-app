@@ -108,3 +108,5 @@ Wrote student credentials file from matching output. Created decision branch and
 More work done on the decision interface.
 #### 7/04/18 21:00-22:00
 Decision intreface done and pull request opened.
+#### 7/07/2018 07:30-08:15
+Preliminary round testing
