@@ -13,7 +13,7 @@ demand <- read.csv("Demand.csv", as.is=TRUE)
 # Make this list be all the unassigned and assigned people
 students <- names(student_preferences)
 unassigned <- students[!students %in% assignments$student]
-courses <- c(unique(assignments$course), "unassigned")
+courses <- c(unique(demand$course), "unassigned")
 course_assignments <- vector("list", length(courses))
 names(course_assignments) <- courses
 for (course in courses) {

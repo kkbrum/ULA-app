@@ -6,7 +6,7 @@ courses_names <- c(read.csv("courses.csv", as.is = TRUE)$course, "unassigned")
 open_to <- "<b>Maria and Katherine</b>"
 
 # 1= student_part1, 2=faculty, 3=admin, 4=student_decision
-app_number <- 2
+app_number <- 1
 
 # UNCOMMENT THIS TO LAUNCH APPS BASED ON DATE
 
@@ -585,7 +585,7 @@ server <- function(session, input, output) {
                                     "major"=input$major, 
                                     "why"=input$why)), 
                 paste0(input$netid, "_", input$new_pin, ".csv"))
-      try(file.remove(paste0("save_", input$netid, "_", input$new_pin, ".csv")), silent=TRUE)
+      suppressWarnings(file.remove(paste0("save_", input$netid, "_", input$new_pin, ".csv")))
       # Preferences file
       ind <- which(shinyValue('Desire', nrow(DF))=="Y")
       preferences <- data.frame(Title= DF[ind,'Course Title'],
@@ -597,7 +597,7 @@ server <- function(session, input, output) {
                                 Available = shinyValue('Available', nrow(DF))[ind],
                                 Rank = shinyValue('Rank', nrow(DF))[ind])
       write.csv(preferences, paste0(input$netid, "_preferences.csv"), row.names = FALSE)
-      try(file.remove(paste0("save_", input$netid, "_preferences.csv")), silent=TRUE)
+      suppressWarnings(file.remove(paste0("save_", input$netid, "_preferences.csv")))
       showNotification("Application successful!", duration=5, type="message")
     } else {
       showNotification("Please fix the errors in red above", duration=5, type="error")
@@ -899,7 +899,7 @@ server <- function(session, input, output) {
       # Make this list be all the unassigned and assigned people
       students <- names(student_preferences)
       unassigned <- students[!students %in% assignments$student]
-      courses_names <- c(unique(assignments$course), "unassigned")
+      courses_names <- c(unique(demand$course), "unassigned")
       course_assignments <- vector("list", length(courses_names))
       names(course_assignments) <- courses_names
       for (course in courses_names) {

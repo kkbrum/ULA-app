@@ -203,59 +203,125 @@ saveRDS(faculty_preferences, "faculty_preferences.RDS")
 
 # ==============================================================================
 # Carry out matching
-m <- hri(s.prefs=s.pref.matrix, c.prefs=p.pref.matrix, nSlots=ula.interested)
+try(m <- hri(s.prefs=s.pref.matrix, c.prefs=p.pref.matrix, nSlots=ula.interested), silent=TRUE)
 
 # ==============================================================================
 # Extract information from matching regarding student assignment and generate
 # a list of unmatched students and their potential interest
-assignments <- as.data.frame(cbind(m$matchings$college, m$matchings$student))
-names(assignments) <- c("course", "student")
-
-for (i in 1:nrow(assignments)) {
-  assignments$course[i] <- get.value(toString(assignments$course[i]), 
-                                     "course.mapping.inverted")
-  assignments$student[i] <- get.value(toString(assignments$student[i]), 
-                                      "student.mapping.inverted")
-}
-
-# Find unassigned students and get a list of their course preferences in order
-unassigned <- as.data.frame(keys(student.mapping)[which(keys(student.mapping) %!in% assignments$student)], 
-                            stringsAsFactors=FALSE)
-if (nrow(unassigned) > 0) {
-  names(unassigned) <- c("student")
-  unassigned$prefs <- NA
-  for (i in 1:nrow(unassigned)) {
-    temp.mat <- s.prefs[[get.value(unassigned$student[i], "student.mapping")]]
-    unassigned$prefs[i] <- toString(list(temp.mat$Title[order(temp.mat$Rank)]))
+if (exists("m")) {
+  
+  assignments <- as.data.frame(cbind(m$matchings$college, m$matchings$student))
+  names(assignments) <- c("course", "student")
+  
+  for (i in 1:nrow(assignments)) {
+    assignments$course[i] <- get.value(toString(assignments$course[i]), 
+                                       "course.mapping.inverted")
+    assignments$student[i] <- get.value(toString(assignments$student[i]), 
+                                        "student.mapping.inverted")
   }
+  
+  # Find unassigned students and get a list of their course preferences in order
+  unassigned <- as.data.frame(keys(student.mapping)[which(keys(student.mapping) %!in% assignments$student)], 
+                              stringsAsFactors=FALSE)
+  if (nrow(unassigned) > 0) {
+    names(unassigned) <- c("student")
+    unassigned$prefs <- NA
+    for (i in 1:nrow(unassigned)) {
+      temp.mat <- s.prefs[[get.value(unassigned$student[i], "student.mapping")]]
+      unassigned$prefs[i] <- toString(list(temp.mat$Title[order(temp.mat$Rank)]))
+    }
+  }
+  
+  # Extract information regarding ULA counts per class and bind with information
+  # from classes that have not been assigned any ULAs
+  ula.demand <- as.data.frame(cbind(seq(1:nrow(courses.interest)), ula.interested), 
+                              stringsAsFactors=FALSE)
+  names(ula.demand) <- c("course", "desired")
+  for (i in 1:nrow(ula.demand)) {
+    ula.demand$course[i] <- get.value(toString(ula.demand$course[i]), 
+                                      "course.mapping.inverted")
+  }
+  
+  temp.assignments <- as.data.frame(table(assignments$course), 
+                                    stringsAsFactors=FALSE)
+  names(temp.assignments) <- c("course", "assigned")
+  
+  ula.demand <- merge(ula.demand, temp.assignments, by="course", all.x=TRUE)
+  
+  if (exists("ula.notinterested")) {
+    ula.demand <- rbind(ula.demand, ula.notinterested)
+    ula.notinterested$desired <- as.numeric(ula.notinterested$desired)
+    ula.notinterested$assigned <- as.numeric(ula.notinterested$assigned) 
+  }
+  
+  ula.demand$assigned[is.na(ula.demand$assigned)] <- 0
+  ula.demand$needed <- ula.demand$desired - ula.demand$assigned
+  
+  # Write csvs with course assignment numbers, assigned student information, and
+  # unassigned student information
+  write.csv(assignments, "Assignments.csv", row.names=FALSE)
+  write.csv(unassigned, "Unassigned-Students.csv", row.names=FALSE)
+  write.csv(ula.demand, "Demand.csv", row.names=FALSE)
+  
+} else {
+  
+  assignments <- as.data.frame(cbind(rep(NA, nrow(s.pref.matrix)),
+                                     rep(NA, nrow(s.pref.matrix))))
+  names(assignments) <- c("course", "student")
+  
+  for (i in 1:ncol(s.pref.matrix)) {
+    first_choice <- s.pref.matrix[1, i]
+    if (p.pref.matrix[1, first_choice] == i) {
+      assignments$course[first_choice] <- get.value(toString(first_choice), 
+                                         "course.mapping.inverted")
+      assignments$student[first_choice] <- get.value(toString(i),
+                                          "student.mapping.inverted")
+    }
+  }
+ 
+ assignments <- assignments[complete.cases(assignments), ]  
+ 
+ # Find unassigned students and get a list of their course preferences in order
+ unassigned <- as.data.frame(keys(student.mapping)[which(keys(student.mapping) %!in% assignments$student)], 
+                             stringsAsFactors=FALSE)
+ if (nrow(unassigned) > 0) {
+   names(unassigned) <- c("student")
+   unassigned$prefs <- NA
+   for (i in 1:nrow(unassigned)) {
+     temp.mat <- s.prefs[[get.value(unassigned$student[i], "student.mapping")]]
+     unassigned$prefs[i] <- toString(list(temp.mat$Title[order(temp.mat$Rank)]))
+   }
+ }
+ 
+ # Extract information regarding ULA counts per class and bind with information
+ # from classes that have not been assigned any ULAs
+ ula.demand <- as.data.frame(cbind(seq(1:nrow(courses.interest)), ula.interested), 
+                             stringsAsFactors=FALSE)
+ names(ula.demand) <- c("course", "desired")
+ for (i in 1:nrow(ula.demand)) {
+   ula.demand$course[i] <- get.value(toString(ula.demand$course[i]), 
+                                     "course.mapping.inverted")
+ }
+ 
+ temp.assignments <- as.data.frame(table(assignments$course), 
+                                   stringsAsFactors=FALSE)
+ names(temp.assignments) <- c("course", "assigned")
+ 
+ ula.demand <- merge(ula.demand, temp.assignments, by="course", all.x=TRUE)
+ 
+ if (exists("ula.notinterested")) {
+   ula.demand <- rbind(ula.demand, ula.notinterested)
+   ula.notinterested$desired <- as.numeric(ula.notinterested$desired)
+   ula.notinterested$assigned <- as.numeric(ula.notinterested$assigned) 
+ }
+ 
+ ula.demand$assigned[is.na(ula.demand$assigned)] <- 0
+ ula.demand$needed <- ula.demand$desired - ula.demand$assigned
+ 
+ # Write csvs with course assignment numbers, assigned student information, and
+ # unassigned student information
+ write.csv(assignments, "Assignments.csv", row.names=FALSE)
+ write.csv(unassigned, "Unassigned-Students.csv", row.names=FALSE)
+ write.csv(ula.demand, "Demand.csv", row.names=FALSE)
+ 
 }
-
-# Extract information regarding ULA counts per class and bind with information
-# from classes that have not been assigned any ULAs
-ula.demand <- as.data.frame(cbind(seq(1:nrow(courses.interest)), ula.interested), 
-                            stringsAsFactors=FALSE)
-names(ula.demand) <- c("course", "desired")
-for (i in 1:nrow(ula.demand)) {
-  ula.demand$course[i] <- get.value(toString(ula.demand$course[i]), 
-                                    "course.mapping.inverted")
-}
-
-temp.assignments <- as.data.frame(table(assignments$course), 
-                                  stringsAsFactors=FALSE)
-names(temp.assignments) <- c("course", "assigned")
-
-ula.demand <- merge(ula.demand, temp.assignments, by="course")
-
-if (exists("ula.notinterested")) {
-  ula.demand <- rbind(ula.demand, ula.notinterested)
-  ula.notinterested$desired <- as.numeric(ula.notinterested$desired)
-  ula.notinterested$assigned <- as.numeric(ula.notinterested$assigned) 
-}
-
-ula.demand$needed <- ula.demand$desired - ula.demand$assigned
-
-# Write csvs with course assignment numbers, assigned student information, and
-# unassigned student information
-write.csv(assignments, "Assignments.csv", row.names=FALSE)
-write.csv(unassigned, "Unassigned-Students.csv", row.names=FALSE)
-write.csv(ula.demand, "Demand.csv", row.names=FALSE)
