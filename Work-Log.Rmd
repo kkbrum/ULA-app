@@ -44,7 +44,8 @@ Messed around with hovering on admin, gave up and displayed student preferences 
 Displayed faculty preferences in admin.
 #### 07/05/18 18:30-20:30
 Added a bit to decision page and thought about how to connect the 4 apps. Tried modules. Will probably connect the apps in many pages instead.
-
+#### 07/06/18 19:00-23:00
+Linked all the apps in master.R.
 
 ## Maria
 #### 5/13/18 17:00-19:00
