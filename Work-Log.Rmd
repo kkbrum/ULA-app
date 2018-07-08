@@ -116,3 +116,5 @@ Preliminary round testing
 Met with Katherine
 #### 7/07/2018 14:00-15:15
 Bug fixing
+#### 7/07/2018 20:45-21:45
+Generating new preferences inputs, trying to get matching to work
