@@ -6,7 +6,7 @@ courses_names <- c(read.csv("courses.csv", as.is = TRUE)$course, "unassigned")
 open_to <- "<b>Maria and Katherine</b>"
 
 # 1= student_part1, 2=faculty, 3=admin, 4=student_decision
-app_number <- 3
+app_number <- 2
 
 # UNCOMMENT THIS TO LAUNCH APPS BASED ON DATE
 
@@ -711,6 +711,7 @@ server <- function(session, input, output) {
     # "31st", "32nd", "33rd", "34th", "35th", "36th", "37th", "38th", "39th", "40th"
     # Initialize the list of students a professor ranks for each class
     chosen <- vector("list", length(prof_courses))
+    z <- vector("list", length(prof_courses))
     
     if (length(prof_courses)>0) {
       rv$facultyLogInSuccess <- TRUE
@@ -820,19 +821,19 @@ server <- function(session, input, output) {
       # Set up courses in summary tab
       output[[paste0('course', x)]] <- renderUI(HTML(paste0('<b>', prof_courses[x], ' Rankings: </b>')))
       extra_new <- paste0(select_extra, "_", x)
-      z <<- 1
+      z[[x]] <<- 1
       lapply(1:(length(select_extra)-1), function(y) {
         observeEvent(input[[extra_new[y]]], {
-              if ((y+1) > z) {
+              if ((y+1) > z[[x]]) {
                 if (input[[extra_new[y]]] != "<Please select a student>") {
-                z <<- y + 1
+                z[[x]] <<- y + 1
                 show(extra_new[y+1])
                 }
               }
               chosen[[x]][y] <<- input[[extra_new[y]]]
               output[[paste0('current_choices', x)]] <- renderUI(HTML(paste0(1:length(chosen[[x]]), ") ", chosen[[x]], "<br>")))
               # Update choices 
-              lapply(1:z, function(a) {
+              lapply(1:z[[x]], function(a) {
                 updateSelectizeInput(session, extra_new[a], selected = chosen[[x]][a], choices=c("<Please select a student>", chosen[[x]][a], studentInfo[[x]][,'Student Name'][!(studentInfo[[x]][,'Student Name']) %in% chosen[[x]]]))
                 })
               # Display rankings for each course
