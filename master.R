@@ -889,7 +889,7 @@ server <- function(session, input, output) {
       rv$adminLogInSuccess <- TRUE
       
       # UNCOMMENT THIS BEFORE LAUNCHING
-      # source("Matching.R", local=TRUE)
+      source("Matching.R", local=TRUE)
       
       student_preferences <- readRDS("student_preferences.RDS")
       faculty_preferences <- readRDS("faculty_preferences.RDS")

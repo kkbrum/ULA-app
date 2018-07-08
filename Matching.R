@@ -117,7 +117,7 @@ student.mapping <- hash(keys=s.name, values=seq(1, length(s.id)))
 student.mapping.inverted <- invert(student.mapping)
 
 # Get professor preferences
-temp.profs <- list.files(pattern="[A-Z]{2}[0-9]{4}")
+temp.profs <- list.files(pattern="[A-Z]{2}.csv")
 p.info <- unname(unlist(lapply(temp.profs, read.table, 
                                stringsAsFactors=FALSE, header=FALSE)))
 
