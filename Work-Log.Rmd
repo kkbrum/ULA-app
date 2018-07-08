@@ -118,3 +118,5 @@ Met with Katherine
 Bug fixing
 #### 7/07/2018 20:45-21:45
 Generating new preferences inputs, trying to get matching to work
+#### 7/08/2018 9:00-10:00
+Final testing, minor bug fixes, and updates to README
