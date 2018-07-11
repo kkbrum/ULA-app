@@ -6,20 +6,20 @@ courses_names <- c(read.csv("courses.csv", as.is = TRUE)$course, "unassigned")
 open_to <- "<b>Maria and Katherine</b>"
 
 # 1= student_part1, 2=faculty, 3=admin, 4=student_decision
-app_number <- 1
+app_number <- 2
 
 # UNCOMMENT THIS TO LAUNCH APPS BASED ON DATE
 
-# if (as.numeric(as.Date("2018-08-30") - Sys.Date()) >= 0 & as.numeric(as.Date("2018-08-30") - Sys.Date()) <= 7) {
+# if (as.numeric(as.Date("2018-08-24") - Sys.Date()) >= 0 & as.numeric(as.Date("2018-08-24") - Sys.Date()) <= 14) {
 #   open_to <- "<b>students</b>. If this is you, please press 'begin' below"
 #   app_number <- 1
-# } else if (as.numeric(as.Date("2018-09-04") - Sys.Date()) >= 0 & as.numeric(as.Date("2018-09-04") - Sys.Date()) <= 4) {
+# } else if (as.numeric(as.Date("2018-08-29") - Sys.Date()) >= 0 & as.numeric(as.Date("2018-08-29") - Sys.Date()) <= 4) {
 #   open_to <- "<b>faculty</b>. If this is you, please press 'begin' below"
 #   app_number <- 2
-# } else if (as.numeric(as.Date("2018-09-06") - Sys.Date()) >= 0 & as.numeric(as.Date("2018-09-06") - Sys.Date()) <= 1) {
+# } else if (as.numeric(as.Date("2018-08-31") - Sys.Date()) >= 0 & as.numeric(as.Date("2018-08-31") - Sys.Date()) <= 1) {
 #   open_to <- "<b>administrators</b>. If this is you, please press 'begin' below"
 #   app_number <- 3
-# } else if (as.numeric(as.Date("2018-09-10") - Sys.Date()) >= 0 & as.numeric(as.Date("2018-09-10") - Sys.Date()) <= 3) {
+# } else if (as.numeric(as.Date("2018-09-05") - Sys.Date()) >= 0 & as.numeric(as.Date("2018-09-05") - Sys.Date()) <= 4) {
 #   open_to <- "<b>students</b>. If this is you, please press 'begin' below"
 #   app_number <- 4
 # } else {
@@ -63,7 +63,7 @@ ui <- fluidPage(
   
   
   mainPanel(id="startPage", 
-            HTML("The application will be open to students between August 23rd and August 30th. </br> Faculty will have from August 31st to September 4th to submit preferences. </br> Decisions will be released September 7th and must be accepted by September 10th. </br> </br>"),
+            HTML("The application will be open to students between August 10th and August 24th. </br> Faculty will have from August 25th to August 29th to submit preferences. </br> Decisions will be released September 1st and must be accepted by September 5th. </br> </br>"),
             HTML(paste0("Today is <b>", Sys.Date(), "</b>.</br>")),
             HTML(paste0("The system is currently open to ", open_to, ".</br>")),
             
@@ -1087,7 +1087,7 @@ server <- function(session, input, output) {
       output$student_message_assigned <- renderUI({
         text <- character(3)
         text[1] <- paste0("You have been assigned to serve as a ULA for <strong>", student_data$course, 
-                          "</strong> being taught by <strong>", courses$prof[courses$course == student_data$course], "</strong>!")
+                          "</strong> being taught by <strong>", courses$prof[courses$course == student_data$course], "</strong>! Please respond as soon as possible.")
         
         expr <- HTML(paste(text, collapse="<br/>"))
       })
