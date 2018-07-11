@@ -48,6 +48,8 @@ Added a bit to decision page and thought about how to connect the 4 apps. Tried 
 Linked all the apps in master.R.
 #### 07/07/18 12:45-15:00
 Met with Maria and then worked on some bugs.
+#### 07/10/18 21:30-21:45
+Updated csvs for the semester. Faculty and admin passwords will have to be generated after we go off public github.
 
 ## Maria
 #### 5/13/18 17:00-19:00
