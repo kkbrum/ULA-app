@@ -126,4 +126,5 @@ Generating new preferences inputs, trying to get matching to work
 Final testing, minor bug fixes, and updates to README
 #### 07/21/18 08:15-09:30
 Testing of app on server, meeting with Jay + Katherine
-#### 07/21/18 21:00-
+#### 07/21/18 21:00-22:00
+Navigating and testing matching between euler server and my personal machine
