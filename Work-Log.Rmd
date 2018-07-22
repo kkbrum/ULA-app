@@ -122,5 +122,8 @@ Met with Katherine
 Bug fixing
 #### 7/07/2018 20:45-21:45
 Generating new preferences inputs, trying to get matching to work
-#### 7/08/2018 9:00-10:00
+#### 7/08/2018 09:00-10:00
 Final testing, minor bug fixes, and updates to README
+#### 07/21/18 08:15-09:30
+Testing of app on server, meeting with Jay + Katherine
+#### 07/21/18 21:00-
