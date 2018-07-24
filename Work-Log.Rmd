@@ -52,6 +52,8 @@ Met with Maria and then worked on some bugs.
 Updated csvs for the semester. Faculty and admin passwords will have to be generated after we go off public github.
 #### 07/21/18 12:00-12:30; 13:00-14:00
 Met with Maria and Jay, removed date interface, fixed a crashing bug, and updated some instructions.
+#### 07/23/18 22:30-24:00
+Worked on updating instructions and fixing the decision interface log in.
 
 ## Maria
 #### 5/13/18 17:00-19:00
