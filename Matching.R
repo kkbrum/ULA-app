@@ -120,6 +120,12 @@ student.mapping.inverted <- invert(student.mapping)
 temp.profs <- list.files(pattern="[A-Z]{2}.csv")
 p.info <- unname(unlist(lapply(temp.profs, read.table, 
                                stringsAsFactors=FALSE, header=FALSE)))
+# Get rid of empty rankings
+p.info <- gsub(", \"<Please select a student>\"", "", p.info)
+# Get rid of initial rankings if a professor ranked multiple times
+p.info.courses <-  substr(p.info, start=7, stop=14)
+p.info.to.delete <- length(p.info.courses) + 1 - which(duplicated(rev(p.info.courses)))
+p.info <- p.info[-p.info.to.delete]
 
 # Create hash table mapping course name to course number
 # This number is based on the order in which the professor files are read in
