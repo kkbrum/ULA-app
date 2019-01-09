@@ -44,6 +44,11 @@ get.year <- function(file) {
   return(temp$year)
 }
 
+get.email <- function(file) {
+  temp <- read.csv(file, as.is=TRUE)
+  return(temp$email)
+}
+
 # NB: `course` needs to be the course number from the hash table; returns
 # negative response length (in characters) because the sorts are done with the 
 # order decreasing
