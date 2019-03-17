@@ -5,9 +5,18 @@ library(DT)
 courses_names <- c(read.csv("courses.csv", as.is = TRUE)$course, "unassigned")
 
 # 1= student_part1, 2=faculty, 3=admin, 4=student_decision
-app_number <- 1
 
+if (as.numeric(as.Date("2018-12-31") - Sys.Date()) >= 0 & as.numeric(as.Date("2018-12-31") - Sys.Date()) <= 15) {
+  app_number <- 1
+} else if (as.numeric(as.Date("2019-01-05") - Sys.Date()) >= 0 & as.numeric(as.Date("2019-01-05") - Sys.Date()) <= 6) {
+  app_number <- 2
+} else if (as.numeric(as.Date("2019-01-07") - Sys.Date()) >= 0 & as.numeric(as.Date("2019-01-07") - Sys.Date()) <= 3) {
+  app_number <- 3
+} else if (as.numeric(as.Date("2019-01-31") - Sys.Date()) >= 0 & as.numeric(as.Date("2019-01-31") - Sys.Date()) <= 21) {
+  app_number <- 4
+} else (app_number <- 0)
 
+app_number <- 4
 
 if (app_number == 1) {
   open_to <- "<b>students</b>. If this is you, please press 'begin' below"
@@ -68,7 +77,7 @@ ui <- fluidPage(
   
   
   mainPanel(id="startPage", 
-            HTML("<ul><li>The application will be open to students between August 10th and August 24th. </br><li> Faculty will have from August 25th to August 27th to submit preferences. </br><li> Decisions will be released August 29th and must be accepted by August 31st. </br> </br>"),
+            HTML("<ul><li>The application will be open to students between December 17th and December 31st. </br><li> Faculty will have from January 2nd to January 5th to submit preferences. </br><li> Decisions will be released January 10th. </br> </br>"),
             HTML(paste0("Today is <b>", Sys.Date(), "</b>.</br>")),
             HTML(paste0("The system is currently open to ", open_to, ".</br>")),
             
@@ -93,7 +102,7 @@ ui <- fluidPage(
                                    textInput("new_pin", "Create a 4-digit pin for future login*", "", width="60%"),
                                    textInput("first_name", "First Name*", "", width="60%"),
                                    textInput("last_name", "Last Name*", "", width="60%"),
-                                   textInput("email", "Email Address", "", width="60%"),
+                                   textInput("email", "Email Address*", "", width="60%"),
                                    selectInput("year", "Class Year*", 
                                                c("Select a year", 2019, 2020, 2021, 2022), width="60%"),
                                    textInput("major", "Major*", "", width="60%"),
@@ -217,11 +226,11 @@ ui <- fluidPage(
                      column(6,
                             lapply(courses_names[1:ceiling((length(courses_names)-1)/2)], function(x) {
                               list(div(class="coursebox", uiOutput(x),
-                                   actionLink(paste0(x, "_show"), "Preferences"),
-                                   uiOutput(paste0(x, "_prefs")),
-                                   br(),
-                                   uiOutput(paste0(x, "_list")),
-                                   br())
+                                       actionLink(paste0(x, "_show"), "Preferences"),
+                                       uiOutput(paste0(x, "_prefs")),
+                                       br(),
+                                       uiOutput(paste0(x, "_list")),
+                                       br())
                               )
                             })
                      )
@@ -229,11 +238,11 @@ ui <- fluidPage(
                      column(6,
                             lapply(courses_names[(ceiling((length(courses_names)-1)/2)+1) : (length(courses_names)-1)], function(x) {
                               list(div(class="coursebox", uiOutput(x),
-                                   actionLink(inputId= paste0(x, "_show"), "Preferences"),
-                                   uiOutput(paste0(x, "_prefs")),
-                                   br(),
-                                   uiOutput(paste0(x, "_list")),
-                                   br())
+                                       actionLink(inputId= paste0(x, "_show"), "Preferences"),
+                                       uiOutput(paste0(x, "_prefs")),
+                                       br(),
+                                       uiOutput(paste0(x, "_list")),
+                                       br())
                               )
                             })
                      )
@@ -270,7 +279,7 @@ ui <- fluidPage(
               htmlOutput("student_message_assigned"),
               selectInput("decision_assigned", "Do you wish to accept your assignment?",
                           c("", "Yes", "No")),
-              shinyjs::hidden(selectInput("decision_rejected", "Do you wish to be considered for a different class if there is an opening?",
+              shinyjs::hidden(selectInput("decision_rejected", "Do you wish to be considered for a different class if there is an opening? Note: It is unlikely that you will be assigned to another class if you reject this offer.",
                                           c("", "Yes", "No"))),
               actionButton("finalize_assigned", "Submit")
     )
@@ -279,7 +288,7 @@ ui <- fluidPage(
   shinyjs::hidden(
     mainPanel(width=12, id="main_unassigned",
               htmlOutput("student_message_unassigned"),
-              selectInput("decision_unassigned", "Do you wish to be considered if there is an opening?",
+              selectInput("decision_unassigned", "Do you wish to be considered for courses you ranked if there is an opening? (We also need more ULAs for and S&DS 363, so please email us if you have decided you would be willing to ULA this class!)",
                           c("", "Yes", "No")),
               actionButton("finalize_unassigned", "Submit")
     )
@@ -590,7 +599,7 @@ server <- function(session, input, output) {
                                 Available = shinyValue('Available', nrow(DF))[ind],
                                 Rank = shinyValue('Rank', nrow(DF))[ind])
       write.csv(preferences, paste0("save_", input$netid, "_preferences.csv"), row.names = FALSE)
-      showNotification("Save successful!", duration=5, type="message")
+      showNotification("Save successful, but please finish the application and hit the submit button before the deadline!", duration=5, type="message")
     } else {
       showNotification("Please enter your netid and select a pin before saving", duration=5, type="error")
     }
@@ -625,6 +634,28 @@ server <- function(session, input, output) {
       suppressWarnings(file.remove(paste0("save_", input$netid, "_preferences.csv")))
       showNotification("Application successful!", duration=5, type="message")
     } else {
+      if(input$netid != "" & !is.na(as.numeric(input$new_pin)) & nchar(input$new_pin) == 4) {
+        write.csv(as.data.frame(cbind("netid"=input$netid, 
+                                      "new_pin"=input$new_pin, 
+                                      "first_name"=input$first_name, 
+                                      "last_name"=input$last_name,
+                                      "email"=input$email,
+                                      "year"=input$year, 
+                                      "major"=input$major, 
+                                      "why"=input$why)), 
+                  paste0("save_", input$netid, "_", input$new_pin, ".csv"))
+        # Preferences file
+        ind <- which(shinyValue('Desire', nrow(DF))=="Y")
+        preferences <- data.frame(Title= DF[ind,'Course Title'],
+                                  Taken = shinyValue('Taken', nrow(DF))[ind], 
+                                  WhenTaken = shinyValue('WhenTaken', nrow(DF))[ind],
+                                  Professor = shinyValue('Professor', nrow(DF))[ind],
+                                  Grade = shinyValue('Grade', nrow(DF))[ind],
+                                  Suitable = shinyValue('Suitable', nrow(DF))[ind],
+                                  Available = shinyValue('Available', nrow(DF))[ind],
+                                  Rank = shinyValue('Rank', nrow(DF))[ind])
+        write.csv(preferences, paste0("save_", input$netid, "_preferences.csv"), row.names = FALSE)
+      }
       showNotification("Please fix the errors in red above", duration=5, type="error")
     }
   })
@@ -794,22 +825,27 @@ server <- function(session, input, output) {
                                               br(), 
                                               # Input how many ULAs desired
                                               # numericInput(paste0("optNum", "_", x), "How many ULAs would you like?", min=0, max=10, value=num_ulas[x], width='10%'),
-                                              renderText(paste("This course is eligible for", num_ulas, "ULAs, but please rank as many students as possible.")),
+                                              renderText(paste("This course is eligible for", num_ulas[x], "ULAs, but please rank as many students as possible.")),
                                               br(),
                                               fluidRow(
+                                                if (length(currentStudents[[x]])>0) {
                                                 # Select rankings
                                                 column(4, lapply(1:(min(length(select_extra), length(currentStudents[[x]]))), function(y) {
                                                   if (y==1) {selectizeInput(paste0(select_extra[y], "_", x), label=paste0("Select your ", select_extra[y], " choice"), selected="<Please select a student>", choices=c("<Please select a student>", studentInfo[[x]][,'Student Name']))}
                                                   else {hidden(selectizeInput(paste0(select_extra[y], "_", x), label=paste0("Select your ", select_extra[y], " choice"), selected="<Please select a student>", choices=c("<Please select a student>", studentInfo[[x]][,'Student Name'])))}
-                                                })),
+                                                }))
+                                                },
                                                 # Display rankings
+                                                if (length(currentStudents[[x]])>0) {
                                                 column(3, "Rankings:", htmlOutput(paste0("current_choices", x)))
+                                                }
                                               ),
                                               br(),
                                               # Display student information
-                                              if (length(currentStudents[[x]])>0) {
+                                                if (length(currentStudents[[x]])>0) {
                                                 DT::renderDataTable( 
                                                   studentInfo[[x]], server = FALSE, escape = FALSE, selection='none', options = list( 
+                                                    pageLength = length(currentStudents[[x]]),
                                                     preDrawCallback = JS('function() { Shiny.unbindAll(this.api().table().node()); }'), 
                                                     drawCallback = JS('function() { Shiny.bindAll(this.api().table().node()); } '),
                                                     dom = 't') )}
@@ -877,7 +913,7 @@ server <- function(session, input, output) {
     # The files should be read as: read.table("JL1234.csv", header=FALSE)
     observeEvent(input$submitFaculty, {
       lapply(1:length(prof_courses), function(x) {
-        write.table(as.character(list(c(prof_courses[x], num_ulas, list(chosen[[x]])))), 
+        write.table(as.character(list(c(prof_courses[x], num_ulas[x], list(chosen[[x]])))), 
                     paste0(input$facultyUsername, input$pin, ".csv"), append=TRUE, sep="\n", row.names=FALSE, col.names=FALSE)})
       showNotification("Submission Successful!", duration=5, type="message")
       
@@ -1110,7 +1146,7 @@ server <- function(session, input, output) {
       output$student_message_assigned <- renderUI({
         text <- character(3)
         text[1] <- paste0("You have been assigned to serve as a ULA for <strong>", student_data$course, 
-                          "</strong> being taught by <strong>", courses$prof[courses$course == student_data$course], "</strong>! Please respond as soon as possible. This offer expires September 5th at midnight.")
+                          "</strong> being taught by <strong>", courses$prof[courses$course == student_data$course], "</strong>! Please respond ASAP, so that we can begin the hiring process and you can start working with the class. It is strongly recommended that you respond to your offer by 11:59 pm on January 13th.")
         
         expr <- HTML(paste(text, collapse="<br/>"))
       })
