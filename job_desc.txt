@@ -1,0 +1,6 @@
+The S&DS department continues to grow, as does the need for ULAs. An R-shiny app has been created to collect student and faculty preferences for ULA assignments and match them together. 
+
+We need a pair of students, preferably current juniors, to facilitate this data collection and matching process for both the fall and spring semesters. The timeline for this job is usually about 5 hours a week for the three weeks prior to the semester and a week or two into the semester. It involves emailing faculty and students to gather their preferences through the app, running a matching script and completing the matching by hand if needed, and providing the department with the information needed to hire students. Familiarity with R and R-shiny is preferred for potential problems, although most bugs should be worked out and a user manual will be provided to walk you through the process. 
+
+
+
