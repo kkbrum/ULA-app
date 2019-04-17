@@ -3,20 +3,22 @@ library(shinyjs)
 library(DT)
 
 courses_names <- c(read.csv("courses.csv", as.is = TRUE)$course, "unassigned")
+dates <- read.csv("dates.csv", as.is=TRUE, header=TRUE, row.names=1)
+dates$start_date <- as.Date(dates$start_date, "%m/%d/%Y")
+dates$end_date <- as.Date(dates$end_date, "%m/%d/%Y")
 
 # 1= student_part1, 2=faculty, 3=admin, 4=student_decision
 
-if (as.numeric(as.Date("2018-12-31") - Sys.Date()) >= 0 & as.numeric(as.Date("2018-12-31") - Sys.Date()) <= 15) {
+if (Sys.Date() >= dates["student_ranking", "start_date"] & Sys.Date() <= dates["student_ranking", "end_date"]) {
   app_number <- 1
-} else if (as.numeric(as.Date("2019-01-05") - Sys.Date()) >= 0 & as.numeric(as.Date("2019-01-05") - Sys.Date()) <= 6) {
+} else if (Sys.Date() >= dates["faculty_ranking", "start_date"] & Sys.Date() <= dates["faculty_ranking", "end_date"]) {
   app_number <- 2
-} else if (as.numeric(as.Date("2019-01-07") - Sys.Date()) >= 0 & as.numeric(as.Date("2019-01-07") - Sys.Date()) <= 3) {
+} else if (Sys.Date() >= dates["admin_review", "start_date"] & Sys.Date() <= dates["admin_review", "end_date"]) {
   app_number <- 3
-} else if (as.numeric(as.Date("2019-01-31") - Sys.Date()) >= 0 & as.numeric(as.Date("2019-01-31") - Sys.Date()) <= 21) {
+} else if (Sys.Date() >= dates["student_decision", "start_date"] & Sys.Date() <= dates["student_decision", "end_date"]) {
   app_number <- 4
 } else (app_number <- 0)
 
-app_number <- 4
 
 if (app_number == 1) {
   open_to <- "<b>students</b>. If this is you, please press 'begin' below"
@@ -77,8 +79,8 @@ ui <- fluidPage(
   
   
   mainPanel(id="startPage", 
-            HTML("<ul><li>The application will be open to students between December 17th and December 31st. </br><li> Faculty will have from January 2nd to January 5th to submit preferences. </br><li> Decisions will be released January 10th. </br> </br>"),
-            HTML(paste0("Today is <b>", Sys.Date(), "</b>.</br>")),
+            HTML(paste0("<ul><li>The application will be open to students between ", format(dates["student_ranking", "start_date"], format="%B %d, %Y"), " and ", format(dates["student_ranking", "end_date"], format="%B %d, %Y"), ". </br><li> Faculty will have from ", format(dates["faculty_ranking", "start_date"], format="%B %d, %Y"), " to ", format(dates["faculty_ranking", "end_date"], format="%B %d, %Y"), " to submit preferences. </br><li> Decisions will be released ", format(dates["student_decision", "start_date"], format="%B %d, %Y"), ". </br> </br>")),
+            HTML(paste0("Today is <b>", format(Sys.Date(), format="%B %d, %Y"), "</b>.</br>")),
             HTML(paste0("The system is currently open to ", open_to, ".</br>")),
             
             fluidRow(
