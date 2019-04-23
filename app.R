@@ -19,7 +19,6 @@ if (Sys.Date() >= dates["student_ranking", "start_date"] & Sys.Date() <= dates["
   app_number <- 4
 } else (app_number <- 0)
 
-
 if (app_number == 1) {
   open_to <- "<b>students</b>. If this is you, please press 'begin' below"
 } else if (app_number == 2) {
@@ -290,7 +289,7 @@ ui <- fluidPage(
   shinyjs::hidden(
     mainPanel(width=12, id="main_unassigned",
               htmlOutput("student_message_unassigned"),
-              selectInput("decision_unassigned", "Do you wish to be considered for courses you ranked if there is an opening? (We also need more ULAs for and S&DS 363, so please email us if you have decided you would be willing to ULA this class!)",
+              selectInput("decision_unassigned", "Do you wish to be considered for courses you ranked if there is an opening?",
                           c("", "Yes", "No")),
               actionButton("finalize_unassigned", "Submit")
     )
@@ -299,7 +298,7 @@ ui <- fluidPage(
   # Log in box ----
   
   hidden(mainPanel(id="decisionLoginPage", 
-                   HTML("Please log in using the same netID and 4 digit pin you used when applying. If you have forgotten your information, please email katherine.brumberg@yale.edu or maria.gargiulo@yale.edu."),
+                   HTML("Please log in using the same netID and 4 digit pin you used when applying. If you have forgotten your information, please email thomas.bischoff@yale.edu or nick.marwell@yale.edu."),
                    fluidRow(
                      column(6,
                             div(id="loginbox", 
@@ -1148,7 +1147,7 @@ server <- function(session, input, output) {
       output$student_message_assigned <- renderUI({
         text <- character(3)
         text[1] <- paste0("You have been assigned to serve as a ULA for <strong>", student_data$course, 
-                          "</strong> being taught by <strong>", courses$prof[courses$course == student_data$course], "</strong>! Please respond ASAP, so that we can begin the hiring process and you can start working with the class. It is strongly recommended that you respond to your offer by 11:59 pm on January 13th.")
+                          "</strong> being taught by <strong>", courses$prof[courses$course == student_data$course], "</strong>! Please respond ASAP, so that we can begin the hiring process and you can start working with the class. It is strongly recommended that you respond to your offer by 11:59 pm on ", format(dates["student_decision", "start_date"]+2, format="%B %d, %Y"),".")
         
         expr <- HTML(paste(text, collapse="<br/>"))
       })
