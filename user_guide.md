@@ -1,25 +1,52 @@
 # ULA-app
+This user guide is meant to describe the exact steps you should go through to conduct the whole ULA matching process. For a more general overview, checkout the Readme.
 
-## Background
-This year, the Yale S&DS Department adopted the Undergraduate Learning Assistant (ULA) program in many of its classrooms. ULAs have both grading and teaching responsbilities and serve in very similar capacities to graduate student TAs/TFs.
+## Server
+0. Make sure you have access to the S&DS server. Move all the files into a folder named based on the past semester. (MARIA PUT COMMAND HERE TO DO THIS). Now when you complete all the following steps, you can download this github repo and put files onto the server as you change them for the upcoming semester.
 
-## Problem
-No system currently exists to organize the ULA recruitment and class assignment processes. The protocol that is currently in place is inefficient and the process is frustrating for students applying to be ULAs, faculty hoping to have ULAs in their classrooms, and administrators who oversee the process/hire students.
+## Timeline
+1. First, you should establish the timeline for the whole process. You should get this approved by the DUS/DGS. Here are the timelines we have used in the past:
+#### Fall 2018: 
+- Student Input: Aug 13-Aug 24
+- Faculty Input: Aug 25-29
+- Matching & Admin Approval: Aug 30-31
+- Decisions Released: Sep 1
+#### Spring 2019:
+- Student Input: Dec 17-Dec 31
+- Faculty Input: Jan 2-Jan 5
+- Matching: Jan 6-Jan 7
+- Admin Approval: Jan 8-Jan 9
+- Decisions Released: Jan 10
 
-## General Overview (Project Structure)
-* Student Interface
-    * Students provide basic information about themselves and the courses that they've taken
-    * Students rank their preferences in terms of classes that they would like to ULA
-* Faculty Interface
-    * Faculty see the names and meta-data of students interested in ULAing their class (minus student preferences)
-    * Faculty ranks students to be their ULAs according to their preferences
-* Stable Matching Algorithm
-    * Compute a stable match for the ULA problem (which is the same as the hospital residency or college admissions problem)
-* Administrator Interface
-    * Administrator observes matching algorithm results and decide on final assignments.
-* Decision Interface
-	* After the administrator makes final assignments, students will be able to log in to view their ULA assignment and accept or reject.
-	* The information obtained from these student responses will be used to make the hiring process easier and more straightforward from an administrative perspective.
+2. You need to update `dates.csv` with the dates from your timeline. 
+- Make sure to enter them in the MM/DD/YYYY format. 
+- You can set the starting date for the student app to be today's date, as no one will start filling anything out without the link anyways! 
+- If you ever need to test a different app, you can just comment out the section of `app.R` where the dates determine the `app_number` and set `app_number` to be whatever you'd like.
 
-## How it works
-All components of the application are tied together in `app.R`, but individual components, as well as other legacy code, can be found in `Archived/`. The components of the application need to be executed sequentially, and this will be controlled based on access date -- certain people will have access to the app at certain times. For now, you can control what piece of the app you want to interact with by setting the `app_number` variable according to the instructions listed in `app.R`. The student interface is run first. In this portion of the app you can either fill in all of the required fields, including rankings, as a new student, or login using `sid1`, `sid2`, ... , `sid10` as a username and `1234` as a pin. After exploring the student interface, reset the `app_number` variable accordingly to view the faculty interface. There you can login using `JE`, `JL`, `SW`, or `WL` as a username and `1234` as a pin. Here you will be able to tab through the classes being taught by the faculty member and rank interested students for each one. If you're considering working all the way through the student decision interface of the app, you should fill out preferences for all four professors. After you are finished with faculty preferences, reset the `app_number` variable to view the administrator interface. You can login here using either `DS` or `ST` as a username and `1234` as a pin. Upon launching this interface, a stable matching algorithm will be run to assign ULAs to classes. This may take a moment to run, so be patient if the screen doesn't change immediately. In the event that the algorithm doesn't converge, which can and does happen, a secondary algorithm will run to match in the scenario that there is a mutual first choice between a professor and a student. Administrators have the opportunity to manually change any suggested assignments before they are finalized, and will have access to both student and faculty preferences when considering changes. Finally, reset the `app_number` variable accordingly to view the student decision interface. Once again, you can login using `sid1`, `sid2`, ... , `sid10` as a username and `1234` as a pin, or using any credentials that you created when you launched the student interface. Here you will be able to accept or decline your ULA assignment. This information can then be accessed by relevant members of the S&DS Department for hiring purposes.
+## Initial Set Up
+3. Upload the most recent `app.R` from github to the server. If you made any improvements in the last semester, make sure those get incorporated.
+
+4. Update `courses.csv` with the courses being taught in the upcoming semester that need ULAs and input the desired number of ULAs.
+- You will need to get this information from the DUS/DGS. 
+
+5. Update `Profs.csv` with the professors of the courses in `courses.csv`. Make sure the `prof` column in the two files match exactly. 
+- For courses with multiple professors, just have one line for them and treat them as one person.
+- We have been setting usernames to the initials of the professors and the pins to random 4 digit numbers that we generate randomly (for example https://numbergenerator.org/random-4-digit-number-generator). Make sure not to put these on github as this is a public repo. Just update this on the server.
+
+6. Update `Admins.csv` with user credentials for whoever will be approving your matching. This is probably the DUS/DGS. Again, generate random 4 digit pins but only store them on the server.
+
+The server should now have all the files needed to get started.
+
+## Student Preferences
+
+## Faculty Preferences
+
+## Matching
+
+## Admin approval
+
+## Student Decisions
+
+## Collecting Decisions and Moving Forward
+
+CONGRATULATIONS! You have now run the department :D
