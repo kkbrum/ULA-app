@@ -88,10 +88,10 @@ The server should now have all the files needed to get started.
   - Anyone you assign off the waitlist who accepts their offer via email should be added manually to the `Final_assignments.csv` file and their decision file `netid_decision.csv` should also get updated. 
 - If there is no one to take their spot, you can wait to see how many vacant total spots the class has (once everyone has responded to their assignment) and then send the professor an email such as `Emails/11_vacant_spots.txt`.
 
-19. Once it's been a few days since decisions were released, send people who were assigned a course and have not yet responded to their offer an email like `12_decision_poke.txt`. If students are not responding, try reaching out to them via facebook/in person/etc to chat about ULAing and what they are waiting for in order to make their decision.
+19. Once it's been a few days since decisions were released, send people who were assigned a course and have not yet responded to their offer an email like `Emails/12_decision_poke.txt`. If students are not responding, try reaching out to them via facebook/in person/etc to chat about ULAing and what they are waiting for in order to make their decision.
 
-20. Once all decisions have been made, OR if some students are not responding but you want to inform professors of their ULAs, send the professors emails such as `13_faculty_announcement.txt`. You might have to deal with a few stragglers after this.
+20. Once all decisions have been made, OR if some students are not responding but you want to inform professors of their ULAs, send the professors emails such as `Emails/13_faculty_announcement.txt`. You might have to deal with a few stragglers after this.
 
-21. Once all possible ULAs have been assigned and all decisions made, run the second script in `ULA_scripts.R` again and send the resulting `Assignments_full.csv` to Karen, or whoever will be doing the actual hires.
+21. Once all possible ULAs have been assigned and all decisions made, run the second script in `ULA_scripts.R` again and send the resulting `Assignments_full.csv` to Karen, or whoever will be doing the actual hires, in an email like `Emails/14_hiring.txt`.
 
 CONGRATULATIONS! You have now run the department :D
