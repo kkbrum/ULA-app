@@ -2,7 +2,7 @@ Hi ______,
 
 I hope that this finds you well!
 
-Below you’ll find an email draft for the opening of the ULA student application. 
+Below you’ll find an email draft for the opening of the ULA student application to be sent to all S&DS majors. 
 I’m imagining the subject line might read something like: ULA positions in Statistics & Data Science.
 
 ---
