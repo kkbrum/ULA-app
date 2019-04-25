@@ -86,7 +86,7 @@ The server should now have all the files needed to get started.
   - If they are on the waitlist and were ranked by the faculty, they can be sent an email such as `Emails/9_waitlist_offer.txt`. 
   - If they were not ranked by faculty, and there is no one else available, send the professor an email such as `Emails/10_waitlist_prof.txt` before sending the offer. 
   - Anyone you assign off the waitlist who accepts their offer via email should be added manually to the `Final_assignments.csv` file and their decision file `netid_decision.csv` should also get updated. 
-- If there is no one to take their spot, you can wait to see how many vacant total spots the class has (once everyone has responded to their assignment) and then send the professor an email such as `Emails/11_vacant_spots.txt`.
+- If there is no one to take their spot, you can wait to see how many vacant total spots the class has (once everyone has responded to their assignment) and then send the professor an email such as `Emails/11_vacant_spots.txt`, 'cc-ing the DUS/DGS so they are aware of the vacancy.
 
 19. Once it's been a few days since decisions were released, send people who were assigned a course and have not yet responded to their offer an email like `Emails/12_decision_poke.txt`. If students are not responding, try reaching out to them via facebook/in person/etc to chat about ULAing and what they are waiting for in order to make their decision.
 
