@@ -1,0 +1,18 @@
+Hi ______,
+
+I hope that this finds you well!
+
+Below you’ll find an email draft for the opening of the ULA student application to be sent to all S&DS majors. 
+I’m imagining the subject line might read something like: ULA positions in Statistics & Data Science.
+
+---
+
+Good morning and I hope that you are enjoying your break!
+
+We are looking to hire ULAs (Undergraduate Learning Assistants) for several Statistics & Data Science classes this fall. If you are interested, please complete an application at the link below before _______. This semester class assignments will be determined based on student and faculty member preferences. Decisions will be released on _______ and you will have until ______ to accept them. If you encounter any issues with the website or have any questions please contact _____@yale.edu and _____@yale.edu.
+
+Application: http://www.stat.yale.edu:3838/ULA/
+---
+
+All the best,
+________

@@ -1,0 +1,29 @@
+If still waiting on a student:
+
+Hi Professor ____________,
+
+We are still waiting on a response from a __th candidate, but __ of your ___ ULAS for your class will be as listed below. They have all accepted their assignments, so please reach out to them about next steps! Karen will email them regarding hiring.  
+
+S&DS ___:
+_________ (email: ________)
+_________ (email: ________)
+_________ (email: ________)
+(1 more to be announced as soon as finalized)
+
+Best,
+_________________________
+
+-----
+If all students confirmed:
+
+Hi __________!
+
+The ULAs for your class will be as listed below. They have all accepted their assignments, so please reach out to them about next steps! Karen will email them regarding hiring.  
+
+S&DS ___:
+_________ (email: ________)
+_________ (email: ________)
+_________ (email: ________)
+
+Best,
+_________________________
