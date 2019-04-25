@@ -30,9 +30,9 @@ decisions_data <- decisions_data[-1,]
 
 # load in all the netid/email data
 all_files <- list.files(pattern= '.*_[0-9]+')
-netids <- data.frame("netid"=0, "first_name"=0, "last_name"=0, "email"=0)
+netids <- data.frame("netid"=0, "first_name"=0, "last_name"=0, "email"=0, "year"=0)
 for (file in all_files) {
-  netids <- rbind(netids, read.csv(file, as.is=TRUE)[,c('netid', 'first_name', "last_name", "email")])
+  netids <- rbind(netids, read.csv(file, as.is=TRUE)[,c('netid', 'first_name', "last_name", "email", "year")])
 }
 netids$name <- paste(netids$first_name, netids$last_name)
 
@@ -43,10 +43,11 @@ assignments <- assignments[assignments$course != "unassigned",]
 # fill in netids and emails
 assignments$netid <- ""
 assignments$email <- ""
+assignments$year <- ""
 for (i in 1:length(netids$name)) {
   assignments$netid[assignments$student == netids$name[i]] <- netids$netid[i]
   assignments$email[assignments$student == netids$name[i]] <- netids$email[i]
-  
+  assignments$year[assignments$student == netids$name[i]] <- netids$year[i]
 }
 
 # fill in decisions
@@ -60,6 +61,9 @@ assignments <- assignments[order(assignments$course),]
 
 # save the csv
 write.csv(assignments, "Assignments_full.csv")
+
+# save the csv of students who accepted, without any declined (for hiring)
+write.csv(assignments[assignments$decision=="Yes",], "Assignments_accepted.csv")
 
 # WAITLIST INFO ----
 # get a list of waitlisted students for yourself that you can then ask to fill in for the declined assignees
