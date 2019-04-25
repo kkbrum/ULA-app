@@ -1,0 +1,26 @@
+If no rankings:
+
+Hi Professor _________,
+
+Despite our recruiting applications from all S&DS majors, unfortunately no students indicated that they wanted to ULA S&DS ____. Since the course is slated for ___ ULAs, we were hoping you might be able to email past students that have done well in the course and ask if they would like to ULA the course. If you could please let us know any students who agree to ULA S&DS ____ as soon as possible, that would be great. We will be matching ULAs to courses on _________ and would not want to offer these students a different position after they have agreed to ULA S&DS ______.
+
+Apologies for the additional effort on your part to recruit ULAs!
+_________________
+
+
+------
+If 1 ranking:
+
+Hi Professor ___________,
+
+Despite our recruiting applications from all S&DS majors, unfortunately only 1 student indicated that they had interest in being a ULA for S&DS ____. You can see this student's application using the credentials below. Since the course is slated for _____ ULAs, we were hoping you might be able to email past students that have done well in the course and ask if they would like to ULA the course. If you could please let us know any students who agree to ULA S&DS _____ as soon as possible, that would be great. We will be matching ULAs to courses on _____________ and would not want to potentially offer these students a different position after they have agreed to ULA S&DS ____.
+
+Credentials:
+Site: http://www.stat.yale.edu:3838/ULA/
+User: __________
+Pin: __________
+
+Apologies for the additional effort on your part to recruit ULAs!
+____________________
+
+
