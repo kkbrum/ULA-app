@@ -126,6 +126,6 @@ The server should now have all the files needed to get started.
 
 21. Once all decisions have been made, OR if some students are not responding but you want to inform professors of their ULAs, send the professors emails such as `Emails/13_faculty_announcement.txt`. You might have to deal with a few stragglers after this.
 
-22. Once all possible ULAs have been assigned and all decisions made, run the second script in `ULA_scripts.R` again and send the resulting `Assignments_full.csv` to Karen, or whoever will be doing the actual hires, in an email like `Emails/14_hiring.txt`.
+22. Once all possible ULAs have been assigned and all decisions made, run the second script in `ULA_scripts.R` again and send the resulting `Assignments_accepted.csv` to Karen, or whoever will be doing the actual hires, in an email like `Emails/14_hiring.txt`.
 
 CONGRATULATIONS! You have now run the department :D
