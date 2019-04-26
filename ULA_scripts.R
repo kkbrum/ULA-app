@@ -94,3 +94,5 @@ waitlisted <- waitlisted[-1,]
 
 # sort by class 
 waitlisted <- waitlisted[order(waitlisted$course),]
+
+write.csv(waitlisted, "Waitlisted_students.csv")
