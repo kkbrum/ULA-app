@@ -2,7 +2,7 @@
 This user guide is meant to describe the exact steps you should go through to conduct the whole ULA matching process. For a more general overview, checkout `README.md`.
 
 ## Server
-0. The ULA app is run from the S&DS server. You should contact Jay about getting access to this. In addition to login credentials,c he should also be able to provide you information about where the ULA app exists within the server. After navigating to the ULA app in the server you should move all of the old files into a file named based on the past semester. You can do this by running the following two commands: first `mkdir <NEW DIRECTORY NAME>`, then `mv *.csv *.R *.RDS <NEW DIRECTORY NAME>`. When you complete the steps outlined below, you can download files from the github repo and upload them to the server as you change them for the upcoming semester. Some commands relevant to the process of navigating around the server, editing, uploading, and downloading files are the following:
+0. The ULA app is run from the S&DS server. You should contact Jay about getting access to this. In addition to login credentials, he should also be able to provide you information about where the ULA app exists within the server (`/srv/shiny-server/ULA`). After navigating to the ULA app in the server you should move all of the old files into a file named based on the past semester. You can do this by running the following two commands: first `mkdir <NEW DIRECTORY NAME>`, then `mv *.csv *.R *.RDS <NEW DIRECTORY NAME>`. When you complete the steps outlined below, you can download files from the github repo and upload them to the server as you change them for the upcoming semester. Some commands relevant to the process of navigating around the server, editing, uploading, and downloading files are the following:
 - `cd <DIRECTORY NAME>`:
     - Use `cd`, for "change directory", to navigate around the server
 - `pwd`:
@@ -37,6 +37,7 @@ This user guide is meant to describe the exact steps you should go through to co
     - `-avz` is just MG's preferred default flags, these are not important and if you have different thoughts about them, they can be changed
     - `<ORIGIN>` follows the construction `<USER@MACHINE:PATH-TO-FILE>`, similar to what's above. `PATH-TO-FILE` is the absolute path of the file on the server you wish to download to your local machine
     - `<DESTIONATION>` is the directory on your local machine where you wish to download the file to
+- `touch restart.txt` will force the app to restart even though you haven't changed `app.R`. This is useful if you changed the csv files the app relies on and want the changes to be reflected.
 
 ## Timeline
 1. First, you should establish a timeline for the whole process. You should get this approved by the DUS/DGS. Here are the timelines we have used in the past:
@@ -55,6 +56,7 @@ This user guide is meant to describe the exact steps you should go through to co
 - Make sure to enter them in the MM/DD/YYYY format. 
 - You can set the starting date for the student app to be today's date, as no one will start filling anything out without the link anyways! 
 - If you ever need to test a different app, you can just comment out the section of `app.R` where the dates determine the `app_number` and set `app_number` to be whatever you'd like as indicated by the key at the top of the file.
+- Run `touch restart.txt` to have the app recognize your changes to `dates.csv`.
 
 ## Initial Set Up
 3. Upload the most recent `app.R` from github to the server. If you made any improvements in the last semester, make sure those get incorporated.
@@ -69,6 +71,8 @@ This user guide is meant to describe the exact steps you should go through to co
 6. Update `Admins.csv` with user credentials for whoever will be approving your matching. This is probably the DUS/DGS. Again, generate random 4 digit pins but only store them on the server.
 
 The server should now have all the files needed to get started.
+- Run `touch restart.txt` to have the app recognize your changes to these files.
+
 
 ## Student Preferences
 7. Test the student interface by filling it out for yourself (you can delete this later). 
