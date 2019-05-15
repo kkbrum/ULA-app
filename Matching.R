@@ -17,13 +17,13 @@ get.id <- function(string) {
 
 
 get.name <- function(file) {
-  temp <- read.csv(file, as.is=TRUE)
+  temp <- read.csv(file, as.is=TRUE, row.names=NULL)
   return(paste(temp$first_name, temp$last_name))
 }
 
 
 get.year <- function(file) {
-  temp <- read.csv(file, as.is=TRUE)
+  temp <- read.csv(file, as.is=TRUE, row.names=NULL)
   return(temp$year)
 }
 
@@ -92,14 +92,16 @@ temp.p.prefs <- list.files(pattern="[A-Z]{2}.csv")
 p.info <- unname(unlist(lapply(temp.p.prefs, read.table, 
                                stringsAsFactors=FALSE, header=FALSE)))
 # Get rid of empty rankings
-p.info <- gsub(", \"<Please select a student>\"", "", p.info)
+p.info <- gsub(', \"<Please select a student>\"|\"<Please select a student>\"|, \n', "", p.info)
 
 # Get rid of initial rankings if a professor ranked multiple times because we
 # use file append in the event that two professors miscommunicate and submit
 # rankings for the same class.
 p.info.courses <-  substr(p.info, start=7, stop=14)
 p.info.to.delete <- length(p.info.courses) + 1 - which(duplicated(rev(p.info.courses)))
-p.info <- p.info[-p.info.to.delete]
+if (length(p.info.to.delete ) > 0) {
+  p.info <- p.info[-p.info.to.delete]
+}
 
 # Create matrix of student preferences
 s.pref.matrix <- matrix(ncol=nrow(student.mapping), nrow=nrow(courses.interest))
@@ -135,21 +137,16 @@ for (i in 1:length(p.info)) {
 
 # Deal with case where professor has not submitted preferences, but students
 # have ranked the class
+# Ties currently broken alphabetically
 empty.cols <- which(apply(p.pref.matrix, 2, sum, na.rm=TRUE) == 0)
 for (i in empty.cols) {
   temp.prefs <- as.data.frame(matrix(nrow=ncol(s.pref.matrix), ncol=2))
   for (j in 1:nrow(temp.prefs)) {
-    if (any(s.pref.matrix[,j] == i, na.rm=TRUE)) {
-      temp.prefs[j,] <- c(j, which(s.pref.matrix[,j] == i))
-    } else {
-      temp.prefs[j,] <- c(j, NA)
-    }
-    temp.prefs <- temp.prefs[order(temp.prefs[,2], decreasing=FALSE),]
-    if (sum(is.na(temp.prefs[,2])) + length(unique(temp.prefs[,2][!is.na(temp.prefs[,2])])) < nrow(temp.prefs)) {
-      temp.prefs <- get.sorted(temp.prefs, i)[,1:2]
-    }
-    temp.prefs$V1[is.na(temp.prefs$V2)] <- NA
-  }  
+    ifelse(i %in% s.pref.matrix[,j],
+           temp.prefs[j,] <- c(j, which(s.pref.matrix[,j] == i)),
+           temp.prefs[j,] <- c(j, NA))
+  }
+  temp.prefs <- temp.prefs[order(temp.prefs[,2], decreasing=FALSE),]
   p.pref.matrix[,i] <- temp.prefs[,1]
 }
 
@@ -178,8 +175,11 @@ names(assignments) <- c("student_name", "student_number", "course_number")
 assignments <- merge(assignments, courses.interest[,c("course", "course_number")], all.x=TRUE)
 names(assignments) <- c("course_number", "student_name", "student_number", "course_name")
 
+
+# Check here --> do something to ignore cases where professors don't rank bc we trust our matches?
+# actually, checkboxes. fix later.
 for (i in 1:nrow(assignments)) {
-  temp_pref <- unlist(faculty_preferences[assignments$course_name[i]])
+  temp_pref <- unname(unlist(faculty_preferences[assignments$course_name[i]]))
   if (!(assignments$student_name[i] %in% temp_pref)) {
     assignments$course_number[i] <- NA
     assignments$course_name[i] <- NA
@@ -187,7 +187,7 @@ for (i in 1:nrow(assignments)) {
 }
 
 # ===============================   PREP OUTPUTS   =============================
-assigned <- assignments[,c("course_name", "student_name")]
+assigned <- assignments[!is.na(assignments$course_number),c("course_name", "student_name")]
 names(assigned) <- c("course", "student")
 
 unassigned <- assignments[is.na(assignments$course_number),]
@@ -211,7 +211,7 @@ ula.demand$needed <- ula.demand$desired - ula.demand$assigned
 
 # Write csvs with course assignment numbers, assigned student information, and
 # unassigned student information
-write.csv(assignments, "Assignments.csv", row.names=FALSE)
+write.csv(assigned, "Assignments.csv", row.names=FALSE)
 write.csv(unassigned, "Unassigned-Students.csv", row.names=FALSE)
 write.csv(ula.demand, "Demand.csv", row.names=FALSE)
 
