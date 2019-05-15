@@ -6,8 +6,9 @@
 # always need to pad with NA's to ensure proper matrix dims
 # ==============================================================================
 
+# ===================================   SETUP   ================================
+library(matchingR) # requires Rcpp
 
-# Functions
 
 
 get.id <- function(string) {
@@ -31,6 +32,14 @@ get.pin <- function(string) {
   return(substring(string, regexpr("_", string) + 1, nchar(string) - 4))
 }
 
+
+fill_column <- function(col_values, max_val) {
+  not_ranked <- setdiff(seq(1:max_val), na.omit(col_values))
+  return(c(na.omit(col_values), sample(not_ranked)))
+}
+
+
+# ============================   CREATE MATCH SETUP   ==========================
 # Courses being offered for a given semester, input manually
 courses <- read.csv("courses.csv", as.is=TRUE)
 
@@ -67,7 +76,7 @@ names(student_preferences) <- s.name
 saveRDS(student_preferences, "student_preferences.RDS")
 
 # Write file with student names, netids, and pins
-s.pin <- unlist(lapply(meta, get.pin))
+s.pin <- unlist(lapply(s.meta, get.pin))
 student_credentials <- as.data.frame(cbind(s.name, s.id, s.pin))
 names(student_credentials) <- c("student", "netid", "pin")
 write.csv(student_credentials, "student_credentials.csv", row.names=FALSE)
@@ -156,23 +165,53 @@ names(faculty_preferences) <- list_names
 
 saveRDS(faculty_preferences, "faculty_preferences.RDS")
 
-
-
-
-
-# ============================== Below works when using deprecated script up to HRI match
-
-library(matchingR)
-
-fill_column <- function(col_values, max_val) {
-  not_ranked <- setdiff(seq(1:max_val), na.omit(col_values))
-  return(c(na.omit(col_values), sample(not_ranked)))
-}
-
+# ================================   FORCE MATCH   =============================
 s.pref.matrix_temp <- apply(s.pref.matrix, 2, fill_column, max_val=nrow(courses.interest))
 p.pref.matrix_temp <- apply(p.pref.matrix, 2, fill_column, max_val=length(s.prefs))
 
-galeShapley.collegeAdmissions(studentPref=s.pref.matrix_temp, 
-                              collegePref=p.pref.matrix_temp, 
-                              slots=courses.interest$number)
+matching <- galeShapley.collegeAdmissions(studentPref=s.pref.matrix_temp, 
+                                          collegePref=p.pref.matrix_temp, 
+                                          slots=courses.interest$number)
+
+assignments <- cbind(student.mapping, matching$matched.students)
+names(assignments) <- c("student_name", "student_number", "course_number")
+assignments <- merge(assignments, courses.interest[,c("course", "course_number")], all.x=TRUE)
+names(assignments) <- c("course_number", "student_name", "student_number", "course_name")
+
+for (i in 1:nrow(assignments)) {
+  temp_pref <- unlist(faculty_preferences[assignments$course_name[i]])
+  if (!(assignments$student_name[i] %in% temp_pref)) {
+    assignments$course_number[i] <- NA
+    assignments$course_name[i] <- NA
+  }
+}
+
+# ===============================   PREP OUTPUTS   =============================
+assigned <- assignments[,c("course_name", "student_name")]
+names(assigned) <- c("course", "student")
+
+unassigned <- assignments[is.na(assignments$course_number),]
+if (nrow(unassigned) > 0) {
+  unassigned$prefs <- NA
+  for (i in 1:nrow(unassigned)) {
+    unassigned$prefs[i] <- toString(s.prefs[[as.numeric(unassigned$student_number[i])]]$Title)
+  }
+}
+unassigned <- unassigned[,c("student_name", "prefs")]
+
+ula.desired<- courses[,c("course", "number")]
+names(ula.desired) <- c("course", "desired")
+
+ula.assigned <- as.data.frame(table(assignments$course_name))
+names(ula.assigned) <- c("course", "assigned")
+
+ula.demand <- merge(ula.desired, ula.assigned, all.x=TRUE)
+ula.demand$assigned[is.na(ula.demand$assigned)] <- 0
+ula.demand$needed <- ula.demand$desired - ula.demand$assigned
+
+# Write csvs with course assignment numbers, assigned student information, and
+# unassigned student information
+write.csv(assignments, "Assignments.csv", row.names=FALSE)
+write.csv(unassigned, "Unassigned-Students.csv", row.names=FALSE)
+write.csv(ula.demand, "Demand.csv", row.names=FALSE)
 
