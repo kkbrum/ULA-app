@@ -106,7 +106,7 @@ The server should now have all the files needed to get started.
     2. Open `Matching.R`, making sure that it's in the same directory as all of the relevant input files. 
     3. If necessary, install `matchingR` from CRAN if necessary using the command `install.packages("matchingR")`.
     4. Run the script sequentially in its entirety. Bonus points for reproducibility if you run it from the command line. Open `R` from terminal by typing the command `R` and hitting enter and then running `source("Matching.R")`. You'll need to be in the same directory as your script in order for this to work.
-    5. Upload all necessary files back up to the server. These files are: FILL ME IN HERE.
+    5. Upload all necessary files back up to the server. These files are: `student_preferences.RDS`, `student_credentials.csv`, `faculty_preferences.RDS`, `Assignments.csv`, `Unassigned-Students.csv`, `Demand.csv`. You can do this locally using `scp`.
 - Run the matcher on the server. (Easier in terms of file management)
     1. Install `matchingR` from CRAN. Unless someone loads this onto the server for all users, each individual looking to run the matching script will need to install the package into a personal library using the command `install.packages("matchingR")`, following instructions from R regarding CRAN mirrors, etc.
     2. Run the script sequentially in its entirety. Bonus points for reproducibility if you run it from the command line. Open `R` from terminal by typing the command `R` and hitting enter and then running `source("Matching.R")`. You'll need to be in the same directory as your script in order for this to work.

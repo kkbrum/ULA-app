@@ -60,12 +60,11 @@ for (i in 1:length(s.prefs)) {
 
 # We carry out matching only on courses where at least some students have
 # demonstrated interest in serving as ULAs. Classes with no student interest will
-# need to be recruited for and matched later. Additionally, courses where faculty
-# have no interest in students will need to be recruited for and matched later.
+# need to be recruited for and matched later. We'll deal with no faculty interest
+# later when we correct matching.
 courses.interest <- courses[courses$interest != 0,]
 courses.nointerest <- courses[courses$interest == 0,]
 courses.interest$course_number <- seq(1:nrow(courses.interest))
-
 
 # Get student meta data, in particular, first and last name
 s.meta <- list.files(pattern="*_[0-9]")
@@ -87,7 +86,6 @@ write.csv(student_credentials, "student_credentials.csv", row.names=FALSE)
 student.mapping <- as.data.frame(cbind(s.name, seq(1:length(s.name))),
                                  stringsAsFactors=FALSE)
 names(student.mapping) <- c("name", "student_number")
-
 
 # Get professor preferences
 temp.p.prefs <- list.files(pattern="[A-Z]{2}.csv")
