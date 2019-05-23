@@ -47,7 +47,7 @@ temp.s.prefs <- list.files(pattern="*_preferences.csv")
 s.id <- unlist(lapply(temp.s.prefs, get.id))
 s.prefs <- lapply(temp.s.prefs, read.csv, as.is=TRUE)
 
-# Get course interest
+# Get course interest from students
 courses$interest <- 0
 for (i in 1:length(s.prefs)) {
   for (j in 1:nrow(s.prefs[[i]])) {
@@ -60,10 +60,12 @@ for (i in 1:length(s.prefs)) {
 
 # We carry out matching only on courses where at least some students have
 # demonstrated interest in serving as ULAs. Classes with no student interest will
-# need to be recruited for and matched later.
+# need to be recruited for and matched later. Additionally, courses where faculty
+# have no interest in students will need to be recruited for and matched later.
 courses.interest <- courses[courses$interest != 0,]
-courses.interest$course_number <- seq(1:nrow(courses.interest))
 courses.nointerest <- courses[courses$interest == 0,]
+courses.interest$course_number <- seq(1:nrow(courses.interest))
+
 
 # Get student meta data, in particular, first and last name
 s.meta <- list.files(pattern="*_[0-9]")
@@ -137,7 +139,7 @@ for (i in 1:length(p.info)) {
 
 # Deal with case where professor has not submitted preferences, but students
 # have ranked the class
-# Ties currently broken alphabetically
+# Ties currently broken alphabetically by NetID
 empty.cols <- which(apply(p.pref.matrix, 2, sum, na.rm=TRUE) == 0)
 for (i in empty.cols) {
   temp.prefs <- as.data.frame(matrix(nrow=ncol(s.pref.matrix), ncol=2))
@@ -175,14 +177,39 @@ names(assignments) <- c("student_name", "student_number", "course_number")
 assignments <- merge(assignments, courses.interest[,c("course", "course_number")], all.x=TRUE)
 names(assignments) <- c("course_number", "student_name", "student_number", "course_name")
 
+# Now correct matches to reflect three scenarios:
+# - student is not in the professor's list
+# - the professor has no preferences, and therefore student preferences should rule
+# - the professor doesn't like any of the students that have ranked. 
 
-# Check here --> do something to ignore cases where professors don't rank bc we trust our matches?
-# actually, checkboxes. fix later.
-for (i in 1:nrow(assignments)) {
-  temp_pref <- unname(unlist(faculty_preferences[assignments$course_name[i]]))
-  if (!(assignments$student_name[i] %in% temp_pref)) {
-    assignments$course_number[i] <- NA
-    assignments$course_name[i] <- NA
+# First, get special course interest  markers from faculty
+# Redundancy in checking for existence of `checkboxes.csv` is for transparency,
+# not functionality. 
+if (file.exists("checkboxes.csv")) {
+  checkboxes <- read.csv("checkboxes.csv", stringsAsFactors=FALSE)
+  checkboxes <- checkboxes[!rev(duplicated(rev(checkboxes$course))),]
+  no.prof.preferences <- checkboxes$course[checkboxes$no_preferences]
+  no.prof.desire <-  checkboxes$course[checkboxes$no_desire]
+}
+
+# Now, fix assignments following two cases
+if (file.exists("checkboxes.csv")) {
+  for (i in 1:nrow(assignments)) {
+    temp_pref <- unname(unlist(faculty_preferences[assignments$course_name[i]]))
+    if ((!(assignments$student_name[i] %in% temp_pref) &
+         (assignments$course_number[i] %in% no.prof.preferences)) |
+        assignments$course_name[i] %in% no.prof.desire) {
+      assignments$course_number[i] <- NA
+      assignments$course_name[i] <- NA
+    }
+  }
+} else {
+  for (i in 1:nrow(assignments)) {
+    temp_pref <- unname(unlist(faculty_preferences[assignments$course_name[i]]))
+    if (!(assignments$student_name[i] %in% temp_pref)) {
+      assignments$course_number[i] <- NA
+      assignments$course_name[i] <- NA
+    }
   }
 }
 
@@ -215,3 +242,4 @@ write.csv(assigned, "Assignments.csv", row.names=FALSE)
 write.csv(unassigned, "Unassigned-Students.csv", row.names=FALSE)
 write.csv(ula.demand, "Demand.csv", row.names=FALSE)
 
+# done.
