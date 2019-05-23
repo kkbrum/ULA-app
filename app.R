@@ -179,7 +179,7 @@ ui <- fluidPage(
   
   hidden(
     mainPanel(width=12, id="faculty1",
-              HTML("<ul><li>Please rank <b>all</b> students you would be willing to have ULA each course you are teaching. <li>The students willing to ULA your course are shown in the table below along with some more information about them. <li>To unselect a student, select the 'please select a student' option.<li>If you have no preferences across the students, please do not submit anything and the students will be auto-ranked for you."),
+              HTML("The students willing to ULA your course are shown in the table below along with some more information about them.<ul><li>Please rank <b>all</b> students you would be willing to have ULA each course you are teaching. This will help ensure you have enough ULAs.<li>To unselect a student, select the 'please select a student' option.<li>If you have no preferences across the students or if you do not want to work with any of the students, please just check the appropriate box without entering rankings."),
               br(),
               br(),
               uiOutput("tabs1")
@@ -824,26 +824,28 @@ server <- function(session, input, output) {
           tabs <- lapply(1:length(prof_courses), 
                          function(x) tabPanel(prof_courses[x],  
                                               br(), 
+                                              checkboxInput(paste0("nopref", x), "I do not have preferences across any of the students below.", FALSE),
+                                              checkboxInput(paste0("nodesire", x), "I do not want any of the students below as ULAs for this course.", FALSE),
                                               # Input how many ULAs desired
                                               # numericInput(paste0("optNum", "_", x), "How many ULAs would you like?", min=0, max=10, value=num_ulas[x], width='10%'),
                                               renderText(paste("This course is eligible for", num_ulas[x], "ULAs, but please rank as many students as possible.")),
                                               br(),
                                               fluidRow(
                                                 if (length(currentStudents[[x]])>0) {
-                                                # Select rankings
-                                                column(4, lapply(1:(min(length(select_extra), length(currentStudents[[x]]))), function(y) {
-                                                  if (y==1) {selectizeInput(paste0(select_extra[y], "_", x), label=paste0("Select your ", select_extra[y], " choice"), selected="<Please select a student>", choices=c("<Please select a student>", studentInfo[[x]][,'Student Name']))}
-                                                  else {hidden(selectizeInput(paste0(select_extra[y], "_", x), label=paste0("Select your ", select_extra[y], " choice"), selected="<Please select a student>", choices=c("<Please select a student>", studentInfo[[x]][,'Student Name'])))}
-                                                }))
+                                                  # Select rankings
+                                                  column(4, lapply(1:(min(length(select_extra), length(currentStudents[[x]]))), function(y) {
+                                                    if (y==1) {selectizeInput(paste0(select_extra[y], "_", x), label=paste0("Select your ", select_extra[y], " choice"), selected="<Please select a student>", choices=c("<Please select a student>", studentInfo[[x]][,'Student Name']))}
+                                                    else {hidden(selectizeInput(paste0(select_extra[y], "_", x), label=paste0("Select your ", select_extra[y], " choice"), selected="<Please select a student>", choices=c("<Please select a student>", studentInfo[[x]][,'Student Name'])))}
+                                                  }))
                                                 },
                                                 # Display rankings
                                                 if (length(currentStudents[[x]])>0) {
-                                                column(3, "Rankings:", htmlOutput(paste0("current_choices", x)))
+                                                  column(3, "Rankings:", htmlOutput(paste0("current_choices", x)))
                                                 }
                                               ),
                                               br(),
                                               # Display student information
-                                                if (length(currentStudents[[x]])>0) {
+                                              if (length(currentStudents[[x]])>0) {
                                                 DT::renderDataTable( 
                                                   studentInfo[[x]], server = FALSE, escape = FALSE, selection='none', options = list( 
                                                     pageLength = length(currentStudents[[x]]),
@@ -915,7 +917,15 @@ server <- function(session, input, output) {
     observeEvent(input$submitFaculty, {
       lapply(1:length(prof_courses), function(x) {
         write.table(as.character(list(c(prof_courses[x], num_ulas[x], list(chosen[[x]])))), 
-                    paste0(input$facultyUsername, input$pin, ".csv"), append=TRUE, sep="\n", row.names=FALSE, col.names=FALSE)})
+                    paste0(input$facultyUsername, input$pin, ".csv"), append=TRUE, sep="\n", row.names=FALSE, col.names=FALSE)
+        if (input[[paste0("nopref", x)]] | input[[paste0("nodesire", x)]]) {
+          if (!file.exists("checkboxes.csv")) {
+            write.table(matrix(c(prof_courses[x], input[[paste0("nopref", x)]], input[[paste0("nodesire", x)]]), nrow=1), file="checkboxes.csv", col.names=c("course", "no_preferences", "no_desire"), quote=FALSE, sep=",", row.names=FALSE)
+          } else {
+            write.table(matrix(c(prof_courses[x], input[[paste0("nopref", x)]], input[[paste0("nodesire", x)]]), nrow=1), file="checkboxes.csv", append=TRUE, col.names=FALSE, quote=FALSE, sep=",", row.names=FALSE)
+          }
+        }
+      })
       showNotification("Submission Successful!", duration=5, type="message")
       
     })
@@ -956,7 +966,12 @@ server <- function(session, input, output) {
       student_preferences <- readRDS("student_preferences.RDS")
       faculty_preferences <- readRDS("faculty_preferences.RDS")
       
-      assignments <- read.csv("Assignments.csv", as.is=TRUE)
+      if (file.exists("Final_assignments.csv")) {
+        assignments <- read.csv("Final_assignments.csv", as.is=TRUE)
+        assignments <- assignments[assignments$course != "unassigned",]
+      } else {
+        assignments <- read.csv("Assignments.csv", as.is=TRUE)
+      }
       demand <- read.csv("Demand.csv", as.is=TRUE)
       # Make this list be all the unassigned and assigned people
       students <- names(student_preferences)
