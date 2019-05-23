@@ -100,7 +100,16 @@ The server should now have all the files needed to get started.
 12. If a faculty hasn't filled out their preferences, send them a followup email a couple days later, drafted in `Emails/6_faculty_poke.txt`, or visit their office if you are in town.
 
 ## Matching
-13. Run `matching.R`. This currently does not do much matching for you, but will be updated in the coming weeks to do a better job.
+13. Run `matching.R`. The only dependency necessary to do this is the package `matchingR`, which also requires `Rcpp`. There are two options here:
+- Run the matcher on your personal machine. (More control over package management)
+    1. Download all files from the server onto your personal machine using `rsync`.
+    2. Open `Matching.R`, making sure that it's in the same directory as all of the relevant input files. 
+    3. If necessary, install `matchingR` from CRAN if necessary using the command `install.packages("matchingR")`.
+    4. Run the script sequentially in its entirety. Bonus points for reproducibility if you run it from the command line. Open `R` from terminal by typing the command `R` and hitting enter and then running `source("Matching.R")`. You'll need to be in the same directory as your script in order for this to work.
+    5. Upload all necessary files back up to the server. These files are: FILL ME IN HERE.
+- Run the matcher on the server. (Easier in terms of file management)
+    1. Install `matchingR` from CRAN. Unless someone loads this onto the server for all users, each individual looking to run the matching script will need to install the package into a personal library using the command `install.packages("matchingR")`, following instructions from R regarding CRAN mirrors, etc.
+    2. Run the script sequentially in its entirety. Bonus points for reproducibility if you run it from the command line. Open `R` from terminal by typing the command `R` and hitting enter and then running `source("Matching.R")`. You'll need to be in the same directory as your script in order for this to work.
 
 14. If you need to do some manual matching, here are some tips:
 - Log in as one of the admins to give you a visual representation of the preferences of each student and each class.
