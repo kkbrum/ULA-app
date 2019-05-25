@@ -137,7 +137,7 @@ for (i in 1:length(p.info)) {
 
 # Deal with case where professor has not submitted preferences, but students
 # have ranked the class
-# Ties currently broken alphabetically by NetID
+# Ties broken randomly
 empty.cols <- which(apply(p.pref.matrix, 2, sum, na.rm=TRUE) == 0)
 for (i in empty.cols) {
   temp.prefs <- as.data.frame(matrix(nrow=ncol(s.pref.matrix), ncol=2))
@@ -147,6 +147,10 @@ for (i in empty.cols) {
            temp.prefs[j,] <- c(j, NA))
   }
   temp.prefs <- temp.prefs[order(temp.prefs[,2], decreasing=FALSE),]
+  temp.prefs[!is.na(temp.prefs[,2]),] <- temp.prefs[sort.list(temp.prefs[,2], 
+                                                              decreasing=FALSE, 
+                                                              method="quick", 
+                                                              na.last=NA),]
   p.pref.matrix[,i] <- temp.prefs[,1]
 }
 
@@ -163,6 +167,9 @@ names(faculty_preferences) <- list_names
 saveRDS(faculty_preferences, "faculty_preferences.RDS")
 
 # ================================   FORCE MATCH   =============================
+# Force a Gale-Shapley matching by filling in all NA values for all students and 
+# professors (i.e. randomly rank courses or students) and then do a post-match
+# correction. 
 s.pref.matrix_temp <- apply(s.pref.matrix, 2, fill_column, max_val=nrow(courses.interest))
 p.pref.matrix_temp <- apply(p.pref.matrix, 2, fill_column, max_val=length(s.prefs))
 
