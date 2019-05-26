@@ -965,6 +965,12 @@ server <- function(session, input, output) {
       
       student_preferences <- readRDS("student_preferences.RDS")
       faculty_preferences <- readRDS("faculty_preferences.RDS")
+      if (file.exists("checkboxes.csv")) {
+        checkboxes <- read.csv("checkboxes.csv", as.is=TRUE)
+        checkboxes <- checkboxes[!rev(duplicated(rev(checkboxes$course))),]
+      } else {
+        checkboxes <- NULL
+      }
       
       if (file.exists("Final_assignments.csv")) {
         assignments <- read.csv("Final_assignments.csv", as.is=TRUE)
@@ -1009,16 +1015,22 @@ server <- function(session, input, output) {
       lapply(courses_names, function(x) {
         output[[paste0(x, "_prefs")]] <- renderUI(
           if(clicked$c[[x]]) {
-            text <- paste0(unlist(
-              lapply(faculty_preferences[[x]], function(y) {
-                if (y %in% course_assignments[["unassigned"]]) {
-                  return(paste0("<b>", y, "</b></br>"))
-                } 
-                else if (y %in% course_assignments[[x]]) {
-                  return(paste0("<font color='blue'>", y, "</font></br>"))
-                }
-                else {return(paste0("<del>", y, "</del></br>"))}
-              })))
+            if (x %in% checkboxes$course[checkboxes$no_desire==TRUE]) {
+                text <- "<font color='red'>Professor would not like to hire any of the applicants.</font>"
+            } else if (is.null(faculty_preferences[[x]])) {
+              text <- "Professor has no preference across students."
+            } else {
+              text <- paste0(unlist(
+                lapply(faculty_preferences[[x]], function(y) {
+                  if (y %in% course_assignments[["unassigned"]]) {
+                    return(paste0("<b>", y, "</b></br>"))
+                  } 
+                  else if (y %in% course_assignments[[x]]) {
+                    return(paste0("<font color='blue'>", y, "</font></br>"))
+                  }
+                  else {return(paste0("<del>", y, "</del></br>"))}
+                })))
+            }
             HTML(text)
           }
         )
