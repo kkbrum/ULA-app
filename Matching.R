@@ -33,6 +33,16 @@ get.pin <- function(string) {
 }
 
 
+# Insert NULL values for courses where profs haven't ranked any students, but 
+# submitted blank preferences and students were interested
+insert_null <- function(tmp, desired_length=3) {
+  if (length(tmp) < desired_length) {
+    tmp[length(tmp) + 1] <- list(NULL) 
+  }
+  return(tmp)
+}
+
+
 fill_column <- function(col_values, max_val) {
   not_ranked <- setdiff(seq(1:max_val), na.omit(col_values))
   return(c(na.omit(col_values), sample(not_ranked)))
@@ -122,7 +132,7 @@ if (nrow(courses.nointerest) > 0) {
 ula.interested <- rep(NA, nrow(courses.interest))
 p.pref.matrix <- matrix(ncol=nrow(courses.interest), nrow=nrow(student.mapping))
 for (i in 1:length(p.info)) {
-  info <- eval(parse(text=p.info[i]))
+  info <- insert_null(eval(parse(text=p.info[i])))
   if (info[[1]] %in% courses.interest$course) {
     ula.interested[which(courses.interest$course == info[[1]])] <- info[[2]]
     temp <- rep(NA, nrow(student.mapping))
@@ -130,8 +140,8 @@ for (i in 1:length(p.info)) {
       ifelse(is.null(info[[3]][j]), 
              temp[j] <- NA, 
              temp[j] <- as.numeric(student.mapping$student_number[student.mapping$name == info[[3]][j]]))
+      p.pref.matrix[,courses.interest$course_number[courses.interest$course == info[[1]]]] <- temp
     }
-    p.pref.matrix[,courses.interest$course_number[courses.interest$course == info[[1]]]] <- temp
   }
 }
 
@@ -158,7 +168,7 @@ for (i in empty.cols) {
 faculty_preferences <- list()
 list_names <- rep(NA, length(p.info))
 for (i in 1:length(p.info)) {
-  info <- eval(parse(text=p.info[i]))
+  info <- insert_null(eval(parse(text=p.info[i])))
   list_names[i] <- info[[1]]
   faculty_preferences[[i]] <- info[[3]]
 }
